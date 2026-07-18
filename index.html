@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<!--
+  BỘ CÔNG CỤ QLKH - MODULAR BUILD
+  - 4 module gzip/Base64 được tách sang thư mục modules/.
+  - Giữ nguyên cơ chế lazy load, giải nén gzip và chạy module bằng iframe/srcdoc.
+  - Tối ưu khung ngoài cho Safari/iPhone màn hình dọc và safe area.
+-->
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"
+  >
+  <meta name="color-scheme" content="light only">
+  <meta name="theme-color" content="#075B9A">
+  <title>BỘ CÔNG CỤ QLKH - MODULAR</title>
+
+  <!--
+    Các file dữ liệu phải được tải trước đoạn JavaScript chính ở cuối body.
+    Không dùng defer tại đây để bảo đảm window.*_CHUNKS đã tồn tại khi MODULES được khởi tạo.
+  -->
+  <script src="./modules/qlkh.data.js"></script>
+  <script src="./modules/chitieu.data.js"></script>
+  <script src="./modules/rate.data.js"></script>
+  <script src="./modules/ltv.data.js"></script>
+
+  <style>
+    :root {
+      --blue: #075B9A;
+      --blue-2: #0E78C7;
+      --blue-3: #1F75BC;
+      --cream: #EAF4FF;
+      --paper: #FFFFFF;
+      --line: #C7DDF2;
+      --text: #102A43;
+      --muted: #536779;
+      --shadow: 0 6px 22px rgba(7, 91, 154, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      overscroll-behavior: none;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 0;
+      font-family: "Arial Unicode MS", Arial, sans-serif;
+      font-size: 13.5px;
+      color: var(--text);
+      background: var(--cream);
+      -webkit-text-size-adjust: 100%;
+      touch-action: manipulation;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font-family: inherit;
+    }
+
+    button {
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .app-top {
+      z-index: 100;
+      flex: 0 0 auto;
+      padding-top: env(safe-area-inset-top, 44px);
+      color: #FFFFFF;
+      background: linear-gradient(135deg, var(--blue), var(--blue-2));
+      border-bottom: 3px solid var(--blue-3);
+      box-shadow: 0 3px 14px rgba(7, 91, 154, 0.18);
+    }
+
+    .top-inner {
+      width: 100%;
+      max-width: 1450px;
+      margin: 0 auto;
+      padding: 10px 14px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .logo {
+      display: grid;
+      flex: 0 0 auto;
+      width: 44px;
+      height: 44px;
+      place-items: center;
+      color: #FFFFFF;
+      font-size: 22px;
+      font-weight: 900;
+      background: rgba(255, 255, 255, 0.18);
+      border-radius: 12px;
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 900;
+      line-height: 1.2;
+      letter-spacing: 0.015em;
+      text-transform: uppercase;
+    }
+
+    .subline {
+      margin-top: 3px;
+      font-size: 11.5px;
+      line-height: 1.35;
+      opacity: 0.88;
+    }
+
+    .tabs,
+    .u-tabs {
+      display: flex;
+      gap: 4px;
+      scrollbar-width: none;
+    }
+
+    .tabs::-webkit-scrollbar,
+    .u-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tabs {
+      width: 100%;
+      margin-top: 10px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tab {
+      min-height: 44px;
+      padding: 11px 20px;
+      color: #D9F0FF;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.2;
+      white-space: nowrap;
+      text-align: center;
+      cursor: pointer;
+      background: transparent;
+      border: 0;
+      border-bottom: 3px solid transparent;
+      border-radius: 10px 10px 0 0;
+    }
+
+    .tab.active {
+      color: var(--blue);
+      background: #FFFFFF;
+      border-bottom-color: var(--blue-3);
+    }
+
+    .wrap {
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      width: 100%;
+      max-width: 1450px;
+      min-width: 0;
+      min-height: 0;
+      margin: 0 auto;
+      padding: 8px 8px calc(env(safe-area-inset-bottom, 16px) + 6px);
+      overflow: hidden;
+    }
+
+    .panel,
+    .u-panel {
+      display: none;
+      min-width: 0;
+      min-height: 0;
+    }
+
+    .panel.active {
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+    }
+
+    .card,
+    .utility-shell {
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .card-head,
+    .utility-head,
+    .u-frame-head {
+      flex: 0 0 auto;
+      background: linear-gradient(180deg, #FFFFFF, #F3F9FF);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 12px;
+    }
+
+    .card-title,
+    .u-frame-title {
+      color: var(--blue);
+      font-weight: 900;
+    }
+
+    .card-title {
+      min-width: 0;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .frame-note {
+      flex: 0 0 auto;
+      color: var(--muted);
+      font-size: 11.5px;
+      line-height: 1.35;
+    }
+
+    /*
+      Khung ngoài không cuộn nên không sinh thanh cuộn thứ hai.
+      Việc cuộn dữ liệu được giữ bên trong tài liệu srcdoc của iframe.
+    */
+    .frame-viewport {
+      position: relative;
+      flex: 1 1 auto;
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    iframe {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-width: 0;
+      min-height: 0;
+      overflow: auto;
+      background: #FFFFFF;
+      border: 0;
+      will-change: transform;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .utility-head {
+      padding: 10px 12px;
+    }
+
+    .utility-title {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 9px;
+    }
+
+    .utility-title h2 {
+      color: var(--blue);
+      font-size: 15px;
+      line-height: 1.25;
+    }
+
+    .utility-title p {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 11.8px;
+      line-height: 1.45;
+    }
+
+    .u-tabs {
+      gap: 8px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .u-tab {
+      min-height: 40px;
+      padding: 8px 13px;
+      color: var(--muted);
+      font-size: 12.5px;
+      font-weight: 900;
+      line-height: 1.2;
+      white-space: nowrap;
+      text-align: center;
+      cursor: pointer;
+      background: #FFFFFF;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+    }
+
+    .u-tab.active {
+      color: #FFFFFF;
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+
+    .u-panel.active {
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+    }
+
+    .u-frame-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 12px;
+      background: #FFFFFF;
+    }
+
+    .u-frame-title {
+      min-width: 0;
+      font-size: 13px;
+    }
+
+    .loader {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      margin-right: 7px;
+      vertical-align: -3px;
+      border: 2px solid #D9EDF9;
+      border-top-color: var(--blue);
+      border-radius: 999px;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    #panel-chitieu .card-title {
+      overflow-wrap: anywhere;
+      white-space: normal;
+    }
+
+    @media (max-width: 850px) {
+      .top-inner {
+        padding: 8px 8px 0;
+      }
+
+      .brand-left {
+        width: 100%;
+        align-items: flex-start;
+      }
+
+      .logo {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+        border-radius: 11px;
+      }
+
+      h1 {
+        font-size: 17px;
+      }
+
+      .subline {
+        font-size: 10.8px;
+      }
+
+      .tabs {
+        gap: 2px;
+        overflow: hidden;
+      }
+
+      .tab {
+        flex: 1 1 0;
+        min-width: 0;
+        min-height: 48px;
+        padding: 14px 6px;
+        font-size: 12px;
+        white-space: normal;
+        text-align: center;
+      }
+
+      .wrap {
+        padding-right: 5px;
+        padding-left: 5px;
+      }
+
+      .card-head {
+        gap: 6px;
+        padding: 7px 9px;
+      }
+
+      .card-title {
+        font-size: 12.5px;
+      }
+
+      .utility-head {
+        padding: 8px 9px;
+      }
+
+      .utility-title {
+        margin-bottom: 7px;
+      }
+
+      .utility-title p {
+        display: none;
+      }
+
+      .u-tabs {
+        width: 100%;
+        gap: 6px;
+        overflow: hidden;
+      }
+
+      .u-tab {
+        flex: 1 1 0;
+        min-width: 0;
+        min-height: 44px;
+        padding: 10px 6px;
+        white-space: normal;
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        font-size: 16px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .logo {
+        display: none;
+      }
+
+      h1 {
+        font-size: 16px;
+      }
+
+      .subline {
+        font-size: 10.5px;
+      }
+
+      .tab {
+        padding-right: 3px;
+        padding-left: 3px;
+        font-size: 11.5px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="app-top">
+    <div class="top-inner">
+      <div class="brand">
+        <div class="brand-left">
+          <div class="logo" aria-hidden="true">📊</div>
+          <div>
+            <h1>BỘ CÔNG CỤ QLKH</h1>
+            <div class="subline">QLKH · Chi tiêu · Tiện ích nội bộ</div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="tabs" aria-label="Mục chính">
+        <button type="button" class="tab active" data-tab="qlkh">📊 QLKH</button>
+        <button type="button" class="tab" data-tab="chitieu">💸 CHI TIÊU</button>
+        <button type="button" class="tab" data-tab="tienich">🧰 TIỆN ÍCH</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section id="panel-qlkh" class="panel active" data-panel="qlkh">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">📊 QLKH - Dashboard quản lý khách hàng</div>
+          <div class="frame-note" id="qlkhStatus" aria-live="polite">Đang tải...</div>
+        </div>
+        <div class="frame-viewport">
+          <iframe id="qlkhFrame" title="Dashboard QLKH"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <section id="panel-chitieu" class="panel" data-panel="chitieu">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">💸 CHI TIÊU - Quản lý thẻ, vay, tiết kiệm & chi tiêu</div>
+          <div class="frame-note" id="chitieuStatus" aria-live="polite">Chưa tải</div>
+        </div>
+        <div class="frame-viewport">
+          <iframe id="chitieuFrame" title="Quản lý chi tiêu chung hằng tháng"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <section id="panel-tienich" class="panel" data-panel="tienich">
+      <div class="utility-shell">
+        <div class="utility-head">
+          <div class="utility-title">
+            <div>
+              <h2>🧰 Tiện ích nội bộ</h2>
+              <p>Chọn tiện ích cần dùng. Mỗi tiện ích chạy trong iframe riêng để hạn chế lỗi chéo CSS/JS.</p>
+            </div>
+          </div>
+
+          <div class="u-tabs" aria-label="Tiện ích con">
+            <button type="button" class="u-tab active" data-util="rate">💰 Lãi suất / Phí</button>
+            <button type="button" class="u-tab" data-util="ltv">⚖ LTV / TSBĐ</button>
+          </div>
+        </div>
+
+        <div id="util-rate" class="u-panel active" data-util-panel="rate">
+          <div class="u-frame-head">
+            <div class="u-frame-title">💰 Tra cứu Lãi suất, Cho vay, Phí & Phạt</div>
+            <div class="frame-note" id="rateStatus" aria-live="polite">Chưa tải</div>
+          </div>
+          <div class="frame-viewport">
+            <iframe id="rateFrame" title="Tra cứu lãi suất và phí"></iframe>
+          </div>
+        </div>
+
+        <div id="util-ltv" class="u-panel" data-util-panel="ltv">
+          <div class="u-frame-head">
+            <div class="u-frame-title">⚖ Tra cứu Thẩm quyền & LTV TSBĐ</div>
+            <div class="frame-note" id="ltvStatus" aria-live="polite">Chưa tải</div>
+          </div>
+          <div class="frame-viewport">
+            <iframe id="ltvFrame" title="Tra cứu LTV và tài sản bảo đảm"></iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    "use strict";
+
+    const MODULES = {
+      qlkh: {
+        frameId: "qlkhFrame",
+        statusId: "qlkhStatus",
+        chunks: window.QLKH_CHUNKS,
+        globalName: "QLKH_CHUNKS",
+        loaded: false,
+        loading: null,
+        label: "QLKH",
+        rawBytes: 382527
+      },
+      chitieu: {
+        frameId: "chitieuFrame",
+        statusId: "chitieuStatus",
+        chunks: window.CHITIEU_CHUNKS,
+        globalName: "CHITIEU_CHUNKS",
+        loaded: false,
+        loading: null,
+        label: "Chi tiêu",
+        rawBytes: 235470
+      },
+      rate: {
+        frameId: "rateFrame",
+        statusId: "rateStatus",
+        chunks: window.RATE_CHUNKS,
+        globalName: "RATE_CHUNKS",
+        loaded: false,
+        loading: null,
+        label: "Lãi suất / Phí",
+        rawBytes: 89751
+      },
+      ltv: {
+        frameId: "ltvFrame",
+        statusId: "ltvStatus",
+        chunks: window.LTV_CHUNKS,
+        globalName: "LTV_CHUNKS",
+        loaded: false,
+        loading: null,
+        label: "LTV / TSBĐ",
+        rawBytes: 458439
+      }
+    };
+
+    const FRAME_IDS = Object.values(MODULES).map((module) => module.frameId);
+    let resizeAnimationFrame = 0;
+
+    function setStatus(key, text, spinning = false) {
+      const meta = MODULES[key];
+      const element = meta && document.getElementById(meta.statusId);
+
+      if (!element) {
+        return;
+      }
+
+      element.innerHTML = spinning
+        ? '<span class="loader" aria-hidden="true"></span>' + text
+        : text;
+    }
+
+    function validateChunks(meta) {
+      if (!Array.isArray(meta.chunks) || meta.chunks.length === 0) {
+        throw new Error(
+          "Không tìm thấy dữ liệu " +
+          meta.globalName +
+          ". Kiểm tra file modules/ và đường dẫn script trong thẻ <head>."
+        );
+      }
+    }
+
+    function base64ChunksToBytes(chunks) {
+      const binary = atob(chunks.join(""));
+      const bytes = new Uint8Array(binary.length);
+
+      for (let index = 0; index < binary.length; index += 1) {
+        bytes[index] = binary.charCodeAt(index);
+      }
+
+      return bytes;
+    }
+
+    async function decodeGzipBase64Utf8(chunks) {
+      if (!("DecompressionStream" in window)) {
+        throw new Error(
+          "Trình duyệt chưa hỗ trợ giải nén gzip. Hãy cập nhật Chrome hoặc Safari lên phiên bản mới."
+        );
+      }
+
+      const compressedBytes = base64ChunksToBytes(chunks);
+      const decompressedStream = new Blob([compressedBytes])
+        .stream()
+        .pipeThrough(new DecompressionStream("gzip"));
+
+      return new Response(decompressedStream).text();
+    }
+
+    function isPortraitPhone() {
+      return (
+        window.innerHeight > window.innerWidth &&
+        window.innerWidth < 500
+      );
+    }
+
+    function applyIframeScale() {
+      const compactPortrait = isPortraitPhone();
+
+      FRAME_IDS.forEach((frameId) => {
+        const frame = document.getElementById(frameId);
+
+        if (!frame) {
+          return;
+        }
+
+        if (compactPortrait) {
+          frame.style.width = "118%";
+          frame.style.height = "118%";
+          frame.style.transform = "scale(0.85)";
+          frame.style.transformOrigin = "top left";
+        } else {
+          frame.style.width = "100%";
+          frame.style.height = "100%";
+          frame.style.transform = "none";
+          frame.style.transformOrigin = "top left";
+        }
+      });
+    }
+
+    function scheduleIframeScale() {
+      cancelAnimationFrame(resizeAnimationFrame);
+      resizeAnimationFrame = requestAnimationFrame(applyIframeScale);
+    }
+
+    function optimizeIframeScrolling(frame) {
+      /*
+        srcdoc cùng origin với trang cha nên có thể bổ sung thuộc tính cuộn iOS.
+        Không thay đổi công thức, dữ liệu hoặc logic nghiệp vụ của module.
+      */
+      try {
+        const frameDocument = frame.contentDocument;
+
+        if (!frameDocument || !frameDocument.documentElement) {
+          return;
+        }
+
+        frameDocument.documentElement.style.overscrollBehavior = "contain";
+
+        if (frameDocument.body) {
+          frameDocument.body.style.overscrollBehavior = "contain";
+          frameDocument.body.style.webkitOverflowScrolling = "touch";
+        }
+      } catch (error) {
+        console.warn("Không thể áp dụng tối ưu cuộn cho iframe:", error);
+      }
+    }
+
+    function releaseCompressedData(meta) {
+      meta.chunks = null;
+
+      if (meta.globalName in window) {
+        window[meta.globalName] = null;
+      }
+    }
+
+    async function loadModule(key) {
+      const meta = MODULES[key];
+
+      if (!meta) {
+        return;
+      }
+
+      const frame = document.getElementById(meta.frameId);
+
+      if (!frame || meta.loaded) {
+        return;
+      }
+
+      if (meta.loading) {
+        return meta.loading;
+      }
+
+      meta.loading = (async () => {
+        try {
+          validateChunks(meta);
+          setStatus(key, "Đang tải " + meta.label + "...", true);
+
+          // Nhường một frame để khung giao diện hiển thị trước khi giải nén.
+          await new Promise((resolve) => {
+            requestAnimationFrame(resolve);
+          });
+
+          const moduleHtml = await decodeGzipBase64Utf8(meta.chunks);
+
+          frame.onload = () => {
+            optimizeIframeScrolling(frame);
+            applyIframeScale();
+            setStatus(key, "Đã tải");
+          };
+
+          frame.srcdoc = moduleHtml;
+          meta.loaded = true;
+
+          // Chỉ giải phóng dữ liệu nén sau khi đã gán srcdoc thành công.
+          releaseCompressedData(meta);
+        } catch (error) {
+          console.error("Không tải được module:", key, error);
+          setStatus(key, "Lỗi tải module");
+
+          const message = String(
+            (error && error.message) || error || "Lỗi không xác định"
+          );
+
+          frame.srcdoc =
+            '<!DOCTYPE html><html lang="vi"><meta charset="UTF-8">' +
+            '<body style="font-family:Arial,sans-serif;padding:24px;color:#B91C1C">' +
+            "Không tải được module " +
+            meta.label +
+            ": " +
+            message.replace(/[<>&"]/g, (character) => ({
+              "<": "&lt;",
+              ">": "&gt;",
+              "&": "&amp;",
+              '"': "&quot;"
+            })[character]) +
+            "</body></html>";
+        } finally {
+          meta.loading = null;
+        }
+      })();
+
+      return meta.loading;
+    }
+
+    function activateButtons(selector, dataAttribute, value) {
+      document.querySelectorAll(selector).forEach((button) => {
+        button.classList.toggle(
+          "active",
+          button.dataset[dataAttribute] === value
+        );
+      });
+    }
+
+    function showMain(tab) {
+      document.querySelectorAll(".panel").forEach((panel) => {
+        panel.classList.toggle("active", panel.dataset.panel === tab);
+      });
+
+      activateButtons(".tab", "tab", tab);
+
+      if (tab === "qlkh") {
+        loadModule("qlkh");
+      } else if (tab === "chitieu") {
+        loadModule("chitieu");
+      } else if (tab === "tienich") {
+        const activeUtility =
+          document.querySelector(".u-tab.active")?.dataset.util || "rate";
+        showUtility(activeUtility);
+      }
+
+      scheduleIframeScale();
+    }
+
+    function showUtility(utility) {
+      document.querySelectorAll(".u-panel").forEach((panel) => {
+        panel.classList.toggle(
+          "active",
+          panel.dataset.utilPanel === utility
+        );
+      });
+
+      activateButtons(".u-tab", "util", utility);
+
+      if (utility === "rate") {
+        loadModule("rate");
+      } else if (utility === "ltv") {
+        loadModule("ltv");
+      }
+
+      scheduleIframeScale();
+    }
+
+    function bindInterfaceEvents() {
+      document.querySelectorAll(".tab").forEach((button) => {
+        button.addEventListener("click", () => {
+          showMain(button.dataset.tab);
+        });
+      });
+
+      document.querySelectorAll(".u-tab").forEach((button) => {
+        button.addEventListener("click", () => {
+          showUtility(button.dataset.util);
+        });
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      bindInterfaceEvents();
+      applyIframeScale();
+      requestAnimationFrame(() => loadModule("qlkh"));
+    });
+
+    window.addEventListener("resize", scheduleIframeScale, { passive: true });
+    window.addEventListener("orientationchange", scheduleIframeScale, {
+      passive: true
+    });
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener(
+        "resize",
+        scheduleIframeScale,
+        { passive: true }
+      );
+    }
+  </script>
+</body>
+</html>
