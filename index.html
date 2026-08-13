@@ -538,7 +538,7 @@
     <section id="panel-chitieu" class="panel" data-panel="chitieu">
       <div class="card">
         <div class="card-head">
-          <div class="card-title">💸 CHI TIÊU <span class="version-badge">V98.20</span> - Quản lý thẻ, vay, tiết kiệm & chi tiêu</div>
+          <div class="card-title">💸 CHI TIÊU <span class="version-badge">V98.21</span> - Quản lý thẻ, vay, tiết kiệm & chi tiêu</div>
           <div class="frame-note" id="chitieuStatus" aria-live="polite">Chưa tải</div>
         </div>
         <div class="frame-viewport">
@@ -610,12 +610,12 @@
         frameId: "chitieuFrame",
         statusId: "chitieuStatus",
         chunks: null,
-        src: "./modules/chitieu.data.js?v=9820",
+        src: "./modules/chitieu.data.js?v=9821",
         globalName: "CHITIEU_CHUNKS",
         loaded: false,
         loading: null,
         label: "Chi tiêu",
-        rawBytes: 301371
+        rawBytes: 326054
       },
       rate: {
         frameId: "rateFrame",
@@ -652,8 +652,8 @@
       const subline = document.querySelector(".brand .subline");
       const cardTitle = document.querySelector("#panel-chitieu .card-title");
       if (heading) heading.textContent = "QUỸ CHUNG · ÁNH & DUY";
-      if (subline) subline.textContent = "Xem công khai · Đăng nhập để chỉnh sửa";
-      if (cardTitle) cardTitle.textContent = "💰 QUỸ CHUNG · Đồng bộ Firebase realtime";
+      if (subline) subline.textContent = "Bắt buộc đăng nhập · Chỉ hai tài khoản được cấp quyền";
+      if (cardTitle) cardTitle.textContent = "🔐 QUỸ CHUNG · Dữ liệu được bảo vệ";
       document.querySelectorAll(".panel").forEach((panel) => {
         panel.classList.toggle("active", panel.dataset.panel === "chitieu");
       });

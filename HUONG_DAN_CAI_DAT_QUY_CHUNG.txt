@@ -1,4 +1,4 @@
-HƯỚNG DẪN CÀI ĐẶT QUỸ CHUNG V98.20
+HƯỚNG DẪN CÀI ĐẶT QUỸ CHUNG V98.21
 ===================================
 
 1. CẤU TRÚC FILE GITHUB
@@ -16,18 +16,24 @@ Không đổi tên thư mục "modules".
 2. CẬP NHẬT FIRESTORE RULES
 ---------------------------
 - Mở Firebase Console của project: chitieu-81db8.
+- Vào Authentication > Users và đối chiếu đúng hai UID bên dưới trước khi làm tiếp.
 - Chọn Firestore Database > Rules.
-- Dán nội dung file firestore.rules và bấm Publish.
+- Chỉ dán file FIRESTORE_RULES_CHITIEU-81db8.rules và bấm Publish.
+- KIỂM TRA TÊN PROJECT TRÊN ĐẦU TRANG PHẢI LÀ chitieu-81db8.
+- Tuyệt đối không dán file này vào project qlkh-c3298.
 - Nếu project này còn chứa collection khác đang sử dụng, cần ghép rule tương ứng
   trước dòng chặn mặc định; không xóa rule cần thiết của ứng dụng khác.
 
 Quyền đã cài:
-- UID chủ sở hữu: uMrJ5Ko2ihTeFV5YZVhtxcq3giq2
-- UID Kim Anh: GzOWMYLoR0bXcMkLX24XytIYAwn1
+- UID chủ sở hữu: Cy2CFJ79Kvf6Sy7hiSbcFLWflCe2
+- UID Kim Anh: 6kBqCB5jucQb4rsFVjexKFObTu13
 - Dữ liệu đầy đủ chỉ UID chủ sở hữu đọc/ghi được.
-- Quỹ chung cho phép xem công khai.
-- Chỉ hai UID trên được thêm, sửa và xóa dòng dữ liệu Quỹ chung.
+- Quỹ chung bắt buộc đăng nhập; người chưa đăng nhập không được đọc dữ liệu.
+- Chỉ hai UID trên được xem, thêm, sửa và xóa dòng dữ liệu Quỹ chung.
 - Không tài khoản nào được xóa nguyên document Quỹ chung.
+
+Nếu UID trong Authentication khác dù chỉ một ký tự, dừng lại và không Publish
+Rules cho đến khi đã sửa UID trong cả module Chi tiêu và file Rules.
 
 3. ĐĂNG NHẬP LẦN ĐẦU VÀ KHỞI TẠO DỮ LIỆU
 -----------------------------------------
@@ -50,9 +56,9 @@ Ví dụ:
 https://TEN_GITHUB.github.io/TEN_REPO/index.html?view=quy-chung
 
 Người chưa đăng nhập:
-- Chỉ thấy Quỹ chung.
+- Chỉ thấy màn hình yêu cầu đăng nhập, không thấy dữ liệu Quỹ chung.
 - Không thấy QLKH, Chi tiêu cá nhân, Thẻ, Khoản vay, LTV hoặc Lãi suất.
-- Xem dữ liệu realtime nhưng không có nút thêm/sửa/xóa.
+- Ứng dụng không gửi yêu cầu đọc dữ liệu Quỹ chung tới Firestore.
 
 Kim Anh đăng nhập bằng email phamlekimanh056@gmail.com:
 - Được thêm, sửa và xóa các dòng Quỹ chung.
@@ -61,8 +67,8 @@ Kim Anh đăng nhập bằng email phamlekimanh056@gmail.com:
 5. KIỂM TRA SAU KHI TRIỂN KHAI
 ------------------------------
 A. Mở link Quỹ chung ở cửa sổ ẩn danh:
-   - Chỉ thấy tab Quỹ chung.
-   - Không sửa được dữ liệu.
+   - Chỉ thấy màn hình "Quỹ chung được bảo vệ".
+   - Không thấy số dư, bảng Ánh/Duy, khoản chi, hụi hoặc ghi chú.
 
 B. Đăng nhập tài khoản Kim Anh:
    - Nút thêm và xóa xuất hiện.
@@ -74,7 +80,7 @@ C. Mở module Chi tiêu bằng tài khoản chủ sở hữu trên thiết bị
 
 6. LƯU Ý AN TOÀN
 -----------------
-- Link Quỹ chung là công khai: bất kỳ ai có link đều xem được dữ liệu Quỹ chung.
+- Ai có link nhưng chưa đăng nhập đúng tài khoản vẫn không xem được dữ liệu.
 - Firebase config trong JavaScript không phải mật khẩu; Firestore Rules mới là lớp
   bảo vệ bắt buộc.
 - Không đổi hai UID trong mã hoặc Rules nếu chưa cập nhật đồng thời cả hai nơi.
