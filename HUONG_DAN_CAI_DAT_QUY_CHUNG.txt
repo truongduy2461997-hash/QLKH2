@@ -1,0 +1,82 @@
+HƯỚNG DẪN CÀI ĐẶT QUỸ CHUNG V98.20
+===================================
+
+1. CẤU TRÚC FILE GITHUB
+-----------------------
+Đưa nguyên cấu trúc sau lên GitHub Pages:
+
+index.html
+modules/qlkh.data.js
+modules/chitieu.data.js
+modules/rate.data.js
+modules/ltv.data.js
+
+Không đổi tên thư mục "modules".
+
+2. CẬP NHẬT FIRESTORE RULES
+---------------------------
+- Mở Firebase Console của project: chitieu-81db8.
+- Chọn Firestore Database > Rules.
+- Dán nội dung file firestore.rules và bấm Publish.
+- Nếu project này còn chứa collection khác đang sử dụng, cần ghép rule tương ứng
+  trước dòng chặn mặc định; không xóa rule cần thiết của ứng dụng khác.
+
+Quyền đã cài:
+- UID chủ sở hữu: uMrJ5Ko2ihTeFV5YZVhtxcq3giq2
+- UID Kim Anh: GzOWMYLoR0bXcMkLX24XytIYAwn1
+- Dữ liệu đầy đủ chỉ UID chủ sở hữu đọc/ghi được.
+- Quỹ chung cho phép xem công khai.
+- Chỉ hai UID trên được thêm, sửa và xóa dòng dữ liệu Quỹ chung.
+- Không tài khoản nào được xóa nguyên document Quỹ chung.
+
+3. ĐĂNG NHẬP LẦN ĐẦU VÀ KHỞI TẠO DỮ LIỆU
+-----------------------------------------
+- Mở link chính: https://TEN_GITHUB.github.io/TEN_REPO/index.html
+- Vào module Chi tiêu.
+- Bấm "Đăng nhập Cloud" và đăng nhập tài khoản chủ sở hữu.
+- Chờ trạng thái "Cloud riêng tư ✓".
+- Ứng dụng sẽ tự tạo shared_funds/quy_chung_duy_anh từ dữ liệu Quỹ chung hiện có.
+
+Lưu ý: Không gửi mật khẩu cho người khác. Mỗi người dùng đúng tài khoản Firebase
+của mình. Phiên đăng nhập được ghi nhớ trên thiết bị.
+
+4. LINK GỬI CHO NGƯỜI KHÁC
+--------------------------
+Gắn tham số sau vào cuối link GitHub Pages:
+
+?view=quy-chung
+
+Ví dụ:
+https://TEN_GITHUB.github.io/TEN_REPO/index.html?view=quy-chung
+
+Người chưa đăng nhập:
+- Chỉ thấy Quỹ chung.
+- Không thấy QLKH, Chi tiêu cá nhân, Thẻ, Khoản vay, LTV hoặc Lãi suất.
+- Xem dữ liệu realtime nhưng không có nút thêm/sửa/xóa.
+
+Kim Anh đăng nhập bằng email phamlekimanh056@gmail.com:
+- Được thêm, sửa và xóa các dòng Quỹ chung.
+- Dữ liệu đồng bộ realtime về module Chi tiêu của chủ sở hữu.
+
+5. KIỂM TRA SAU KHI TRIỂN KHAI
+------------------------------
+A. Mở link Quỹ chung ở cửa sổ ẩn danh:
+   - Chỉ thấy tab Quỹ chung.
+   - Không sửa được dữ liệu.
+
+B. Đăng nhập tài khoản Kim Anh:
+   - Nút thêm và xóa xuất hiện.
+   - Thử thêm một dòng ghi chú rồi chờ trạng thái realtime.
+
+C. Mở module Chi tiêu bằng tài khoản chủ sở hữu trên thiết bị khác:
+   - Dòng vừa thêm phải xuất hiện tự động.
+   - Các tab Thẻ, Khoản vay và Chi tiêu cá nhân vẫn chỉ lấy từ document riêng.
+
+6. LƯU Ý AN TOÀN
+-----------------
+- Link Quỹ chung là công khai: bất kỳ ai có link đều xem được dữ liệu Quỹ chung.
+- Firebase config trong JavaScript không phải mật khẩu; Firestore Rules mới là lớp
+  bảo vệ bắt buộc.
+- Không đổi hai UID trong mã hoặc Rules nếu chưa cập nhật đồng thời cả hai nơi.
+- Hai người có thể sửa realtime. Ứng dụng gắn ID và thời gian cho từng dòng để hợp
+  nhất thay đổi; tránh cùng sửa đúng một ô vào cùng một thời điểm.

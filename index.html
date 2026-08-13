@@ -19,14 +19,7 @@
   <meta name="theme-color" content="#075B9A">
   <title>BỘ CÔNG CỤ QLKH - MODULAR</title>
 
-  <!--
-    Các file dữ liệu phải được tải trước đoạn JavaScript chính ở cuối body.
-    Không dùng defer tại đây để bảo đảm window.*_CHUNKS đã tồn tại khi MODULES được khởi tạo.
-  -->
-  <script src="./modules/qlkh.data.js"></script>
-  <script src="./modules/chitieu.data.js?v=95"></script>
-  <script src="./modules/rate.data.js"></script>
-  <script src="./modules/ltv.data.js"></script>
+  <!-- Module được nạp động. Link Quỹ chung không tải mã QLKH, LTV hoặc Lãi suất. -->
 
   <style>
     :root {
@@ -487,6 +480,24 @@
         font-size: 11.5px;
       }
     }
+
+    body.shared-fund-shell .tabs,
+    body.shared-fund-shell #panel-qlkh,
+    body.shared-fund-shell #panel-tienich {
+      display: none !important;
+    }
+
+    body.shared-fund-shell #panel-chitieu {
+      display: flex !important;
+    }
+
+    body.shared-fund-shell .top-inner {
+      padding-bottom: 10px;
+    }
+
+    body.shared-fund-shell .wrap {
+      padding-top: 6px;
+    }
   </style>
 </head>
 
@@ -527,7 +538,7 @@
     <section id="panel-chitieu" class="panel" data-panel="chitieu">
       <div class="card">
         <div class="card-head">
-          <div class="card-title">💸 CHI TIÊU <span class="version-badge">V95</span> - Quản lý thẻ, vay, tiết kiệm & chi tiêu</div>
+          <div class="card-title">💸 CHI TIÊU <span class="version-badge">V98.20</span> - Quản lý thẻ, vay, tiết kiệm & chi tiêu</div>
           <div class="frame-note" id="chitieuStatus" aria-live="polite">Chưa tải</div>
         </div>
         <div class="frame-viewport">
@@ -578,11 +589,17 @@
   <script>
     "use strict";
 
+    const SHARE_MODE = (() => {
+      const view = String(new URLSearchParams(window.location.search).get("view") || "").toLowerCase();
+      return view === "quy-chung" || view === "quychung" || view === "shared-fund";
+    })();
+
     const MODULES = {
       qlkh: {
         frameId: "qlkhFrame",
         statusId: "qlkhStatus",
-        chunks: window.QLKH_CHUNKS,
+        chunks: null,
+        src: "./modules/qlkh.data.js",
         globalName: "QLKH_CHUNKS",
         loaded: false,
         loading: null,
@@ -592,17 +609,19 @@
       chitieu: {
         frameId: "chitieuFrame",
         statusId: "chitieuStatus",
-        chunks: window.CHITIEU_CHUNKS,
+        chunks: null,
+        src: "./modules/chitieu.data.js?v=9820",
         globalName: "CHITIEU_CHUNKS",
         loaded: false,
         loading: null,
         label: "Chi tiêu",
-        rawBytes: 235470
+        rawBytes: 301371
       },
       rate: {
         frameId: "rateFrame",
         statusId: "rateStatus",
-        chunks: window.RATE_CHUNKS,
+        chunks: null,
+        src: "./modules/rate.data.js",
         globalName: "RATE_CHUNKS",
         loaded: false,
         loading: null,
@@ -612,7 +631,8 @@
       ltv: {
         frameId: "ltvFrame",
         statusId: "ltvStatus",
-        chunks: window.LTV_CHUNKS,
+        chunks: null,
+        src: "./modules/ltv.data.js",
         globalName: "LTV_CHUNKS",
         loaded: false,
         loading: null,
@@ -623,6 +643,21 @@
 
     const FRAME_IDS = Object.values(MODULES).map((module) => module.frameId);
     let resizeAnimationFrame = 0;
+
+    function configureViewMode() {
+      if (!SHARE_MODE) return;
+      document.body.classList.add("shared-fund-shell");
+      document.title = "Quỹ chung · Ánh & Duy";
+      const heading = document.querySelector(".brand h1");
+      const subline = document.querySelector(".brand .subline");
+      const cardTitle = document.querySelector("#panel-chitieu .card-title");
+      if (heading) heading.textContent = "QUỸ CHUNG · ÁNH & DUY";
+      if (subline) subline.textContent = "Xem công khai · Đăng nhập để chỉnh sửa";
+      if (cardTitle) cardTitle.textContent = "💰 QUỸ CHUNG · Đồng bộ Firebase realtime";
+      document.querySelectorAll(".panel").forEach((panel) => {
+        panel.classList.toggle("active", panel.dataset.panel === "chitieu");
+      });
+    }
 
     function setStatus(key, text, spinning = false) {
       const meta = MODULES[key];
@@ -645,6 +680,25 @@
           ". Kiểm tra file modules/ và đường dẫn script trong thẻ <head>."
         );
       }
+    }
+
+    function ensureModuleData(meta) {
+      if (Array.isArray(meta.chunks) && meta.chunks.length) {
+        return Promise.resolve();
+      }
+      if (meta.scriptLoading) return meta.scriptLoading;
+      meta.scriptLoading = new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = meta.src;
+        script.async = true;
+        script.onload = () => {
+          meta.chunks = window[meta.globalName];
+          resolve();
+        };
+        script.onerror = () => reject(new Error("Không tải được " + meta.src));
+        document.head.appendChild(script);
+      });
+      return meta.scriptLoading;
     }
 
     function base64ChunksToBytes(chunks) {
@@ -759,6 +813,7 @@
 
       meta.loading = (async () => {
         try {
+          await ensureModuleData(meta);
           validateChunks(meta);
           setStatus(key, "Đang tải " + meta.label + "...", true);
 
@@ -819,6 +874,7 @@
     }
 
     function showMain(tab) {
+      if (SHARE_MODE && tab !== "chitieu") return;
       document.querySelectorAll(".panel").forEach((panel) => {
         panel.classList.toggle("active", panel.dataset.panel === tab);
       });
@@ -872,9 +928,10 @@
     }
 
     window.addEventListener("DOMContentLoaded", () => {
+      configureViewMode();
       bindInterfaceEvents();
       applyIframeScale();
-      requestAnimationFrame(() => loadModule("qlkh"));
+      requestAnimationFrame(() => loadModule(SHARE_MODE ? "chitieu" : "qlkh"));
     });
 
     window.addEventListener("resize", scheduleIframeScale, { passive: true });
