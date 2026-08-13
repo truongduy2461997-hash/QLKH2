@@ -1,4 +1,4 @@
-HƯỚNG DẪN CÀI ĐẶT QUỸ CHUNG V98.21
+HƯỚNG DẪN CÀI ĐẶT QUỸ CHUNG V98.22
 ===================================
 
 1. CẤU TRÚC FILE GITHUB
@@ -30,23 +30,40 @@ Quyền đã cài:
 - Dữ liệu đầy đủ chỉ UID chủ sở hữu đọc/ghi được.
 - Quỹ chung bắt buộc đăng nhập; người chưa đăng nhập không được đọc dữ liệu.
 - Chỉ hai UID trên được xem, thêm, sửa và xóa dòng dữ liệu Quỹ chung.
+- Chỉ chủ sở hữu được tạo document lần đầu hoặc phục hồi từ Excel.
 - Không tài khoản nào được xóa nguyên document Quỹ chung.
 
 Nếu UID trong Authentication khác dù chỉ một ký tự, dừng lại và không Publish
 Rules cho đến khi đã sửa UID trong cả module Chi tiêu và file Rules.
 
-3. ĐĂNG NHẬP LẦN ĐẦU VÀ KHỞI TẠO DỮ LIỆU
+3. KHO DỮ LIỆU CỐ ĐỊNH DÙNG CHO MỌI PHIÊN BẢN
+------------------------------------------------
+- Mọi phiên bản đều đọc/ghi cùng một đường dẫn:
+  shared_funds/quy_chung_duy_anh
+- Không thêm số phiên bản vào collection, document hoặc khóa dữ liệu.
+- V98.22 tự nối dữ liệu Quỹ chung còn trong document Chi tiêu riêng sang đường
+  dẫn cố định nếu document chia sẻ cũ chưa được khởi tạo đúng.
+- Document rỗng không được tự động ghi lên Firebase, tránh bản mới hoặc trình
+  duyệt mới ghi đè dữ liệu thật bằng danh sách trống.
+
+4. ĐĂNG NHẬP LẦN ĐẦU VÀ PHỤC HỒI DỮ LIỆU
 -----------------------------------------
 - Mở link chính: https://TEN_GITHUB.github.io/TEN_REPO/index.html
 - Vào module Chi tiêu.
 - Bấm "Đăng nhập Cloud" và đăng nhập tài khoản chủ sở hữu.
 - Chờ trạng thái "Cloud riêng tư ✓".
-- Ứng dụng sẽ tự tạo shared_funds/quy_chung_duy_anh từ dữ liệu Quỹ chung hiện có.
+- Nếu dữ liệu cũ còn trong Firebase Chi tiêu, ứng dụng tự nối sang kho cố định.
+- Nếu Quỹ chung vẫn trống, vào tab Quỹ chung và bấm
+  "Khôi phục Quỹ chung từ Excel".
+- Chọn file "Chi tiêu Tháng 8.xlsx". Chỉ xác nhận khi bảng xem trước hiện:
+  Ánh 17 trđ; Duy 17 trđ; đã dùng 20 trđ; chi tiết hụi 14,4 trđ; 2 dây hụi.
+- Ghi chú tự do được để trống theo lựa chọn của chủ sở hữu.
+- Ứng dụng lưu bản dữ liệu trước phục hồi trên trình duyệt rồi mới ghi Firebase.
 
 Lưu ý: Không gửi mật khẩu cho người khác. Mỗi người dùng đúng tài khoản Firebase
 của mình. Phiên đăng nhập được ghi nhớ trên thiết bị.
 
-4. LINK GỬI CHO NGƯỜI KHÁC
+5. LINK GỬI CHO NGƯỜI KHÁC
 --------------------------
 Gắn tham số sau vào cuối link GitHub Pages:
 
@@ -64,7 +81,7 @@ Kim Anh đăng nhập bằng email phamlekimanh056@gmail.com:
 - Được thêm, sửa và xóa các dòng Quỹ chung.
 - Dữ liệu đồng bộ realtime về module Chi tiêu của chủ sở hữu.
 
-5. KIỂM TRA SAU KHI TRIỂN KHAI
+6. KIỂM TRA SAU KHI TRIỂN KHAI
 ------------------------------
 A. Mở link Quỹ chung ở cửa sổ ẩn danh:
    - Chỉ thấy màn hình "Quỹ chung được bảo vệ".
@@ -78,11 +95,17 @@ C. Mở module Chi tiêu bằng tài khoản chủ sở hữu trên thiết bị
    - Dòng vừa thêm phải xuất hiện tự động.
    - Các tab Thẻ, Khoản vay và Chi tiêu cá nhân vẫn chỉ lấy từ document riêng.
 
-6. LƯU Ý AN TOÀN
+D. Kiểm tra tính liên tục phiên bản:
+   - Mở V98.22, thêm một dòng thử và chờ trạng thái realtime.
+   - Mở lại cùng link sau khi thay module bằng phiên bản mới hơn.
+   - Dòng thử phải còn nguyên vì mọi phiên bản dùng cùng document cố định.
+
+7. LƯU Ý AN TOÀN
 -----------------
 - Ai có link nhưng chưa đăng nhập đúng tài khoản vẫn không xem được dữ liệu.
 - Firebase config trong JavaScript không phải mật khẩu; Firestore Rules mới là lớp
   bảo vệ bắt buộc.
 - Không đổi hai UID trong mã hoặc Rules nếu chưa cập nhật đồng thời cả hai nơi.
+- Không đổi đường dẫn shared_funds/quy_chung_duy_anh ở các phiên bản sau.
 - Hai người có thể sửa realtime. Ứng dụng gắn ID và thời gian cho từng dòng để hợp
   nhất thay đổi; tránh cùng sửa đúng một ô vào cùng một thời điểm.
