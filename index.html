@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <!--
   BỘ CÔNG CỤ QLKH - MODULAR BUILD
+  - v3.1 (19/08/2026): cập nhật FTP TB 4805 và 112 mẫu xe của 8 hãng mới.
+  - Gắn phiên bản vào URL module để trình duyệt không dùng dữ liệu cũ trong cache.
   - 4 module gzip/Base64 được tách sang thư mục modules/.
   - Giữ nguyên cơ chế lazy load, giải nén gzip và chạy module bằng iframe/srcdoc.
   - Tối ưu khung ngoài cho Safari/iPhone màn hình dọc và safe area.
@@ -621,7 +623,7 @@
         frameId: "rateFrame",
         statusId: "rateStatus",
         chunks: null,
-        src: "./modules/rate.data.js",
+        src: "./modules/rate.data.js?v=20260819-4805",
         globalName: "RATE_CHUNKS",
         loaded: false,
         loading: null,
@@ -632,7 +634,7 @@
         frameId: "ltvFrame",
         statusId: "ltvStatus",
         chunks: null,
-        src: "./modules/ltv.data.js",
+        src: "./modules/ltv.data.js?v=20260819-31",
         globalName: "LTV_CHUNKS",
         loaded: false,
         loading: null,
