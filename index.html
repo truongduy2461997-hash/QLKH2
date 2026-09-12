@@ -376,19 +376,6 @@
     }
 
     @media (max-width: 850px) {
-      #panel-qlkh.active,
-      #panel-qlkh .card,
-      #panel-qlkh .frame-viewport {
-        height: 100%;
-        min-height: 0;
-      }
-
-      #qlkhFrame {
-        width: 100% !important;
-        height: 100% !important;
-        transform: none !important;
-      }
-
       .top-inner {
         padding: 8px 8px 0;
       }
@@ -541,7 +528,7 @@
     <section id="panel-qlkh" class="panel active" data-panel="qlkh">
       <div class="card">
         <div class="card-head">
-          <div class="card-title">📊 QLKH <span class="version-badge">V98.6</span> - Dashboard quản lý khách hàng</div>
+          <div class="card-title">📊 QLKH - Dashboard quản lý khách hàng</div>
           <div class="frame-note" id="qlkhStatus" aria-live="polite">Đang tải...</div>
         </div>
         <div class="frame-viewport">
@@ -553,7 +540,7 @@
     <section id="panel-chitieu" class="panel" data-panel="chitieu">
       <div class="card">
         <div class="card-head">
-          <div class="card-title">💸 CHI TIÊU <span class="version-badge">V98.23</span> - Quản lý thẻ, vay, tiết kiệm & chi tiêu</div>
+          <div class="card-title">💸 CHI TIÊU <span class="version-badge">V98.25</span> - Quản lý thẻ, vay, tiết kiệm & chi tiêu</div>
           <div class="frame-note" id="chitieuStatus" aria-live="polite">Chưa tải</div>
         </div>
         <div class="frame-viewport">
@@ -614,12 +601,12 @@
         frameId: "qlkhFrame",
         statusId: "qlkhStatus",
         chunks: null,
-        src: "./modules/qlkh.data.js?v=986",
+        src: "./modules/qlkh.data.js",
         globalName: "QLKH_CHUNKS",
         loaded: false,
         loading: null,
         label: "QLKH",
-        rawBytes: 432570
+        rawBytes: 382527
       },
       chitieu: {
         frameId: "chitieuFrame",
@@ -759,7 +746,7 @@
           return;
         }
 
-        if (compactPortrait && frameId !== "qlkhFrame") {
+        if (compactPortrait) {
           frame.style.width = "118%";
           frame.style.height = "118%";
           frame.style.transform = "scale(0.85)";
