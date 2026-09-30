@@ -601,12 +601,12 @@
         frameId: "qlkhFrame",
         statusId: "qlkhStatus",
         chunks: null,
-        src: "./modules/qlkh.data.js?v=993-principal-fix-20260930",
+        src: "./modules/qlkh.data.js?v=994-force-principal",
         globalName: "QLKH_CHUNKS",
         loaded: false,
         loading: null,
         label: "QLKH",
-        rawBytes: 424217
+        rawBytes: 435177
       },
       chitieu: {
         frameId: "chitieuFrame",
@@ -691,7 +691,7 @@
       if (meta.scriptLoading) return meta.scriptLoading;
       meta.scriptLoading = new Promise((resolve, reject) => {
         const script = document.createElement("script");
-        script.src = meta.src;
+        script.src = meta.src + (meta.src.includes("?") ? "&" : "?") + "_cb=" + Date.now();
         script.async = true;
         script.onload = () => {
           meta.chunks = window[meta.globalName];
