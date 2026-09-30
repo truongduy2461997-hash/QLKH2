@@ -601,7 +601,7 @@
         frameId: "qlkhFrame",
         statusId: "qlkhStatus",
         chunks: null,
-        src: "./modules/qlkh.v995.data.js?build=20260930-1506",
+        src: "./modules/qlkh.v996.data.js?build=20260930-1515",
         globalName: "QLKH_CHUNKS",
         loaded: false,
         loading: null,
@@ -691,7 +691,7 @@
       if (meta.scriptLoading) return meta.scriptLoading;
       meta.scriptLoading = new Promise((resolve, reject) => {
         const script = document.createElement("script");
-        script.src = meta.src + (meta.src.includes("?") ? "&" : "?") + "_cb=" + Date.now();
+        script.src = meta.src;
         script.async = true;
         script.onload = () => {
           meta.chunks = window[meta.globalName];
