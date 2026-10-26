@@ -1,143 +1,460 @@
-<!-- Đồng bộ Firebase hai chiều (Khôi phục dòng ẩn & Hoàn tác chuẩn xác) -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>QLKH Firebase Sync</title>
+
+<style>
+body{
+    font-family:Arial,sans-serif;
+}
+
+#firebaseSyncStatus{
+    position:fixed;
+    right:12px;
+    bottom:12px;
+    z-index:999999;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 14px;
+    border-radius:999px;
+    background:rgba(255,255,255,.95);
+    border:1px solid rgba(148,163,184,.25);
+    box-shadow:0 4px 16px rgba(15,23,42,.15);
+    font-size:12px;
+    font-weight:600;
+    color:#334155;
+    cursor:pointer;
+    backdrop-filter:blur(8px);
+}
+
+.sync-dot{
+    width:9px;
+    height:9px;
+    border-radius:50%;
+    background:#94A3B8;
+}
+</style>
+</head>
+
+<body>
+
+<!-- PANEL CHỨA QLKH -->
+<div id="panel-qlkh">
+
+    <!--
+    Đặt đường dẫn iframe của bạn tại đây
+    Ví dụ:
+    <iframe id="qlkhFrame" src="qlkh.html"></iframe>
+    -->
+
+    <iframe
+        id="qlkhFrame"
+        src=""
+        width="100%"
+        height="900"
+        frameborder="0">
+    </iframe>
+
+</div>
+
 <script>
 (function () {
-  "use strict";
+"use strict";
 
-  const FIREBASE_DB_URL = "https://qlkh-c3298-default-rtdb.asia-southeast1.firebasedatabase.app/qlkh.json";
-  const FIREBASE_SYNC_INTERVAL_MS = 3000;
-  let firebaseSyncRunning = false;
+const FIREBASE_DB_URL =
+"https://qlkh-c3298-default-rtdb.asia-southeast1.firebasedatabase.app/qlkh.json";
 
-  function getQlkhIframe() {
-    return document.querySelector("#panel-qlkh #qlkhFrame") || document.querySelector("#panel-qlkh iframe");
-  }
+const SYNC_INTERVAL_MS = 3000;
 
-  function createSyncStatus() {
-    let status = document.getElementById("firebaseSyncStatus");
-    if (status) return status;
+let isSyncing = false;
 
-    status = document.createElement("div");
-    status.id = "firebaseSyncStatus";
-    status.setAttribute("role", "status");
-    status.title = "Bấm để đồng bộ Firebase ngay";
-    status.innerHTML = `
-      <span class="firebase-sync-dot"></span>
-      <span class="firebase-sync-text">Đang kết nối Firebase...</span>
+function getIframe() {
+    return (
+        document.querySelector("#panel-qlkh #qlkhFrame") ||
+        document.querySelector("#panel-qlkh iframe")
+    );
+}
+
+function createStatusBadge() {
+
+    let badge =
+        document.getElementById(
+            "firebaseSyncStatus"
+        );
+
+    if (badge) return badge;
+
+    badge = document.createElement("div");
+
+    badge.id = "firebaseSyncStatus";
+
+    badge.innerHTML = `
+        <span class="sync-dot"></span>
+        <span class="sync-text">
+            Đang kết nối Cloud...
+        </span>
     `;
-    Object.assign(status.style, {
-      position: "fixed",
-      right: "12px",
-      bottom: "12px",
-      zIndex: "99999",
-      display: "flex",
-      alignItems: "center",
-      gap: "7px",
-      maxWidth: "calc(100vw - 24px)",
-      padding: "8px 14px",
-      borderRadius: "999px",
-      background: "rgba(255, 255, 255, 0.95)",
-      color: "#334155",
-      font: "600 12px/1.3 Arial, sans-serif",
-      boxShadow: "0 4px 16px rgba(15, 23, 42, 0.16)",
-      cursor: "pointer",
-      backdropFilter: "blur(8px)",
-      border: "1px solid rgba(100, 116, 139, 0.25)"
-    });
 
-    const dot = status.querySelector(".firebase-sync-dot");
-    Object.assign(dot.style, {
-      width: "9px",
-      height: "9px",
-      flex: "0 0 9px",
-      borderRadius: "50%",
-      background: "#94A3B8"
-    });
+    badge.addEventListener(
+        "click",
+        syncFromCloud
+    );
 
-    status.addEventListener("click", dongBoFirebaseVaoWeb);
-    document.body.appendChild(status);
-    return status;
-  }
+    document.body.appendChild(badge);
 
-  function updateSyncStatus(state, text) {
-    const status = createSyncStatus();
-    const dot = status.querySelector(".firebase-sync-dot");
-    const label = status.querySelector(".firebase-sync-text");
+    return badge;
+}
+
+function updateBadge(state, text) {
+
+    const badge = createStatusBadge();
+
+    const dot =
+        badge.querySelector(".sync-dot");
+
+    const label =
+        badge.querySelector(".sync-text");
 
     const colors = {
-      syncing: "#F59E0B",
-      success: "#16A34A",
-      error: "#DC2626"
+        syncing:"#F59E0B",
+        success:"#16A34A",
+        error:"#DC2626",
+        idle:"#94A3B8"
     };
 
-    dot.style.background = colors[state] || "#94A3B8";
-    label.innerText = text;
-  }
+    dot.style.background =
+        colors[state] || colors.idle;
 
-  async function dongBoFirebaseVaoWeb() {
-    if (firebaseSyncRunning) return;
-    const iframe = getQlkhIframe();
-    if (!iframe || !iframe.contentDocument) return;
+    label.textContent = text;
+}
 
-    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-    const rows = iframeDoc.querySelectorAll("tr");
-    if (!rows || rows.length === 0) return;
+function cleanStorage(
+    customerId,
+    isDone,
+    storageObj
+){
+    if (!storageObj) return;
 
-    firebaseSyncRunning = true;
     try {
-      const response = await fetch(FIREBASE_DB_URL);
-      if (!response.ok) throw new Error("Mất kết nối");
-      const data = await response.json();
 
-      if (data) {
-        Object.keys(data).forEach(key => {
-          const item = data[key];
-          const isDone = item.daXuLy === true;
-          // Tách mã số khách hàng (Ví dụ: VAY_18701014 -> 18701014)
-          const customerId = key.replace("VAY_", "").replace("GUI_", "").trim();
+        const keys = [];
 
-          rows.forEach(row => {
-            // textContent đọc được chữ kể cả khi dòng tr đang bị ẩn (display: none)
-            const rowText = row.textContent || "";
-            if (rowText.includes(customerId)) {
-              const checkbox = row.querySelector("input[type='checkbox']");
-              if (checkbox) {
-                if (checkbox.checked !== isDone) {
-                  checkbox.click();
-                  // Kiểm tra cưỡng bức nếu click() không tự đảo trạng thái
-                  if (checkbox.checked !== isDone) {
-                    checkbox.checked = isDone;
-                    checkbox.dispatchEvent(new Event("change", { bubbles: true }));
-                  }
+        for (
+            let i = 0;
+            i < storageObj.length;
+            i++
+        ){
+            keys.push(
+                storageObj.key(i)
+            );
+        }
+
+        keys.forEach(key => {
+
+            try {
+
+                const raw =
+                    storageObj.getItem(key);
+
+                if (
+                    !raw ||
+                    !raw.includes(customerId)
+                ){
+                    return;
                 }
-                // Nếu trạng thái là chưa xử lý (isDone = false), hiện lại dòng ngay
-                if (!isDone) {
-                  row.style.display = "";
-                  row.classList.remove("hidden", "d-none");
+
+                const data =
+                    JSON.parse(raw);
+
+                if (
+                    Array.isArray(data)
+                ){
+
+                    const exists =
+                        data.map(String)
+                        .includes(
+                            String(customerId)
+                        );
+
+                    if (
+                        isDone &&
+                        !exists
+                    ){
+                        data.push(customerId);
+
+                        storageObj.setItem(
+                            key,
+                            JSON.stringify(data)
+                        );
+                    }
+
+                    if (
+                        !isDone &&
+                        exists
+                    ){
+
+                        storageObj.setItem(
+                            key,
+                            JSON.stringify(
+                                data.filter(
+                                    x =>
+                                    String(x)
+                                    !==
+                                    String(customerId)
+                                )
+                            )
+                        );
+                    }
                 }
-              }
-            }
-          });
+
+                else if (
+                    typeof data === "object" &&
+                    data !== null
+                ){
+
+                    if (isDone){
+                        data[customerId] = true;
+                    } else {
+                        delete data[customerId];
+                    }
+
+                    storageObj.setItem(
+                        key,
+                        JSON.stringify(data)
+                    );
+                }
+
+            } catch(e){}
         });
-      }
 
-      const now = new Date();
-      const timeStr = now.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-      const dateStr = now.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
-      updateSyncStatus("success", `Đồng bộ cuối: ${timeStr} ${dateStr}`);
-    } catch (err) {
-      updateSyncStatus("error", "Lỗi kết nối Firebase");
-    } finally {
-      firebaseSyncRunning = false;
+    } catch(e){
+        console.warn(e);
     }
-  }
+}
 
-  // Tự động kích hoạt khi trang tải xong
-  window.addEventListener("load", () => {
-    createSyncStatus();
-    setTimeout(dongBoFirebaseVaoWeb, 1500);
-    setInterval(dongBoFirebaseVaoWeb, FIREBASE_SYNC_INTERVAL_MS);
-  });
+function updateCheckboxState(
+    checkbox,
+    target
+){
+    if (!checkbox) return false;
 
-  // Tự động quét lại ngay khi quay lại tab web
-  window.addEventListener("focus", dongBoFirebaseVaoWeb);
-})();
-</script>
+    if (
+        checkbox.checked === target
+    ){
+        return false;
+    }
+
+    checkbox.click();
+
+    if (
+        checkbox.checked !== target
+    ){
+
+        checkbox.checked = target;
+
+        checkbox.dispatchEvent(
+            new Event("change", {
+                bubbles:true
+            })
+        );
+    }
+
+    return true;
+}
+
+function restoreRow(row){
+
+    row.style.display = "";
+
+    row.hidden = false;
+
+    row.classList.remove(
+        "hidden",
+        "d-none",
+        "done",
+        "completed",
+        "is-done"
+    );
+}
+
+function attemptUndo(row){
+
+    const buttons =
+        row.querySelectorAll(`
+            button,
+            a,
+            .btn-restore,
+            .btn-undo,
+            [title*="Khôi phục"],
+            [title*="Restore"]
+        `);
+
+    let changed = false;
+
+    buttons.forEach(btn => {
+
+        const text =
+            (
+                btn.textContent || ""
+            ) +
+            (
+                btn.innerHTML || ""
+            );
+
+        if (
+            /undo|restore|khôi phục|lấy lại|fa-undo|rotate/i
+            .test(text)
+        ){
+            try{
+                btn.click();
+                changed = true;
+            }
+            catch(err){}
+        }
+    });
+
+    return changed;
+}
+
+async function syncFromCloud(){
+
+    if (isSyncing) return;
+
+    const iframe = getIframe();
+
+    if (!iframe) return;
+
+    const iframeDoc =
+        iframe.contentDocument ||
+        iframe.contentWindow?.document;
+
+    if (!iframeDoc) return;
+
+    isSyncing = true;
+
+    updateBadge(
+        "syncing",
+        "Đang đồng bộ..."
+    );
+
+    try{
+
+        const response =
+            await fetch(
+                FIREBASE_DB_URL,
+                {
+                    cache:"no-store"
+                }
+            );
+
+        if (!response.ok){
+            throw new Error();
+        }
+
+        const cloudData =
+            await response.json();
+
+        let changed = false;
+
+        Object.entries(cloudData || {})
+        .forEach(([key,item]) => {
+
+            const customerId =
+                key
+                .replace("VAY_","")
+                .replace("GUI_","")
+                .trim();
+
+            const isDone =
+                item?.daXuLy === true;
+
+            cleanStorage(
+                customerId,
+                isDone,
+                localStorage
+            );
+
+            try{
+                cleanStorage(
+                    customerId,
+                    isDone,
+                    iframe.contentWindow.localStorage
+                );
+            }catch(e){}
+
+            const rows =
+                iframeDoc.querySelectorAll(`
+                    tr,
+                    .customer-item,
+                    .card-row,
+                    .customer-row
+                `);
+
+            rows.forEach(row => {
+
+                const text =
+                    row.textContent || "";
+
+                if (
+                    !text.includes(
+                        customerId
+                    )
+                ){
+                    return;
+                }
+
+                const checkbox =
+                    row.querySelector(
+                        "input[type='checkbox']"
+                    );
+
+                if (isDone){
+
+                    if (
+                        updateCheckboxState(
+                            checkbox,
+                            true
+                        )
+                    ){
+                        changed = true;
+                    }
+
+                } else {
+
+                    if (
+                        attemptUndo(row)
+                    ){
+                        changed = true;
+                    }
+
+                    if (
+                        updateCheckboxState(
+                            checkbox,
+                            false
+                        )
+                    ){
+                        changed = true;
+                    }
+
+                    restoreRow(row);
+                }
+            });
+        });
+
+        if (changed){
+
+            const filterObj =
+                iframeDoc.querySelector(
+                    "select,#btnFilter,.filter-active"
+                );
+
+            if (filterObj){
+
+                filterObj.dispatchEvent(
+                    new Event(
+                        "change",
+                        {
