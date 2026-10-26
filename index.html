@@ -1009,164 +1009,300 @@ window.LTV_CHUNKS = [
   </script>
 
 
-<!-- Dong bo Firebase va hien thi thoi diem dong bo cuoi, khong sua QLKH_CHUNKS -->
+<!-- Dong bo Firebase hai chieu, khong sua QLKH_CHUNKS -->
 <script>
 (function () {
   "use strict";
 
-  const FIREBASE_DB_URL =
-    "https://qlkh-c3298-default-rtdb.asia-southeast1.firebasedatabase.app/qlkh.json";
+  const FIREBASE_ROOT_URL =
+    "https://qlkh-c3298-default-rtdb.asia-southeast1.firebasedatabase.app/qlkh";
+  const FIREBASE_DB_URL = FIREBASE_ROOT_URL + ".json";
   const FIREBASE_SYNC_INTERVAL_MS = 15000;
+  const WRITE_DEBOUNCE_MS = 350;
 
   let firebaseSyncTimer = null;
   let firebaseSyncRunning = false;
+  let suppressCheckboxWrite = false;
+  let latestFirebaseData = {};
+  const pendingWrites = new Map();
 
   function getQlkhIframe() {
     return document.querySelector("#panel-qlkh #qlkhFrame") ||
       document.querySelector("#panel-qlkh iframe");
   }
 
+  function getIframeDocument() {
+    const iframe = getQlkhIframe();
+    if (!iframe || !iframe.contentWindow) return null;
+    try {
+      return iframe.contentDocument || iframe.contentWindow.document;
+    } catch (error) {
+      console.warn("Khong the truy cap iframe QLKH:", error);
+      return null;
+    }
+  }
+
+  function normalizeText(value) {
+    return String(value || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function onlyDigits(value) {
+    return String(value || "").replace(/\D/g, "");
+  }
+
+  function getCustomerId(key, item) {
+    return String(
+      item.maKH || item.customerId || item.cif || item.CIF ||
+      key.replace(/^VAY_/i, "").replace(/^GUI_/i, "")
+    ).trim();
+  }
+
+  function getItemType(key, item) {
+    const type = normalizeText(item.phanLoai || item.loai || item.type);
+    if (type === "vay" || /^VAY_/i.test(key)) return "VAY";
+    if (type === "gui" || /^GUI_/i.test(key)) return "GUI";
+    return "";
+  }
+
+  function itemDateToken(item) {
+    const value = String(item.ngayHan || item.dueDate || "").trim();
+    const match = value.match(/(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
+    if (!match) return "";
+    return [match[1].padStart(2, "0"), match[2].padStart(2, "0"), match[3]].join("/");
+  }
+
+  function scoreRowForItem(row, key, item) {
+    const rowText = normalizeText(row.innerText || row.textContent);
+    const rowDigits = onlyDigits(rowText);
+    const customerId = onlyDigits(getCustomerId(key, item));
+    if (!customerId || !rowDigits.includes(customerId)) return -1;
+
+    let score = 100;
+    const type = getItemType(key, item);
+    if (type === "VAY" && /(vay|goc|lai|thu no)/.test(rowText)) score += 20;
+    if (type === "GUI" && /(tien gui|dao han|ky han|tai tuc)/.test(rowText)) score += 20;
+
+    const dateToken = itemDateToken(item);
+    if (dateToken && rowText.includes(normalizeText(dateToken))) score += 30;
+
+    const account = onlyDigits(item.soTaiKhoan || item.account || item.soSo || item.contract || "");
+    if (account && rowDigits.includes(account)) score += 40;
+
+    return score;
+  }
+
+  function findBestCheckbox(iframeDoc, key, item, usedCheckboxes) {
+    const rows = Array.from(iframeDoc.querySelectorAll("tbody tr, tr"));
+    let best = null;
+    let bestScore = -1;
+
+    for (const row of rows) {
+      const checkbox = row.querySelector("input[type='checkbox']");
+      if (!checkbox || usedCheckboxes.has(checkbox)) continue;
+      const score = scoreRowForItem(row, key, item);
+      if (score > bestScore) {
+        bestScore = score;
+        best = checkbox;
+      }
+    }
+    return bestScore >= 100 ? best : null;
+  }
+
   function createSyncStatus() {
     let status = document.getElementById("firebaseSyncStatus");
     if (status) return status;
-
     status = document.createElement("div");
     status.id = "firebaseSyncStatus";
     status.setAttribute("role", "status");
     status.setAttribute("aria-live", "polite");
-    status.title = "Bấm để đồng bộ Firebase ngay";
-    status.innerHTML = '<span class="firebase-sync-dot"></span><span class="firebase-sync-text">Firebase: Chưa đồng bộ</span>';
-
+    status.innerHTML = '<span class="firebase-sync-dot"></span><span class="firebase-sync-text">Firebase: Chua dong bo</span>';
     Object.assign(status.style, {
-      position: "fixed",
-      right: "12px",
-      bottom: "12px",
-      zIndex: "99999",
-      display: "flex",
-      alignItems: "center",
-      gap: "7px",
-      maxWidth: "calc(100vw - 24px)",
-      padding: "8px 11px",
-      border: "1px solid rgba(100,116,139,.35)",
-      borderRadius: "999px",
-      background: "rgba(255,255,255,.94)",
-      color: "#334155",
-      font: "600 12px/1.3 Arial,sans-serif",
-      boxShadow: "0 4px 16px rgba(15,23,42,.16)",
-      cursor: "pointer",
-      backdropFilter: "blur(8px)"
+      position: "fixed", right: "12px", bottom: "12px", zIndex: "99999",
+      display: "flex", alignItems: "center", gap: "7px", maxWidth: "calc(100vw - 24px)",
+      padding: "8px 12px", border: "1px solid rgba(100,116,139,.30)", borderRadius: "999px",
+      background: "rgba(255,255,255,.95)", color: "#334155", font: "600 12px/1.3 Arial,sans-serif",
+      boxShadow: "0 4px 16px rgba(15,23,42,.16)", cursor: "pointer", backdropFilter: "blur(8px)"
     });
-
     const dot = status.querySelector(".firebase-sync-dot");
-    Object.assign(dot.style, {
-      width: "8px",
-      height: "8px",
-      flex: "0 0 8px",
-      borderRadius: "50%",
-      background: "#94A3B8"
-    });
-
+    Object.assign(dot.style, {width:"9px",height:"9px",flex:"0 0 9px",borderRadius:"50%",background:"#94A3B8"});
     status.addEventListener("click", dongBoFirebaseVaoWeb);
     document.body.appendChild(status);
     return status;
   }
 
-  function updateSyncStatus(state, date, detail) {
+  function updateSyncStatus(state, text, detail) {
     const status = createSyncStatus();
     const dot = status.querySelector(".firebase-sync-dot");
     const label = status.querySelector(".firebase-sync-text");
-
-    const colors = {
-      syncing: "#F59E0B",
-      success: "#16A34A",
-      error: "#DC2626"
-    };
-
+    const colors = {syncing:"#F59E0B",success:"#16A34A",writing:"#2563EB",warning:"#EA580C",error:"#DC2626"};
     dot.style.background = colors[state] || "#94A3B8";
+    label.textContent = text;
+    status.title = detail || "Bam de dong bo Firebase ngay";
+  }
 
-    if (state === "syncing") {
-      label.textContent = "Firebase: Đang đồng bộ...";
-      status.title = "Đang đọc dữ liệu mới nhất từ Firebase";
-      return;
+  function formatSyncTime(date) {
+    return new Intl.DateTimeFormat("vi-VN", {
+      hour:"2-digit", minute:"2-digit", second:"2-digit",
+      day:"2-digit", month:"2-digit", year:"numeric", hour12:false
+    }).format(date);
+  }
+
+  async function writeFirebaseStatus(firebaseKey, checked) {
+    if (!firebaseKey) return false;
+    const url = FIREBASE_ROOT_URL + "/" + encodeURIComponent(firebaseKey) + ".json";
+    const payload = {
+      daXuLy: Boolean(checked),
+      ngayXuLy: checked ? new Date().toISOString() : null,
+      nguonCapNhat: "QLKH_WEB"
+    };
+    const response = await fetch(url, {
+      method: "PATCH",
+      cache: "no-store",
+      headers: {"Content-Type":"application/json", Accept:"application/json"},
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+      const message = await response.text();
+      throw new Error("Firebase ghi loi HTTP " + response.status + ": " + message.slice(0, 160));
     }
+    if (!latestFirebaseData[firebaseKey]) latestFirebaseData[firebaseKey] = {};
+    Object.assign(latestFirebaseData[firebaseKey], payload);
+    return true;
+  }
 
-    if (state === "success" && date) {
-      const timeText = new Intl.DateTimeFormat("vi-VN", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour12: false
-      }).format(date);
-      label.textContent = "Đồng bộ cuối: " + timeText;
-      status.title = detail || "Bấm để đồng bộ Firebase ngay";
-      return;
+  function scheduleFirebaseWrite(checkbox) {
+    if (suppressCheckboxWrite) return;
+    const firebaseKey = decodeURIComponent(checkbox.dataset.firebaseKey || "");
+    if (!firebaseKey) return;
+
+    const currentPending = pendingWrites.get(firebaseKey);
+    if (currentPending) clearTimeout(currentPending);
+
+    const timer = setTimeout(async function () {
+      pendingWrites.delete(firebaseKey);
+      const oldValue = latestFirebaseData[firebaseKey]?.daXuLy === true;
+      updateSyncStatus("writing", "Firebase: Dang luu...", firebaseKey);
+      try {
+        await writeFirebaseStatus(firebaseKey, checkbox.checked);
+        updateSyncStatus("success", "Da luu: " + formatSyncTime(new Date()), "Da cap nhat " + firebaseKey);
+      } catch (error) {
+        console.error("Loi ghi Firebase:", error);
+        suppressCheckboxWrite = true;
+        checkbox.checked = oldValue;
+        checkbox.dispatchEvent(new Event("change", {bubbles:true}));
+        suppressCheckboxWrite = false;
+        updateSyncStatus("error", "Firebase: Luu that bai", error.message);
+      }
+    }, WRITE_DEBOUNCE_MS);
+    pendingWrites.set(firebaseKey, timer);
+  }
+
+  function bindCheckboxWrite(checkbox, firebaseKey) {
+    checkbox.dataset.firebaseKey = encodeURIComponent(firebaseKey);
+    if (checkbox.dataset.firebaseTwoWayBound === "1") return;
+    checkbox.dataset.firebaseTwoWayBound = "1";
+    checkbox.addEventListener("change", function () {
+      scheduleFirebaseWrite(checkbox);
+    });
+  }
+
+  function applyFirebaseToInterface(iframeDoc, data) {
+    const usedCheckboxes = new Set();
+    let matched = 0;
+    let changed = 0;
+    let missing = 0;
+
+    suppressCheckboxWrite = true;
+    try {
+      Object.entries(data).forEach(function ([key, item]) {
+        if (!item || typeof item !== "object") return;
+        const checkbox = findBestCheckbox(iframeDoc, key, item, usedCheckboxes);
+        if (!checkbox) {
+          missing++;
+          return;
+        }
+        usedCheckboxes.add(checkbox);
+        bindCheckboxWrite(checkbox, key);
+        matched++;
+        const expected = item.daXuLy === true;
+        if (checkbox.checked !== expected) {
+          checkbox.checked = expected;
+          checkbox.dispatchEvent(new Event("change", {bubbles:true}));
+          changed++;
+        }
+      });
+    } finally {
+      suppressCheckboxWrite = false;
     }
-
-    label.textContent = "Firebase: Đồng bộ lỗi";
-    status.title = detail || "Bấm để thử đồng bộ lại";
+    return {matched, changed, missing};
   }
 
   async function dongBoFirebaseVaoWeb() {
     if (firebaseSyncRunning) return;
     firebaseSyncRunning = true;
-    updateSyncStatus("syncing");
+    updateSyncStatus("syncing", "Firebase: Dang dong bo...");
 
     try {
-      const response = await fetch(FIREBASE_DB_URL, {
-        method: "GET",
-        cache: "no-store",
-        headers: { Accept: "application/json" }
-      });
-
-      if (!response.ok) {
-        throw new Error("Firebase HTTP " + response.status);
-      }
-
+      const iframeDoc = getIframeDocument();
+      if (!iframeDoc) throw new Error("Iframe QLKH chua san sang");
+      const response = await fetch(FIREBASE_DB_URL, {method:"GET",cache:"no-store",headers:{Accept:"application/json"}});
+      if (!response.ok) throw new Error("Firebase HTTP " + response.status);
       const data = await response.json();
-      if (!data || typeof data !== "object") {
-        throw new Error("Firebase không có dữ liệu QLKH");
-      }
+      if (!data || typeof data !== "object") throw new Error("Firebase khong co du lieu QLKH");
 
-      const qlkhIframe = getQlkhIframe();
-      if (!qlkhIframe || !qlkhIframe.contentWindow) {
-        throw new Error("Iframe QLKH chưa sẵn sàng");
-      }
-
-      const syncedAt = new Date();
-      qlkhIframe.contentWindow.postMessage(
-        {
-          type: "SYNC_FIREBASE_STATUS",
-          payload: data,
-          syncedAt: syncedAt.toISOString()
-        },
-        "*"
-      );
-
-      const recordCount = Object.keys(data).length;
+      latestFirebaseData = data;
+      const result = applyFirebaseToInterface(iframeDoc, data);
+      const now = new Date();
       updateSyncStatus(
-        "success",
-        syncedAt,
-        "Đã đọc " + recordCount + " bản ghi. Bấm để đồng bộ lại."
+        result.missing ? "warning" : "success",
+        "Dong bo cuoi: " + formatSyncTime(now),
+        "Firebase: " + Object.keys(data).length +
+        " | Khop: " + result.matched +
+        " | Cap nhat: " + result.changed +
+        " | Khong tim thay: " + result.missing
       );
+      console.log("Dong bo Firebase hai chieu", {...result,total:Object.keys(data).length,syncedAt:now.toISOString()});
     } catch (error) {
-      console.warn("Chưa thể đồng bộ với Firebase:", error);
-      updateSyncStatus("error", null, error.message);
+      console.warn("Loi dong bo Firebase:", error);
+      updateSyncStatus("error", "Firebase: Dong bo loi", error.message);
     } finally {
       firebaseSyncRunning = false;
     }
   }
 
+  function observeIframeRows() {
+    const iframeDoc = getIframeDocument();
+    if (!iframeDoc || iframeDoc.documentElement.dataset.firebaseObserverBound === "1") return;
+    iframeDoc.documentElement.dataset.firebaseObserverBound = "1";
+    let observerTimer = null;
+    const observer = new MutationObserver(function () {
+      clearTimeout(observerTimer);
+      observerTimer = setTimeout(dongBoFirebaseVaoWeb, 250);
+    });
+    observer.observe(iframeDoc.body || iframeDoc.documentElement, {childList:true,subtree:true});
+  }
+
   function startFirebaseSync() {
     createSyncStatus();
+    observeIframeRows();
     if (firebaseSyncTimer) clearInterval(firebaseSyncTimer);
     dongBoFirebaseVaoWeb();
-    firebaseSyncTimer = setInterval(
-      dongBoFirebaseVaoWeb,
-      FIREBASE_SYNC_INTERVAL_MS
-    );
+    firebaseSyncTimer = setInterval(dongBoFirebaseVaoWeb, FIREBASE_SYNC_INTERVAL_MS);
+  }
+
+  function bindIframeLoad() {
+    const iframe = getQlkhIframe();
+    if (!iframe || iframe.dataset.firebaseTwoWayLoadBound === "1") return;
+    iframe.dataset.firebaseTwoWayLoadBound = "1";
+    iframe.addEventListener("load", function () {
+      setTimeout(startFirebaseSync, 500);
+    });
   }
 
   window.addEventListener("focus", dongBoFirebaseVaoWeb);
@@ -1174,15 +1310,16 @@ window.LTV_CHUNKS = [
     if (!document.hidden) dongBoFirebaseVaoWeb();
   });
 
-  const qlkhIframe = getQlkhIframe();
-  if (qlkhIframe) {
-    qlkhIframe.addEventListener("load", dongBoFirebaseVaoWeb);
+  function initialize() {
+    createSyncStatus();
+    bindIframeLoad();
+    setTimeout(startFirebaseSync, 1500);
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", startFirebaseSync, { once: true });
+    document.addEventListener("DOMContentLoaded", initialize, {once:true});
   } else {
-    startFirebaseSync();
+    initialize();
   }
 })();
 </script>
