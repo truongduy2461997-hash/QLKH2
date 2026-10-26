@@ -1,16 +1,17 @@
-<!-- Đồng bộ Firebase hai chiều (Khôi phục dòng ẩn & Hoàn tác chuẩn xác) -->
+<!-- BỘ ĐỒNG BỘ CLOUD FIREBASE ĐA THIẾT BỊ & TỰ ĐỘNG KHÔI PHỤC (UNDO) -->
 <script>
 (function () {
   "use strict";
 
   const FIREBASE_DB_URL = "https://qlkh-c3298-default-rtdb.asia-southeast1.firebasedatabase.app/qlkh.json";
-  const FIREBASE_SYNC_INTERVAL_MS = 3000;
-  let firebaseSyncRunning = false;
+  const SYNC_INTERVAL_MS = 3000; // Quét kiểm tra mỗi 3 giây
+  let isSyncing = false;
 
-  function getQlkhIframe() {
+  function getIframe() {
     return document.querySelector("#panel-qlkh #qlkhFrame") || document.querySelector("#panel-qlkh iframe");
   }
 
+  // Tạo nút trạng thái góc dưới bên phải màn hình
   function createSyncStatus() {
     let status = document.getElementById("firebaseSyncStatus");
     if (status) return status;
@@ -18,10 +19,10 @@
     status = document.createElement("div");
     status.id = "firebaseSyncStatus";
     status.setAttribute("role", "status");
-    status.title = "Bấm để đồng bộ Firebase ngay";
+    status.title = "Bấm để đồng bộ ngay lập tức";
     status.innerHTML = `
-      <span class="firebase-sync-dot"></span>
-      <span class="firebase-sync-text">Đang kết nối Firebase...</span>
+      <span class="sync-dot"></span>
+      <span class="sync-text">Đang kết nối Cloud...</span>
     `;
     Object.assign(status.style, {
       position: "fixed",
@@ -32,35 +33,35 @@
       alignItems: "center",
       gap: "7px",
       maxWidth: "calc(100vw - 24px)",
-      padding: "8px 14px",
+      padding: "7px 13px",
       borderRadius: "999px",
       background: "rgba(255, 255, 255, 0.95)",
       color: "#334155",
       font: "600 12px/1.3 Arial, sans-serif",
-      boxShadow: "0 4px 16px rgba(15, 23, 42, 0.16)",
+      boxShadow: "0 4px 14px rgba(15, 23, 42, 0.15)",
       cursor: "pointer",
       backdropFilter: "blur(8px)",
       border: "1px solid rgba(100, 116, 139, 0.25)"
     });
 
-    const dot = status.querySelector(".firebase-sync-dot");
+    const dot = status.querySelector(".sync-dot");
     Object.assign(dot.style, {
-      width: "9px",
-      height: "9px",
-      flex: "0 0 9px",
+      width: "8px",
+      height: "8px",
+      flex: "0 0 8px",
       borderRadius: "50%",
       background: "#94A3B8"
     });
 
-    status.addEventListener("click", dongBoFirebaseVaoWeb);
+    status.addEventListener("click", dongBoHeThongTuCloud);
     document.body.appendChild(status);
     return status;
   }
 
-  function updateSyncStatus(state, text) {
+  function updateBadge(state, text) {
     const status = createSyncStatus();
-    const dot = status.querySelector(".firebase-sync-dot");
-    const label = status.querySelector(".firebase-sync-text");
+    const dot = status.querySelector(".sync-dot");
+    const label = status.querySelector(".sync-text");
 
     const colors = {
       syncing: "#F59E0B",
@@ -72,72 +73,133 @@
     label.innerText = text;
   }
 
-  async function dongBoFirebaseVaoWeb() {
-    if (firebaseSyncRunning) return;
-    const iframe = getQlkhIframe();
+  // Tự động dọn dẹp mã khách hàng trong localStorage của máy tính hiện tại khi Undo
+  function donDepLocalStorage(customerId, isDone, storageObj) {
+    try {
+      if (!storageObj) return;
+      for (let i = 0; i < storageObj.length; i++) {
+        const key = storageObj.key(i);
+        const rawVal = storageObj.getItem(key);
+        if (!rawVal || !rawVal.includes(customerId)) continue;
+
+        try {
+          let parsed = JSON.parse(rawVal);
+          if (Array.isArray(parsed)) {
+            if (!isDone) {
+              const updated = parsed.filter(id => String(id) !== String(customerId));
+              if (updated.length !== parsed.length) {
+                storageObj.setItem(key, JSON.stringify(updated));
+              }
+            } else if (!parsed.map(String).includes(String(customerId))) {
+              parsed.push(customerId);
+              storageObj.setItem(key, JSON.stringify(parsed));
+            }
+          } else if (typeof parsed === "object" && parsed !== null) {
+            if (!isDone && (parsed[customerId] !== undefined)) {
+              delete parsed[customerId];
+              storageObj.setItem(key, JSON.stringify(parsed));
+            } else if (isDone) {
+              parsed[customerId] = true;
+              storageObj.setItem(key, JSON.stringify(parsed));
+            }
+          }
+        } catch (e) {
+          // Bỏ qua nếu dữ liệu không phải JSON
+        }
+      }
+    } catch (e) {
+      console.warn("Lỗi đồng bộ localStorage:", e);
+    }
+  }
+
+  async function dongBoHeThongTuCloud() {
+    if (isSyncing) return;
+    const iframe = getIframe();
     if (!iframe || !iframe.contentDocument) return;
 
     const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-    const rows = iframeDoc.querySelectorAll("tr");
-    if (!rows || rows.length === 0) return;
+    const iframeWin = iframe.contentWindow;
 
-    firebaseSyncRunning = true;
+    isSyncing = true;
     try {
       const response = await fetch(FIREBASE_DB_URL);
       if (!response.ok) throw new Error("Mất kết nối");
       const data = await response.json();
 
       if (data) {
+        let coThayDoi = false;
+
         Object.keys(data).forEach(key => {
           const item = data[key];
           const isDone = item.daXuLy === true;
-          // Tách mã số khách hàng (Ví dụ: VAY_18701014 -> 18701014)
           const customerId = key.replace("VAY_", "").replace("GUI_", "").trim();
 
-          rows.forEach(row => {
-            // textContent đọc được chữ kể cả khi dòng tr đang bị ẩn (display: none)
-            const rowText = row.textContent || "";
-            if (rowText.includes(customerId)) {
+          // Dọn dẹp bộ nhớ tạm localStorage trên trình duyệt máy đang dùng
+          donDepLocalStorage(customerId, isDone, window.localStorage);
+          if (iframeWin && iframeWin.localStorage) {
+            donDepLocalStorage(customerId, isDone, iframeWin.localStorage);
+          }
+
+          // Quét tìm dòng khách hàng bên trong iframe
+          const allRows = iframeDoc.querySelectorAll("tr, .customer-item, .card-row");
+          allRows.forEach(row => {
+            const rowContent = row.textContent || "";
+            if (rowContent.includes(customerId)) {
               const checkbox = row.querySelector("input[type='checkbox']");
-              if (checkbox) {
-                if (checkbox.checked !== isDone) {
+
+              if (isDone) {
+                if (checkbox && !checkbox.checked) {
                   checkbox.click();
-                  // Kiểm tra cưỡng bức nếu click() không tự đảo trạng thái
-                  if (checkbox.checked !== isDone) {
-                    checkbox.checked = isDone;
+                  coThayDoi = true;
+                }
+              } else {
+                // Tự bấm nút khôi phục nếu khách hàng đang bị chuyển vào danh sách đã xử lý
+                const restoreBtn = row.querySelector("button, a, .btn-restore, .btn-undo, [title*='Khôi phục'], [title*='phục hồi']");
+                if (restoreBtn && (restoreBtn.textContent.includes("Khôi phục") || restoreBtn.textContent.includes("Lấy lại") || restoreBtn.innerHTML.includes("fa-undo") || restoreBtn.innerHTML.includes("rotate"))) {
+                  restoreBtn.click();
+                  coThayDoi = true;
+                }
+
+                if (checkbox && checkbox.checked) {
+                  checkbox.click();
+                  if (checkbox.checked) {
+                    checkbox.checked = false;
                     checkbox.dispatchEvent(new Event("change", { bubbles: true }));
                   }
+                  coThayDoi = true;
                 }
-                // Nếu trạng thái là chưa xử lý (isDone = false), hiện lại dòng ngay
-                if (!isDone) {
-                  row.style.display = "";
-                  row.classList.remove("hidden", "d-none");
-                }
+
+                // Hiện lại hàng trên màn hình chính
+                row.style.display = "";
+                row.classList.remove("hidden", "d-none", "is-done");
               }
             }
           });
         });
+
+        if (coThayDoi) {
+          const filterBtn = iframeDoc.querySelector("select, .filter-active, #btnFilter");
+          if (filterBtn) filterBtn.dispatchEvent(new Event("change", { bubbles: true }));
+        }
       }
 
       const now = new Date();
       const timeStr = now.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
       const dateStr = now.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
-      updateSyncStatus("success", `Đồng bộ cuối: ${timeStr} ${dateStr}`);
+      updateBadge("success", `Đồng bộ cuối: ${timeStr} ${dateStr}`);
     } catch (err) {
-      updateSyncStatus("error", "Lỗi kết nối Firebase");
+      updateBadge("error", "Lỗi kết nối Firebase");
     } finally {
-      firebaseSyncRunning = false;
+      isSyncing = false;
     }
   }
 
-  // Tự động kích hoạt khi trang tải xong
   window.addEventListener("load", () => {
     createSyncStatus();
-    setTimeout(dongBoFirebaseVaoWeb, 1500);
-    setInterval(dongBoFirebaseVaoWeb, FIREBASE_SYNC_INTERVAL_MS);
+    setTimeout(dongBoHeThongTuCloud, 1800);
+    setInterval(dongBoHeThongTuCloud, SYNC_INTERVAL_MS);
   });
 
-  // Tự động quét lại ngay khi quay lại tab web
-  window.addEventListener("focus", dongBoFirebaseVaoWeb);
+  window.addEventListener("focus", dongBoHeThongTuCloud);
 })();
 </script>
