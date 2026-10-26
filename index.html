@@ -1007,5 +1007,185 @@ window.LTV_CHUNKS = [
       );
     }
   </script>
+
+
+<!-- Dong bo Firebase va hien thi thoi diem dong bo cuoi, khong sua QLKH_CHUNKS -->
+<script>
+(function () {
+  "use strict";
+
+  const FIREBASE_DB_URL =
+    "https://qlkh-c3298-default-rtdb.asia-southeast1.firebasedatabase.app/qlkh.json";
+  const FIREBASE_SYNC_INTERVAL_MS = 15000;
+
+  let firebaseSyncTimer = null;
+  let firebaseSyncRunning = false;
+
+  function getQlkhIframe() {
+    return document.querySelector("#panel-qlkh #qlkhFrame") ||
+      document.querySelector("#panel-qlkh iframe");
+  }
+
+  function createSyncStatus() {
+    let status = document.getElementById("firebaseSyncStatus");
+    if (status) return status;
+
+    status = document.createElement("div");
+    status.id = "firebaseSyncStatus";
+    status.setAttribute("role", "status");
+    status.setAttribute("aria-live", "polite");
+    status.title = "Bấm để đồng bộ Firebase ngay";
+    status.innerHTML = '<span class="firebase-sync-dot"></span><span class="firebase-sync-text">Firebase: Chưa đồng bộ</span>';
+
+    Object.assign(status.style, {
+      position: "fixed",
+      right: "12px",
+      bottom: "12px",
+      zIndex: "99999",
+      display: "flex",
+      alignItems: "center",
+      gap: "7px",
+      maxWidth: "calc(100vw - 24px)",
+      padding: "8px 11px",
+      border: "1px solid rgba(100,116,139,.35)",
+      borderRadius: "999px",
+      background: "rgba(255,255,255,.94)",
+      color: "#334155",
+      font: "600 12px/1.3 Arial,sans-serif",
+      boxShadow: "0 4px 16px rgba(15,23,42,.16)",
+      cursor: "pointer",
+      backdropFilter: "blur(8px)"
+    });
+
+    const dot = status.querySelector(".firebase-sync-dot");
+    Object.assign(dot.style, {
+      width: "8px",
+      height: "8px",
+      flex: "0 0 8px",
+      borderRadius: "50%",
+      background: "#94A3B8"
+    });
+
+    status.addEventListener("click", dongBoFirebaseVaoWeb);
+    document.body.appendChild(status);
+    return status;
+  }
+
+  function updateSyncStatus(state, date, detail) {
+    const status = createSyncStatus();
+    const dot = status.querySelector(".firebase-sync-dot");
+    const label = status.querySelector(".firebase-sync-text");
+
+    const colors = {
+      syncing: "#F59E0B",
+      success: "#16A34A",
+      error: "#DC2626"
+    };
+
+    dot.style.background = colors[state] || "#94A3B8";
+
+    if (state === "syncing") {
+      label.textContent = "Firebase: Đang đồng bộ...";
+      status.title = "Đang đọc dữ liệu mới nhất từ Firebase";
+      return;
+    }
+
+    if (state === "success" && date) {
+      const timeText = new Intl.DateTimeFormat("vi-VN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour12: false
+      }).format(date);
+      label.textContent = "Đồng bộ cuối: " + timeText;
+      status.title = detail || "Bấm để đồng bộ Firebase ngay";
+      return;
+    }
+
+    label.textContent = "Firebase: Đồng bộ lỗi";
+    status.title = detail || "Bấm để thử đồng bộ lại";
+  }
+
+  async function dongBoFirebaseVaoWeb() {
+    if (firebaseSyncRunning) return;
+    firebaseSyncRunning = true;
+    updateSyncStatus("syncing");
+
+    try {
+      const response = await fetch(FIREBASE_DB_URL, {
+        method: "GET",
+        cache: "no-store",
+        headers: { Accept: "application/json" }
+      });
+
+      if (!response.ok) {
+        throw new Error("Firebase HTTP " + response.status);
+      }
+
+      const data = await response.json();
+      if (!data || typeof data !== "object") {
+        throw new Error("Firebase không có dữ liệu QLKH");
+      }
+
+      const qlkhIframe = getQlkhIframe();
+      if (!qlkhIframe || !qlkhIframe.contentWindow) {
+        throw new Error("Iframe QLKH chưa sẵn sàng");
+      }
+
+      const syncedAt = new Date();
+      qlkhIframe.contentWindow.postMessage(
+        {
+          type: "SYNC_FIREBASE_STATUS",
+          payload: data,
+          syncedAt: syncedAt.toISOString()
+        },
+        "*"
+      );
+
+      const recordCount = Object.keys(data).length;
+      updateSyncStatus(
+        "success",
+        syncedAt,
+        "Đã đọc " + recordCount + " bản ghi. Bấm để đồng bộ lại."
+      );
+    } catch (error) {
+      console.warn("Chưa thể đồng bộ với Firebase:", error);
+      updateSyncStatus("error", null, error.message);
+    } finally {
+      firebaseSyncRunning = false;
+    }
+  }
+
+  function startFirebaseSync() {
+    createSyncStatus();
+    if (firebaseSyncTimer) clearInterval(firebaseSyncTimer);
+    dongBoFirebaseVaoWeb();
+    firebaseSyncTimer = setInterval(
+      dongBoFirebaseVaoWeb,
+      FIREBASE_SYNC_INTERVAL_MS
+    );
+  }
+
+  window.addEventListener("focus", dongBoFirebaseVaoWeb);
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden) dongBoFirebaseVaoWeb();
+  });
+
+  const qlkhIframe = getQlkhIframe();
+  if (qlkhIframe) {
+    qlkhIframe.addEventListener("load", dongBoFirebaseVaoWeb);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", startFirebaseSync, { once: true });
+  } else {
+    startFirebaseSync();
+  }
+})();
+</script>
+
 </body>
 </html>
