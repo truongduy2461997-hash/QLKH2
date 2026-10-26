@@ -1,13 +1,4 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Khôi phục bản gốc Firebase Sync</title>
-</head>
-<body>
-
-<!-- Dán vào trang hiện có -->
+<!-- Đồng bộ Firebase hai chiều (Khôi phục dòng ẩn & Hoàn tác chuẩn xác) -->
 <script>
 (function () {
   "use strict";
@@ -26,7 +17,40 @@
 
     status = document.createElement("div");
     status.id = "firebaseSyncStatus";
-    status.innerHTML = '<span class="firebase-sync-dot"></span><span class="firebase-sync-text">Đang kết nối Firebase...</span>';
+    status.setAttribute("role", "status");
+    status.title = "Bấm để đồng bộ Firebase ngay";
+    status.innerHTML = `
+      <span class="firebase-sync-dot"></span>
+      <span class="firebase-sync-text">Đang kết nối Firebase...</span>
+    `;
+    Object.assign(status.style, {
+      position: "fixed",
+      right: "12px",
+      bottom: "12px",
+      zIndex: "99999",
+      display: "flex",
+      alignItems: "center",
+      gap: "7px",
+      maxWidth: "calc(100vw - 24px)",
+      padding: "8px 14px",
+      borderRadius: "999px",
+      background: "rgba(255, 255, 255, 0.95)",
+      color: "#334155",
+      font: "600 12px/1.3 Arial, sans-serif",
+      boxShadow: "0 4px 16px rgba(15, 23, 42, 0.16)",
+      cursor: "pointer",
+      backdropFilter: "blur(8px)",
+      border: "1px solid rgba(100, 116, 139, 0.25)"
+    });
+
+    const dot = status.querySelector(".firebase-sync-dot");
+    Object.assign(dot.style, {
+      width: "9px",
+      height: "9px",
+      flex: "0 0 9px",
+      borderRadius: "50%",
+      background: "#94A3B8"
+    });
 
     status.addEventListener("click", dongBoFirebaseVaoWeb);
     document.body.appendChild(status);
@@ -35,49 +59,56 @@
 
   function updateSyncStatus(state, text) {
     const status = createSyncStatus();
+    const dot = status.querySelector(".firebase-sync-dot");
     const label = status.querySelector(".firebase-sync-text");
-    if (label) label.innerText = text;
+
+    const colors = {
+      syncing: "#F59E0B",
+      success: "#16A34A",
+      error: "#DC2626"
+    };
+
+    dot.style.background = colors[state] || "#94A3B8";
+    label.innerText = text;
   }
 
   async function dongBoFirebaseVaoWeb() {
     if (firebaseSyncRunning) return;
-
     const iframe = getQlkhIframe();
     if (!iframe || !iframe.contentDocument) return;
 
     const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
     const rows = iframeDoc.querySelectorAll("tr");
+    if (!rows || rows.length === 0) return;
 
     firebaseSyncRunning = true;
-
     try {
       const response = await fetch(FIREBASE_DB_URL);
       if (!response.ok) throw new Error("Mất kết nối");
-
       const data = await response.json();
 
       if (data) {
         Object.keys(data).forEach(key => {
           const item = data[key];
           const isDone = item.daXuLy === true;
+          // Tách mã số khách hàng (Ví dụ: VAY_18701014 -> 18701014)
           const customerId = key.replace("VAY_", "").replace("GUI_", "").trim();
 
           rows.forEach(row => {
+            // textContent đọc được chữ kể cả khi dòng tr đang bị ẩn (display: none)
             const rowText = row.textContent || "";
-
             if (rowText.includes(customerId)) {
               const checkbox = row.querySelector("input[type='checkbox']");
-
               if (checkbox) {
                 if (checkbox.checked !== isDone) {
                   checkbox.click();
-
+                  // Kiểm tra cưỡng bức nếu click() không tự đảo trạng thái
                   if (checkbox.checked !== isDone) {
                     checkbox.checked = isDone;
                     checkbox.dispatchEvent(new Event("change", { bubbles: true }));
                   }
                 }
-
+                // Nếu trạng thái là chưa xử lý (isDone = false), hiện lại dòng ngay
                 if (!isDone) {
                   row.style.display = "";
                   row.classList.remove("hidden", "d-none");
@@ -88,8 +119,10 @@
         });
       }
 
-      updateSyncStatus("success", "Đồng bộ thành công");
-
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      const dateStr = now.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+      updateSyncStatus("success", `Đồng bộ cuối: ${timeStr} ${dateStr}`);
     } catch (err) {
       updateSyncStatus("error", "Lỗi kết nối Firebase");
     } finally {
@@ -97,15 +130,14 @@
     }
   }
 
+  // Tự động kích hoạt khi trang tải xong
   window.addEventListener("load", () => {
     createSyncStatus();
     setTimeout(dongBoFirebaseVaoWeb, 1500);
     setInterval(dongBoFirebaseVaoWeb, FIREBASE_SYNC_INTERVAL_MS);
   });
 
+  // Tự động quét lại ngay khi quay lại tab web
   window.addEventListener("focus", dongBoFirebaseVaoWeb);
 })();
 </script>
-
-</body>
-</html>
