@@ -1,111 +1,216 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Khôi phục bản gốc Firebase Sync</title>
-</head>
-<body>
-
-<!-- Dán vào trang hiện có -->
+<!-- BỘ ĐỒNG BỘ CLOUD FIREBASE ĐA THIẾT BỊ & TỰ ĐỘNG KHÔI PHỤC (UNDO) -->
 <script>
 (function () {
   "use strict";
 
   const FIREBASE_DB_URL = "https://qlkh-c3298-default-rtdb.asia-southeast1.firebasedatabase.app/qlkh.json";
-  const FIREBASE_SYNC_INTERVAL_MS = 3000;
-  let firebaseSyncRunning = false;
+  const SYNC_INTERVAL_MS = 3000; // Quét kiểm tra mỗi 3 giây
+  let isSyncing = false;
 
-  function getQlkhIframe() {
+  function getIframe() {
     return document.querySelector("#panel-qlkh #qlkhFrame") || document.querySelector("#panel-qlkh iframe");
   }
 
+  // Tạo nhãn trạng thái hiển thị thời gian thực ở góc phải màn hình
   function createSyncStatus() {
     let status = document.getElementById("firebaseSyncStatus");
     if (status) return status;
 
     status = document.createElement("div");
     status.id = "firebaseSyncStatus";
-    status.innerHTML = '<span class="firebase-sync-dot"></span><span class="firebase-sync-text">Đang kết nối Firebase...</span>';
+    status.setAttribute("role", "status");
+    status.title = "Bấm để đồng bộ ngay lập tức";
+    status.innerHTML = `
+      <span class="sync-dot"></span>
+      <span class="sync-text">Đang kết nối Cloud...</span>
+    `;
+    Object.assign(status.style, {
+      position: "fixed",
+      right: "12px",
+      bottom: "12px",
+      zIndex: "99999",
+      display: "flex",
+      alignItems: "center",
+      gap: "7px",
+      maxWidth: "calc(100vw - 24px)",
+      padding: "7px 13px",
+      borderRadius: "999px",
+      background: "rgba(255, 255, 255, 0.95)",
+      color: "#334155",
+      font: "600 12px/1.3 Arial, sans-serif",
+      boxShadow: "0 4px 14px rgba(15, 23, 42, 0.15)",
+      cursor: "pointer",
+      backdropFilter: "blur(8px)",
+      border: "1px solid rgba(100, 116, 139, 0.25)"
+    });
 
-    status.addEventListener("click", dongBoFirebaseVaoWeb);
+    const dot = status.querySelector(".sync-dot");
+    Object.assign(dot.style, {
+      width: "8px",
+      height: "8px",
+      flex: "0 0 8px",
+      borderRadius: "50%",
+      background: "#94A3B8"
+    });
+
+    status.addEventListener("click", dongBoHeThongTuCloud);
     document.body.appendChild(status);
     return status;
   }
 
-  function updateSyncStatus(state, text) {
+  function updateBadge(state, text) {
     const status = createSyncStatus();
-    const label = status.querySelector(".firebase-sync-text");
-    if (label) label.innerText = text;
+    const dot = status.querySelector(".sync-dot");
+    const label = status.querySelector(".sync-text");
+
+    const colors = {
+      syncing: "#F59E0B",
+      success: "#16A34A",
+      error: "#DC2626"
+    };
+
+    dot.style.background = colors[state] || "#94A3B8";
+    label.innerText = text;
   }
 
-  async function dongBoFirebaseVaoWeb() {
-    if (firebaseSyncRunning) return;
+  // Hàm dọn dẹp mã khách hàng trong localStorage của trình duyệt hiện tại
+  function donDepLocalStorage(customerId, isDone, storageObj) {
+    try {
+      if (!storageObj) return;
+      for (let i = 0; i < storageObj.length; i++) {
+        const key = storageObj.key(i);
+        const rawVal = storageObj.getItem(key);
+        if (!rawVal || !rawVal.includes(customerId)) continue;
 
-    const iframe = getQlkhIframe();
+        try {
+          let parsed = JSON.parse(rawVal);
+          // Trường hợp dữ liệu lưu dưới dạng mảng mã: ["18701014", ...]
+          if (Array.isArray(parsed)) {
+            if (!isDone) {
+              const updated = parsed.filter(id => String(id) !== String(customerId));
+              if (updated.length !== parsed.length) {
+                storageObj.setItem(key, JSON.stringify(updated));
+              }
+            } else if (!parsed.map(String).includes(String(customerId))) {
+              parsed.push(customerId);
+              storageObj.setItem(key, JSON.stringify(parsed));
+            }
+          } 
+          // Trường hợp dữ liệu lưu dưới dạng Object: {"18701014": true, ...}
+          else if (typeof parsed === "object" && parsed !== null) {
+            if (!isDone && (parsed[customerId] !== undefined)) {
+              delete parsed[customerId];
+              storageObj.setItem(key, JSON.stringify(parsed));
+            } else if (isDone) {
+              parsed[customerId] = true;
+              storageObj.setItem(key, JSON.stringify(parsed));
+            }
+          }
+        } catch (e) {
+          // Bỏ qua chuỗi không phải JSON
+        }
+      }
+    } catch (e) {
+      console.warn("Lỗi đồng bộ localStorage:", e);
+    }
+  }
+
+  async function dongBoHeThongTuCloud() {
+    if (isSyncing) return;
+    const iframe = getIframe();
     if (!iframe || !iframe.contentDocument) return;
 
     const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-    const rows = iframeDoc.querySelectorAll("tr");
+    const iframeWin = iframe.contentWindow;
 
-    firebaseSyncRunning = true;
-
+    isSyncing = true;
     try {
       const response = await fetch(FIREBASE_DB_URL);
-      if (!response.ok) throw new Error("Mất kết nối");
-
+      if (!response.ok) throw new Error("Mất mạng hoặc lỗi kết nối");
       const data = await response.json();
 
       if (data) {
+        let coThayDoi = false;
+
         Object.keys(data).forEach(key => {
           const item = data[key];
           const isDone = item.daXuLy === true;
+          // Tách mã số khách hàng (Ví dụ: VAY_18701014 -> 18701014)
           const customerId = key.replace("VAY_", "").replace("GUI_", "").trim();
 
-          rows.forEach(row => {
-            const rowText = row.textContent || "";
+          // 1. Đồng bộ localStorage của cả máy ngoài lẫn bên trong iframe
+          donDepLocalStorage(customerId, isDone, window.localStorage);
+          if (iframeWin && iframeWin.localStorage) {
+            donDepLocalStorage(customerId, isDone, iframeWin.localStorage);
+          }
 
-            if (rowText.includes(customerId)) {
+          // 2. Tìm tất cả phần tử trong iframe (bao gồm modal ẩn, danh sách đã xử lý)
+          const allRows = iframeDoc.querySelectorAll("tr, .customer-item, .card-row");
+          allRows.forEach(row => {
+            const rowContent = row.textContent || "";
+            if (rowContent.includes(customerId)) {
               const checkbox = row.querySelector("input[type='checkbox']");
 
-              if (checkbox) {
-                if (checkbox.checked !== isDone) {
+              // Xử lý khi trạng thái là ĐÃ XỬ LÝ (isDone = true)
+              if (isDone) {
+                if (checkbox && !checkbox.checked) {
                   checkbox.click();
+                  coThayDoi = true;
+                }
+              } 
+              // Xử lý khi trạng thái là HOÀN TÁC / CHƯA XỬ LÝ (isDone = false)
+              else {
+                // Tự động tìm và bấm nút "Khôi phục" nếu khách đang nằm trong danh sách đã xử lý
+                const restoreBtn = row.querySelector("button, a, .btn-restore, .btn-undo, [title*='Khôi phục'], [title*='phục hồi']");
+                if (restoreBtn && (restoreBtn.textContent.includes("Khôi phục") || restoreBtn.textContent.includes("Lấy lại") || restoreBtn.innerHTML.includes("fa-undo") || restoreBtn.innerHTML.includes("rotate"))) {
+                  restoreBtn.click();
+                  coThayDoi = true;
+                }
 
-                  if (checkbox.checked !== isDone) {
-                    checkbox.checked = isDone;
+                // Nếu ô checkbox vẫn đang tích, bấm nhả tích
+                if (checkbox && checkbox.checked) {
+                  checkbox.click();
+                  if (checkbox.checked) {
+                    checkbox.checked = false;
                     checkbox.dispatchEvent(new Event("change", { bubbles: true }));
                   }
+                  coThayDoi = true;
                 }
 
-                if (!isDone) {
-                  row.style.display = "";
-                  row.classList.remove("hidden", "d-none");
-                }
+                // Bắt buộc hiện lại dòng trên màn hình
+                row.style.display = "";
+                row.classList.remove("hidden", "d-none", "is-done");
               }
             }
           });
         });
+
+        // 3. Nếu vừa khôi phục bản ghi, kích hoạt sự kiện lọc để giao diện vẽ lại bảng sạch đẹp
+        if (coThayDoi) {
+          const filterBtn = iframeDoc.querySelector("select, .filter-active, #btnFilter");
+          if (filterBtn) filterBtn.dispatchEvent(new Event("change", { bubbles: true }));
+        }
       }
 
-      updateSyncStatus("success", "Đồng bộ thành công");
-
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      const dateStr = now.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+      updateBadge("success", `Đồng bộ cuối: ${timeStr} ${dateStr}`);
     } catch (err) {
-      updateSyncStatus("error", "Lỗi kết nối Firebase");
+      updateBadge("error", "Lỗi kết nối Firebase");
     } finally {
-      firebaseSyncRunning = false;
+      isSyncing = false;
     }
   }
 
+  // Khởi động khi tải trang xong
   window.addEventListener("load", () => {
     createSyncStatus();
-    setTimeout(dongBoFirebaseVaoWeb, 1500);
-    setInterval(dongBoFirebaseVaoWeb, FIREBASE_SYNC_INTERVAL_MS);
+    setTimeout(dongBoHeThongTuCloud, 1800);
+    setInterval(dongBoHeThongTuCloud, SYNC_INTERVAL_MS);
   });
 
-  window.addEventListener("focus", dongBoFirebaseVaoWeb);
+  // Tự động kiểm tra đồng bộ ngay khi chuyển đổi lại tab web
+  window.addEventListener("focus", dongBoHeThongTuCloud);
 })();
 </script>
-
-</body>
-</html>
