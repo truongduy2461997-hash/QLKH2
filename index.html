@@ -1014,12 +1014,11 @@ window.LTV_CHUNKS = [
 (function () {
   "use strict";
 
-  const FIREBASE_ROOT_URL =
-    "https://qlkh-c3298-default-rtdb.asia-southeast1.firebasedatabase.app/qlkh";
+  const FIREBASE_ROOT_URL = "https://qlkh-c3298-default-rtdb.asia-southeast1.firebasedatabase.app/qlkh";
   const FIREBASE_DB_URL = FIREBASE_ROOT_URL + ".json";
-  const SYNC_INTERVAL_MS = 15000;
-  const IFRAME_READY_DELAY_MS = 1500;
-  const WRITE_DELAY_MS = 400;
+  const SYNC_INTERVAL_MS = 5000; // Tự động kiểm tra mỗi 5 giây
+  const WRITE_DELAY_MS = 300;
+  const PAID_KEY = "qlkh_v42_fix_paid";
 
   let syncTimer = null;
   let syncRunning = false;
@@ -1029,8 +1028,7 @@ window.LTV_CHUNKS = [
   const pendingWrites = new Map();
 
   function getIframe() {
-    return document.querySelector("#panel-qlkh #qlkhFrame") ||
-      document.querySelector("#panel-qlkh iframe");
+    return document.querySelector("#panel-qlkh #qlkhFrame") || document.querySelector("#panel-qlkh iframe");
   }
 
   function getFrameWindow() {
@@ -1044,7 +1042,6 @@ window.LTV_CHUNKS = [
     try {
       return frame.contentDocument || frame.contentWindow.document;
     } catch (error) {
-      console.warn("Không thể truy cập iframe QLKH:", error);
       return null;
     }
   }
@@ -1065,73 +1062,9 @@ window.LTV_CHUNKS = [
 
   function getCustomerId(firebaseKey, item) {
     return String(
-      item.maKH || item.customerId || item.cif || item.CIF ||
+      (item && (item.maKH || item.customerId || item.cif || item.CIF)) ||
       firebaseKey.replace(/^VAY_/i, "").replace(/^GUI_/i, "")
     ).trim();
-  }
-
-  function getFirebaseType(firebaseKey, item) {
-    const type = normalizeText(item.phanLoai || item.loai || item.type);
-    if (type === "vay" || /^VAY_/i.test(firebaseKey)) return "VAY";
-    if (type === "gui" || /^GUI_/i.test(firebaseKey)) return "GUI";
-    return "";
-  }
-
-  function dateToken(value) {
-    const text = String(value || "").trim();
-    let match = text.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
-    if (match) return match[1].padStart(2, "0") + "/" + match[2].padStart(2, "0") + "/" + match[3];
-    match = text.match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/);
-    if (match) return match[3].padStart(2, "0") + "/" + match[2].padStart(2, "0") + "/" + match[1];
-    return "";
-  }
-
-  function isActivePaidEntry(entry) {
-    return Boolean(entry && entry.status !== "restored" && entry.active !== false && entry.restored !== true);
-  }
-
-  function scorePaidEntry(paidKey, entry, firebaseKey, item) {
-    const customerId = onlyDigits(getCustomerId(firebaseKey, item));
-    if (!customerId) return -1;
-
-    const entryText = normalizeText([
-      paidKey, entry.key, entry.maKH, entry.customerId, entry.cif,
-      entry.name, entry.customerName, entry.account, entry.contract,
-      entry.dueDate, entry.maturityDate, entry.kind, entry.source, entry.scope
-    ].filter(Boolean).join(" "));
-    const entryDigits = onlyDigits(entryText);
-    if (!entryDigits.includes(customerId)) return -1;
-
-    let score = 100;
-    const type = getFirebaseType(firebaseKey, item);
-    if (type === "VAY" && /(loan|vay|principal|goc|lai|today)/.test(entryText)) score += 20;
-    if (type === "GUI" && /(deposit|tien gui|dao han|ky han)/.test(entryText)) score += 20;
-
-    const firebaseDate = dateToken(item.ngayHan || item.dueDate);
-    const paidDate = dateToken(entry.dueDate || entry.maturityDate || entry.paymentDate);
-    if (firebaseDate && paidDate && firebaseDate === paidDate) score += 30;
-
-    const firebaseAccount = onlyDigits(item.soTaiKhoan || item.account || item.soSo || item.contract || item.soHopDong);
-    const paidAccount = onlyDigits(entry.account || entry.contract || paidKey);
-    if (firebaseAccount && paidAccount && paidAccount.includes(firebaseAccount)) score += 40;
-
-    return score;
-  }
-
-  function findPaidMatches(store, firebaseKey, item) {
-    const matches = [];
-    ["loan", "today", "deposit", "birthday"].forEach(function (scope) {
-      const map = store[scope] || {};
-      Object.keys(map).forEach(function (paidKey) {
-        const entry = map[paidKey];
-        if (!entry || typeof entry !== "object") return;
-        const score = scorePaidEntry(paidKey, entry, firebaseKey, item);
-        if (score >= 100) matches.push({ scope, map, key: paidKey, entry, score });
-      });
-    });
-    if (!matches.length) return [];
-    const maxScore = Math.max.apply(null, matches.map(function (match) { return match.score; }));
-    return matches.filter(function (match) { return match.score === maxScore; });
   }
 
   function createStatusBadge() {
@@ -1142,11 +1075,11 @@ window.LTV_CHUNKS = [
     badge.id = "firebaseSyncStatus";
     badge.type = "button";
     badge.setAttribute("aria-live", "polite");
-    badge.innerHTML = '<span class="firebase-sync-dot"></span><span class="firebase-sync-text">Firebase: Chưa đồng bộ</span>';
+    badge.innerHTML = '<span class="firebase-sync-dot"></span><span class="firebase-sync-text">Firebase: Đang kết nối...</span>';
     Object.assign(badge.style, {
       position: "fixed", right: "12px", bottom: "12px", zIndex: "99999",
       display: "flex", alignItems: "center", gap: "7px", maxWidth: "calc(100vw - 24px)",
-      padding: "8px 12px", border: "1px solid rgba(100,116,139,.35)", borderRadius: "999px",
+      padding: "8px 13px", border: "1px solid rgba(100,116,139,.35)", borderRadius: "999px",
       background: "rgba(255,255,255,.96)", color: "#334155", font: "600 12px/1.3 Arial,sans-serif",
       boxShadow: "0 4px 16px rgba(15,23,42,.16)", cursor: "pointer", backdropFilter: "blur(8px)"
     });
@@ -1177,69 +1110,34 @@ window.LTV_CHUNKS = [
     badge.title = detail || "Bấm để đồng bộ Firebase ngay";
   }
 
-  function makePaidEntry(win, firebaseKey, item, scope, oldEntry) {
-    const now = new Date().toISOString();
-    const base = Object.assign({}, oldEntry || {}, {
-      at: oldEntry && oldEntry.at ? oldEntry.at : now,
-      updatedAt: now,
-      status: "paid", active: true, restored: false,
-      scope, key: oldEntry && oldEntry.key ? oldEntry.key : firebaseKey,
-      source: "firebase_multi_device", firebaseKey,
-      maKH: getCustomerId(firebaseKey, item),
-      name: item.tenKhachHang || item.customerName || (oldEntry && oldEntry.name) || "",
-      account: item.soTaiKhoan || item.account || item.soSo || (oldEntry && oldEntry.account) || "",
-      contract: item.contract || item.soHopDong || (oldEntry && oldEntry.contract) || "",
-      dueDate: item.ngayHan || item.dueDate || (oldEntry && oldEntry.dueDate) || ""
-    });
-    return typeof win.paidActiveEntry === "function" ? win.paidActiveEntry(base) : base;
-  }
-
-  function applyRemoteState(win, store, data) {
-    let paidCount = 0;
-    let restoredCount = 0;
-    let unmatchedCount = 0;
+  // Khôi phục khách hàng trong bộ nhớ localStorage khi bấm [↩️ Bỏ] (Undo)
+  function restoreInLocalStorage(storage, customerId) {
+    if (!storage) return false;
     let changed = false;
+    try {
+      const raw = storage.getItem(PAID_KEY);
+      if (!raw || !raw.includes(customerId)) return false;
+      const data = JSON.parse(raw);
+      if (typeof data !== "object" || data === null) return false;
 
-    Object.keys(data).forEach(function (firebaseKey) {
-      const item = data[firebaseKey];
-      if (!item || typeof item !== "object") return;
-      const matches = findPaidMatches(store, firebaseKey, item);
-
-      if (item.daXuLy === true) {
-        if (matches.length) {
-          matches.forEach(function (match) {
-            if (isActivePaidEntry(match.entry)) return;
-            match.map[match.key] = makePaidEntry(win, firebaseKey, item, match.scope, match.entry);
-            paidCount++;
-            changed = true;
-          });
-        } else {
-          unmatchedCount++;
-        }
-      } else {
-        if (matches.length) {
-          matches.forEach(function (match) {
-            if (match.entry.status === "restored" || match.entry.restored === true) return;
-            if (typeof win.paidRestoredEntry === "function") {
-              match.map[match.key] = win.paidRestoredEntry(
-                match.key, match.scope, match.entry,
-                { source: "firebase_undo", firebaseKey }
-              );
-            } else {
-              const now = new Date().toISOString();
-              match.map[match.key] = Object.assign({}, match.entry, {
-                status: "restored", active: false, restored: true,
-                restoredAt: now, updatedAt: now, source: "firebase_undo", firebaseKey
-              });
+      ["loan", "today", "deposit", "birthday"].forEach(function (scope) {
+        if (data[scope] && typeof data[scope] === "object") {
+          Object.keys(data[scope]).forEach(function (key) {
+            if (key.includes(customerId)) {
+              delete data[scope][key];
+              changed = true;
             }
-            restoredCount++;
-            changed = true;
           });
         }
-      }
-    });
+      });
 
-    return { changed, paidCount, restoredCount, unmatchedCount };
+      if (changed) {
+        storage.setItem(PAID_KEY, JSON.stringify(data));
+      }
+    } catch (e) {
+      console.warn("Lỗi đọc/ghi localStorage khi hoàn tác:", e);
+    }
+    return changed;
   }
 
   async function patchFirebase(firebaseKey, checked) {
@@ -1255,8 +1153,7 @@ window.LTV_CHUNKS = [
       body: JSON.stringify(payload)
     });
     if (!response.ok) {
-      const body = await response.text();
-      throw new Error("Firebase ghi lỗi HTTP " + response.status + ": " + body.slice(0, 180));
+      throw new Error("HTTP " + response.status);
     }
     if (!latestRemoteData[firebaseKey]) latestRemoteData[firebaseKey] = {};
     Object.assign(latestRemoteData[firebaseKey], payload);
@@ -1276,13 +1173,7 @@ window.LTV_CHUNKS = [
       const customerId = onlyDigits(getCustomerId(firebaseKey, item));
       if (!customerId || !rowDigits.includes(customerId)) return;
       let score = 100;
-      const type = getFirebaseType(firebaseKey, item);
-      if (type === "VAY" && /(vay|goc|lai|thu no)/.test(rowText)) score += 20;
-      if (type === "GUI" && /(tien gui|dao han|ky han|tai tuc)/.test(rowText)) score += 20;
-      const due = normalizeText(dateToken(item.ngayHan || item.dueDate));
-      if (due && rowText.includes(due)) score += 30;
-      const account = onlyDigits(item.soTaiKhoan || item.account || item.soSo || item.contract || item.soHopDong);
-      if (account && rowDigits.includes(account)) score += 40;
+      if (rowDigits.includes(customerId)) score += 50;
       if (score > bestScore) {
         bestScore = score;
         best = { firebaseKey, item, score };
@@ -1312,7 +1203,7 @@ window.LTV_CHUNKS = [
         checkbox.checked = oldValue;
         checkbox.dispatchEvent(new Event("change", { bubbles: true }));
         applyingRemote = false;
-        setStatus("error", "Firebase: Lưu thất bại", error.message);
+        setStatus("error", "Firebase: Lưu lỗi", error.message);
       }
     }, WRITE_DELAY_MS);
     pendingWrites.set(firebaseKey, timer);
@@ -1332,38 +1223,83 @@ window.LTV_CHUNKS = [
 
   async function syncFromFirebase() {
     if (syncRunning) return;
+    const doc = getFrameDocument();
     const win = getFrameWindow();
-    if (!win || typeof win.paidStore !== "function" || typeof win.savePaidStore !== "function") {
-      setStatus("warning", "Firebase: Chờ QLKH...", "Iframe hoặc paidStore chưa sẵn sàng");
+    if (!doc || !doc.body || doc.body.children.length === 0) {
+      setStatus("warning", "Firebase: Chờ QLKH...", "Đang đợi giao diện nạp xong");
       return;
     }
 
     syncRunning = true;
-    setStatus("syncing", "Firebase: Đang đồng bộ...", "Đang đọc dữ liệu mới nhất");
+    setStatus("syncing", "Firebase: Đang đồng bộ...", "Đang kết nối Cloud...");
     try {
       const response = await fetch(FIREBASE_DB_URL, {
         method: "GET", cache: "no-store", headers: { Accept: "application/json" }
       });
-      if (!response.ok) throw new Error("Firebase HTTP " + response.status);
+      if (!response.ok) throw new Error("Mất kết nối HTTP " + response.status);
       const data = await response.json();
-      if (!data || typeof data !== "object") throw new Error("Firebase không có dữ liệu QLKH");
+      if (!data || typeof data !== "object") throw new Error("Chưa có dữ liệu Firebase");
 
       latestRemoteData = data;
       const signature = JSON.stringify(Object.keys(data).sort().map(function (key) {
         const item = data[key] || {};
-        return [key, item.daXuLy === true, item.ngayXuLy || "", item.updatedAt || ""];
+        return [key, item.daXuLy === true, item.ngayXuLy || ""];
       }));
 
-      let result = { changed: false, paidCount: 0, restoredCount: 0, unmatchedCount: 0 };
+      let needRefresh = false;
+
       if (signature !== lastRemoteSignature) {
-        const store = win.paidStore();
         applyingRemote = true;
         try {
-          result = applyRemoteState(win, store, data);
-          if (result.changed) {
-            win.savePaidStore(store, "Đồng bộ cloud Firebase đa thiết bị");
-            if (typeof win.renderAll === "function") win.renderAll();
-            else if (typeof win.renderActiveTab === "function") win.renderActiveTab();
+          const rows = doc.querySelectorAll("tr");
+
+          Object.keys(data).forEach(function (firebaseKey) {
+            const item = data[firebaseKey];
+            if (!item || typeof item !== "object") return;
+            const customerId = onlyDigits(getCustomerId(firebaseKey, item));
+            if (!customerId) return;
+            const isDone = item.daXuLy === true;
+
+            // 1. Nếu khách hàng đang hiển thị trên bảng
+            rows.forEach(function (row) {
+              const rowText = normalizeText(row.innerText || row.textContent);
+              if (onlyDigits(rowText).includes(customerId)) {
+                const cb = row.querySelector("input[type='checkbox']");
+                if (cb) {
+                  if (isDone && !cb.checked) {
+                    cb.click();
+                  } else if (!isDone && cb.checked) {
+                    cb.click();
+                  }
+                }
+              }
+            });
+
+            // 2. Nếu khách hàng bị bấm Undo [Bỏ] bên Telegram
+            if (!isDone) {
+              const cleaned1 = restoreInLocalStorage(window.localStorage, customerId);
+              const cleaned2 = win && win.localStorage ? restoreInLocalStorage(win.localStorage, customerId) : false;
+              if (cleaned1 || cleaned2) {
+                needRefresh = true;
+              }
+            }
+          });
+
+          // Tải lại bảng nếu vừa hoàn tác thành công khách hàng bị ẩn
+          if (needRefresh) {
+            try {
+              if (win) {
+                win.dispatchEvent(new StorageEvent("storage", { key: PAID_KEY }));
+              }
+            } catch (e) {}
+
+            const activeTab = doc.querySelector(".tab.active, #tabs .tab.active, button.active");
+            if (activeTab) {
+              activeTab.click();
+            } else {
+              const filterInput = doc.querySelector("input[type='search'], select, #btnFilter");
+              if (filterInput) filterInput.dispatchEvent(new Event("change", { bubbles: true }));
+            }
           }
         } finally {
           applyingRemote = false;
@@ -1373,14 +1309,7 @@ window.LTV_CHUNKS = [
 
       bindCheckboxes();
       const now = new Date();
-      const detail = [
-        "Tổng Firebase: " + Object.keys(data).length,
-        "Đánh dấu đã xử lý: " + result.paidCount,
-        "Hoàn tác: " + result.restoredCount,
-        "Chưa đối chiếu: " + result.unmatchedCount,
-        result.changed ? "QLKH đã được cập nhật" : "Không có thay đổi mới"
-      ].join("\n");
-      setStatus(result.unmatchedCount ? "warning" : "success", "Đồng bộ cuối: " + formatTime(now), detail);
+      setStatus("success", "Đồng bộ cuối: " + formatTime(now), "Dữ liệu đang khớp với Telegram");
     } catch (error) {
       console.error("Lỗi đồng bộ Firebase:", error);
       setStatus("error", "Firebase: Đồng bộ lỗi", error.message);
@@ -1396,9 +1325,7 @@ window.LTV_CHUNKS = [
     let timer = null;
     const observer = new MutationObserver(function () {
       clearTimeout(timer);
-      timer = setTimeout(function () {
-        bindCheckboxes();
-      }, 250);
+      timer = setTimeout(bindCheckboxes, 300);
     });
     observer.observe(doc.body || doc.documentElement, { childList: true, subtree: true });
   }
@@ -1408,7 +1335,7 @@ window.LTV_CHUNKS = [
     observeFrame();
     bindCheckboxes();
     if (syncTimer) clearInterval(syncTimer);
-    setTimeout(syncFromFirebase, IFRAME_READY_DELAY_MS);
+    setTimeout(syncFromFirebase, 1500);
     syncTimer = setInterval(syncFromFirebase, SYNC_INTERVAL_MS);
   }
 
@@ -1418,7 +1345,7 @@ window.LTV_CHUNKS = [
     frame.dataset.firebaseCloudLoadBound = "1";
     frame.addEventListener("load", function () {
       lastRemoteSignature = "";
-      setTimeout(startSync, 500);
+      setTimeout(startSync, 1000);
     });
   }
 
@@ -1440,6 +1367,5 @@ window.LTV_CHUNKS = [
   }
 })();
 </script>
-
 </body>
 </html>
