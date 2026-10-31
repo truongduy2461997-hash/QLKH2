@@ -500,6 +500,373 @@
     body.shared-fund-shell .wrap {
       padding-top: 6px;
     }
+  
+    /* ========================================================
+       RADAR SĂN LEAD 24H - PHONG CÁCH SACOMBANK TP.HCM
+       ======================================================== */
+    .radar-badge-pill {
+      display: inline-block;
+      padding: 2px 7px;
+      margin-left: 5px;
+      font-size: 11px;
+      font-weight: 900;
+      color: #FFFFFF;
+      background: #E53E3E;
+      border-radius: 999px;
+      vertical-align: middle;
+      box-shadow: 0 2px 6px rgba(229, 62, 62, 0.4);
+    }
+
+    .radar-card-wrapper {
+      background: #F1F5F9 !important;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .radar-top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .radar-head-info {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .radar-stat-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .stat-pill {
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: #EDF2F7;
+      color: #2D3748;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .stat-pill.total { background: #E2E8F0; color: #1E293B; }
+    .stat-pill.card { background: #E8F4EC; color: #166534; border: 1px solid #BBF7D0; }
+    .stat-pill.savings { background: #FFF2CC; color: #854D0E; border: 1px solid #FEF08A; }
+    .stat-pill.sync { background: #E0F2FE; color: #0369A1; }
+
+    .btn-radar-refresh {
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #075B9A;
+      background: #EAF4FF;
+      border: 1px solid #BAE6FD;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s;
+    }
+    .btn-radar-refresh:hover {
+      background: #075B9A;
+      color: #FFFFFF;
+    }
+
+    .radar-toolbar {
+      padding: 10px 14px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .radar-search-box input {
+      width: 100%;
+      padding: 9px 12px;
+      font-size: 13.5px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      outline: none;
+      background: #F8FAFC;
+      transition: all 0.2s;
+    }
+    .radar-search-box input:focus {
+      border-color: #075B9A;
+      background: #FFFFFF;
+      box-shadow: 0 0 0 3px rgba(7, 91, 154, 0.15);
+    }
+
+    .radar-filter-tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 2px;
+    }
+    .radar-filter-tabs::-webkit-scrollbar { display: none; }
+
+    .rf-tab {
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #475569;
+      background: #F1F5F9;
+      border: 1px solid #E2E8F0;
+      border-radius: 999px;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .rf-tab.active {
+      background: #075B9A;
+      color: #FFFFFF;
+      border-color: #075B9A;
+      box-shadow: 0 2px 6px rgba(7, 91, 154, 0.25);
+    }
+
+    .radar-leads-container {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      padding: 12px 14px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 12px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    @media (max-width: 600px) {
+      .radar-leads-container {
+        grid-template-columns: 1fr;
+        padding: 8px;
+        gap: 10px;
+      }
+    }
+
+    .radar-lead-card {
+      display: flex;
+      flex-direction: column;
+      border-radius: 12px;
+      background: #FFFFFF;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+      border: 1.5px solid #E2E8F0;
+      overflow: hidden;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .radar-lead-card:hover {
+      box-shadow: 0 6px 16px rgba(7, 91, 154, 0.12);
+    }
+    .radar-lead-card.type-card {
+      border-left: 5px solid #16A34A;
+      background: linear-gradient(180deg, #F0FDF4 0%, #FFFFFF 35%);
+    }
+    .radar-lead-card.type-savings {
+      border-left: 5px solid #D97706;
+      background: linear-gradient(180deg, #FEFCE8 0%, #FFFFFF 35%);
+    }
+
+    .rlc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background: rgba(248, 250, 252, 0.7);
+      border-bottom: 1px solid #F1F5F9;
+    }
+    .rlc-tags {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .rlc-tag {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    .rlc-tag.card { background: #DCFCE7; color: #15803D; }
+    .rlc-tag.savings { background: #FEF08A; color: #A16207; }
+    .rlc-tag.source { background: #E2E8F0; color: #334155; }
+
+    .rlc-time {
+      font-size: 11px;
+      color: #64748B;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .rlc-body {
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1 1 auto;
+    }
+
+    .rlc-author {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: #0F172A;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .rlc-avatar-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #075B9A;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      flex: 0 0 28px;
+    }
+    .rlc-lead-content {
+      font-size: 12.8px;
+      line-height: 1.45;
+      color: #1E293B;
+      background: #F8FAFC;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border-left: 3px solid #94A3B8;
+      word-break: break-word;
+    }
+
+    .rlc-recommendation {
+      background: #EFF6FF;
+      border: 1px dashed #3B82F6;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #1D4ED8;
+    }
+    .rlc-recommendation strong {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 2px;
+      color: #075B9A;
+    }
+
+    .rlc-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 8px 12px;
+      background: #FAFAFA;
+      border-top: 1px solid #F1F5F9;
+    }
+
+    .btn-open-app {
+      flex: 1 1 120px;
+      min-height: 38px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 800;
+      color: #FFFFFF;
+      background: linear-gradient(135deg, #075B9A, #0E78C7);
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      box-shadow: 0 2px 6px rgba(7, 91, 154, 0.25);
+      transition: transform 0.1s, opacity 0.2s;
+    }
+    .btn-open-app:active {
+      transform: scale(0.97);
+    }
+
+    .btn-copy-pitch {
+      flex: 1 1 120px;
+      min-height: 38px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #075B9A;
+      background: #FFFFFF;
+      border: 1.5px solid #075B9A;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      transition: all 0.2s;
+    }
+    .btn-copy-pitch:hover {
+      background: #EAF4FF;
+    }
+
+    .btn-status-toggle {
+      flex: 0 0 auto;
+      min-height: 38px;
+      padding: 6px 10px;
+      font-size: 11.5px;
+      font-weight: 700;
+      border-radius: 8px;
+      border: 1px solid #CBD5E1;
+      background: #FFFFFF;
+      color: #475569;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-status-toggle.handled {
+      background: #DCFCE7;
+      border-color: #86EFAC;
+      color: #15803D;
+    }
+
+    /* Toast Notification */
+    #radarToast {
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: #0F172A;
+      color: #FFFFFF;
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      z-index: 9999999;
+      transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    #radarToast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
   </style>
 </head>
 
@@ -520,6 +887,7 @@
         <button type="button" class="tab active" data-tab="qlkh">📊 QLKH</button>
         <button type="button" class="tab" data-tab="chitieu">💸 CHI TIÊU</button>
         <button type="button" class="tab" data-tab="tienich">🧰 TIỆN ÍCH</button>
+        <button type="button" class="tab" data-tab="radar">🔥 SĂN LEAD 24H <span class="radar-badge-pill" id="radarHeaderCount">51</span></button>
       </nav>
     </div>
   </header>
@@ -586,7 +954,44 @@
         </div>
       </div>
     </section>
+      <section id="panel-radar" class="panel" data-panel="radar">
+      <div class="card radar-card-wrapper">
+        <div class="card-head radar-top-bar">
+          <div class="radar-head-info">
+            <div class="card-title">🔥 RADAR SĂN LEAD 24H · SACOMBANK TP.HCM</div>
+            <div class="radar-stat-chips">
+              <span class="stat-pill total">🎯 Tổng: <strong id="statTotalLead">51</strong></span>
+              <span class="stat-pill card">🟢 Thẻ: <strong id="statCardLead">28</strong></span>
+              <span class="stat-pill savings">🟡 Tiền gửi: <strong id="statSavingsLead">23</strong></span>
+              <span class="stat-pill sync" id="statSyncTime">⚡ Live Sync: Đang bật</span>
+            </div>
+          </div>
+          <div class="radar-head-actions">
+            <button type="button" class="btn-radar-refresh" id="btnRefreshRadar" title="Lấy dữ liệu mới nhất">🔄 Làm mới</button>
+          </div>
+        </div>
+
+        <div class="radar-toolbar">
+          <div class="radar-search-box">
+            <input type="text" id="radarSearchInput" placeholder="🔍 Tìm tên khách, nhu cầu, quận/huyện, sản phẩm..." autocomplete="off">
+          </div>
+          <div class="radar-filter-tabs">
+            <button type="button" class="rf-tab active" data-rf="all">Tất cả (<span id="rfCountAll">51</span>)</button>
+            <button type="button" class="rf-tab" data-rf="card">🟢 Thẻ Tín Dụng (<span id="rfCountCard">28</span>)</button>
+            <button type="button" class="rf-tab" data-rf="savings">🟡 Tiền Gửi (<span id="rfCountSavings">23</span>)</button>
+            <button type="button" class="rf-tab" data-rf="vip">⭐ Kèo VIP</button>
+            <button type="button" class="rf-tab" data-rf="unhandled">⏳ Chưa liên hệ</button>
+          </div>
+        </div>
+
+        <div class="radar-leads-container" id="radarLeadsList">
+          <div style="padding: 24px; text-align: center; color: #64748B;">Đang khởi tạo Radar Săn Lead...</div>
+        </div>
+      </div>
+    </section>
   </main>
+
+  <div id="radarToast" role="alert" aria-live="assertive"></div>
 
   <script>
     "use strict";
@@ -876,7 +1281,296 @@
               "&": "&amp;",
               '"': "&quot;"
             })[character]) +
-            "</body></html>";
+            "
+<!-- RADAR SĂN LEAD 24H JAVASCRIPT ENGINE -->
+<script id="radarEngineV1">
+(function() {
+  "use strict";
+
+  const FIREBASE_RADAR_URL = "https://qlkh-c3298-default-rtdb.asia-southeast1.firebasedatabase.app/qlkh/radar_leads.json";
+  let radarLeads = [{"stt": "1", "date": "30/10/2026", "time": "06:07", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "2", "date": "30/10/2026", "time": "06:07", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "3", "date": "30/10/2026", "time": "06:07", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "4", "date": "30/10/2026", "time": "07:49", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "5", "date": "30/10/2026", "time": "09:04", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "6", "date": "30/10/2026", "time": "09:04", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "7", "date": "30/10/2026", "time": "10:06", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "8", "date": "30/10/2026", "time": "10:37", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "9", "date": "30/10/2026", "time": "11:08", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "10", "date": "30/10/2026", "time": "11:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "11", "date": "30/10/2026", "time": "11:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "12", "date": "30/10/2026", "time": "11:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "13", "date": "30/10/2026", "time": "11:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "14", "date": "30/10/2026", "time": "12:05", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "15", "date": "30/10/2026", "time": "12:11", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "16", "date": "30/10/2026", "time": "12:36", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "17", "date": "30/10/2026", "time": "13:05", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "18", "date": "30/10/2026", "time": "13:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "19", "date": "30/10/2026", "time": "13:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "20", "date": "30/10/2026", "time": "14:20", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "21", "date": "30/10/2026", "time": "14:20", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "22", "date": "30/10/2026", "time": "14:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "23", "date": "30/10/2026", "time": "14:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "24", "date": "30/10/2026", "time": "15:25", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "25", "date": "30/10/2026", "time": "15:57", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "26", "date": "30/10/2026", "time": "16:30", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "27", "date": "30/10/2026", "time": "17:02", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "28", "date": "30/10/2026", "time": "17:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "29", "date": "30/10/2026", "time": "17:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "30", "date": "30/10/2026", "time": "17:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "31", "date": "30/10/2026", "time": "17:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "32", "date": "30/10/2026", "time": "18:06", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "33", "date": "30/10/2026", "time": "18:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "34", "date": "30/10/2026", "time": "19:05", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "35", "date": "30/10/2026", "time": "20:08", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "36", "date": "30/10/2026", "time": "20:41", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "37", "date": "30/10/2026", "time": "20:41", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "38", "date": "30/10/2026", "time": "21:14", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "39", "date": "30/10/2026", "time": "21:47", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "40", "date": "30/10/2026", "time": "21:47", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "41", "date": "30/10/2026", "time": "22:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "42", "date": "30/10/2026", "time": "23:25", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "43", "date": "30/10/2026", "time": "23:25", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "44", "date": "30/10/2026", "time": "23:58", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "45", "date": "31/10/2026", "time": "00:31", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "46", "date": "31/10/2026", "time": "01:04", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "47", "date": "31/10/2026", "time": "01:04", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "48", "date": "31/10/2026", "time": "02:10", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "49", "date": "31/10/2026", "time": "02:10", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "50", "date": "31/10/2026", "time": "07:29", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "51", "date": "31/10/2026", "time": "07:29", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}];
+  let currentFilter = "all";
+  let searchQuery = "";
+  let isFetching = false;
+
+  function showToast(msg) {
+    const t = document.getElementById("radarToast");
+    if (!t) return;
+    t.innerHTML = "<span>✅</span> " + msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 2800);
+  }
+
+  // Deep Link thần tốc: Mở thẳng App Facebook hoặc Threads trên điện thoại Sếp Duy
+  window.openLeadInApp = function(url) {
+    if (!url) return;
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    if (url.includes("facebook.com") || url.includes("fb.watch") || url.includes("fb.me")) {
+      if (isMobile) {
+        // Giao thức mở thẳng vào Native Facebook App
+        const fbAppUrl = "fb://facewebmodal/f?href=" + encodeURIComponent(url);
+        const start = Date.now();
+        window.location.href = fbAppUrl;
+        setTimeout(() => {
+          if (Date.now() - start < 2000) {
+            window.open(url, "_blank");
+          }
+        }, 1400);
+        return;
+      }
+    } else if (url.includes("threads.net") || url.includes("threads.com")) {
+      if (isMobile) {
+        // Threads Universal Link trên điện thoại
+        window.open(url, "_blank");
+        return;
+      }
+    }
+    window.open(url, "_blank");
+  };
+
+  // Soạn kịch bản mở lời chuẩn chỉnh Sacombank cá nhân hóa cho từng khách
+  window.copySacombankPitch = function(leadJsonStr) {
+    try {
+      const lead = typeof leadJsonStr === "string" ? JSON.parse(decodeURIComponent(leadJsonStr)) : leadJsonStr;
+      const name = lead.name || "anh/chị";
+      const product = (lead.product || "").toLowerCase();
+      const content = (lead.content || "").toLowerCase();
+      const isSav = product.includes("tiết kiệm") || product.includes("tiền gửi") || content.includes("gửi tiết kiệm") || content.includes("tiết kiệm");
+      
+      let pitch = "";
+      if (isSav) {
+        pitch = "Dạ em chào anh/chị " + name + ", em là Duy - Chuyên viên Quản lý Khách hàng tại Sacombank TP.HCM (SĐT/Zalo: 0964240616). Thấy mình đang tìm hiểu gửi tiết kiệm, bên em hiện đang có gói Tiết kiệm Đa Lợi với lãi suất cực kỳ ưu đãi, đặc biệt hỗ trợ cấp ngay Thấu chi/Thẻ tín dụng lên đến 95% sổ tiết kiệm để mình linh hoạt xoay vòng vốn. Em xin phép gửi anh/chị bảng lãi suất chi tiết để mình tham khảo nhé!";
+      } else {
+        pitch = "Dạ em chào anh/chị " + name + ", em là Duy - Chuyên viên Quản lý Khách hàng Sacombank TP.HCM (SĐT/Zalo: 0964240616). Thấy mình đang có nhu cầu về thẻ tín dụng, Sacombank bên em đang có chính sách sang ngang thẻ hạn mức cao (hoặc dòng Sacombank Visa Platinum Cashback hoàn tiền 16.8% mọi chi tiêu), hồ sơ duyệt nhanh trong ngày, miễn chứng minh thu nhập và miễn phí thường niên. Em hỗ trợ chi tiết cho mình nhé!";
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(pitch).then(() => {
+          showToast("Đã copy kịch bản mở lời cho khách " + name + "!");
+        }).catch(() => {
+          prompt("Copy kịch bản mở lời:", pitch);
+        });
+      } else {
+        prompt("Copy kịch bản mở lời:", pitch);
+      }
+    } catch (e) {
+      console.error("Lỗi copy kịch bản:", e);
+    }
+  };
+
+  // Đánh dấu trạng thái [Đã liên hệ] đồng bộ sang Firebase
+  window.toggleLeadStatus = async function(stt) {
+    const lead = radarLeads.find(l => String(l.stt) === String(stt));
+    if (!lead) return;
+
+    const newStatus = lead.status === "Đã liên hệ" ? "Mới" : "Đã liên hệ";
+    lead.status = newStatus;
+    renderLeads();
+    showToast(newStatus === "Đã liên hệ" ? "Đã đánh dấu ĐÃ LIÊN HỆ khách #" + stt : "Đã chuyển về CHƯA LIÊN HỆ #" + stt);
+
+    // Patch lên Firebase RTDB
+    try {
+      const leadIndex = radarLeads.findIndex(l => String(l.stt) === String(stt));
+      if (leadIndex >= 0) {
+        fetch(FIREBASE_RADAR_URL.replace(".json", "") + "/leads/" + leadIndex + ".json", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus })
+        });
+      }
+    } catch (err) {
+      console.warn("Lỗi patch Firebase:", err);
+    }
+  };
+
+  function updateCounters() {
+    const total = radarLeads.length;
+    let cardCount = 0;
+    let savCount = 0;
+
+    radarLeads.forEach(l => {
+      const p = (l.product || "").toLowerCase();
+      const c = (l.content || "").toLowerCase();
+      const n = (l.note || "").toLowerCase();
+      if (p.includes("tiết kiệm") || p.includes("tiền gửi") || c.includes("gửi tiết kiệm") || n.includes("tiền gửi") || c.includes("1 tỷ") || c.includes("400tr")) {
+        savCount++;
+      } else {
+        cardCount++;
+      }
+    });
+
+    const elTop = document.getElementById("radarHeaderCount");
+    const elTot = document.getElementById("statTotalLead");
+    const elCard = document.getElementById("statCardLead");
+    const elSav = document.getElementById("statSavingsLead");
+    const elRfAll = document.getElementById("rfCountAll");
+    const elRfCard = document.getElementById("rfCountCard");
+    const elRfSav = document.getElementById("rfCountSavings");
+
+    if (elTop) elTop.textContent = total;
+    if (elTot) elTot.textContent = total;
+    if (elCard) elCard.textContent = cardCount;
+    if (elSav) elSav.textContent = savCount;
+    if (elRfAll) elRfAll.textContent = total;
+    if (elRfCard) elRfCard.textContent = cardCount;
+    if (elRfSav) elRfSav.textContent = savCount;
+  }
+
+  function renderLeads() {
+    const container = document.getElementById("radarLeadsList");
+    if (!container) return;
+
+    let filtered = radarLeads.filter(l => {
+      const p = (l.product || "").toLowerCase();
+      const c = (l.content || "").toLowerCase();
+      const n = (l.note || "").toLowerCase();
+      const name = (l.name || "").toLowerCase();
+      const isSav = p.includes("tiết kiệm") || p.includes("tiền gửi") || c.includes("gửi tiết kiệm") || n.includes("tiền gửi") || c.includes("1 tỷ") || c.includes("400tr");
+
+      if (currentFilter === "card" && isSav) return false;
+      if (currentFilter === "savings" && !isSav) return false;
+      if (currentFilter === "vip" && !c.includes("1 tỷ") && !c.includes("500tr") && !c.includes("thấu chi") && !c.includes("thẻ đen") && !p.includes("signature")) return false;
+      if (currentFilter === "unhandled" && l.status === "Đã liên hệ") return false;
+
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        return name.includes(q) || c.includes(q) || p.includes(q) || n.includes(q);
+      }
+      return true;
+    });
+
+    if (filtered.length === 0) {
+      container.innerHTML = '<div style="padding: 40px 20px; text-align: center; color: #64748B; font-size: 14px; grid-column: 1 / -1;">Không có khách hàng nào khớp với bộ lọc hiện tại.</div>';
+      return;
+    }
+
+    container.innerHTML = filtered.map(l => {
+      const p = (l.product || "").toLowerCase();
+      const c = (l.content || "").toLowerCase();
+      const n = (l.note || "").toLowerCase();
+      const isSav = p.includes("tiết kiệm") || p.includes("tiền gửi") || c.includes("gửi tiết kiệm") || n.includes("tiền gửi") || c.includes("1 tỷ") || c.includes("400tr");
+      const cardTypeClass = isSav ? "type-savings" : "type-card";
+      const tagTypeHtml = isSav ? '<span class="rlc-tag savings">🟡 TIỀN GỬI</span>' : '<span class="rlc-tag card">🟢 THẺ TÍN DỤNG</span>';
+      
+      const isThreads = (l.note || "").includes("THREADS") || (l.content || "").includes("[THREADS]");
+      const sourceTag = isThreads ? '<span class="rlc-tag source">🧵 THREADS</span>' : '<span class="rlc-tag source">🌐 FB</span>';
+      const initial = (l.name || "K").trim().charAt(0).toUpperCase();
+      const isHandled = l.status === "Đã liên hệ";
+
+      const encJson = encodeURIComponent(JSON.stringify(l));
+
+      return `
+        <div class="radar-lead-card ${cardTypeClass}">
+          <div class="rlc-header">
+            <div class="rlc-tags">
+              <span style="font-weight:900; color:#075B9A; font-size:12px;">#${l.stt}</span>
+              ${tagTypeHtml}
+              ${sourceTag}
+            </div>
+            <div class="rlc-time">🕒 ${l.time || ""} ${l.date || ""}</div>
+          </div>
+
+          <div class="rlc-body">
+            <div class="rlc-author">
+              <div class="rlc-avatar-circle">${initial}</div>
+              <div style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                ${l.name || "Khách hàng"}
+              </div>
+            </div>
+
+            <div class="rlc-lead-content">
+              ${l.content || ""}
+            </div>
+
+            <div class="rlc-recommendation">
+              <strong>🎯 Đề xuất Sacombank:</strong>
+              <div>${l.product || "Tư vấn sản phẩm phù hợp"}</div>
+              <div style="font-weight:700; margin-top:2px;">💰 ${l.limit || "Hạn mức linh hoạt"}</div>
+            </div>
+          </div>
+
+          <div class="rlc-actions">
+            <button type="button" class="btn-open-app" onclick="openLeadInApp('${l.link || ""}')">
+              📲 MỞ APP
+            </button>
+            <button type="button" class="btn-copy-pitch" onclick="copySacombankPitch('${encJson}')">
+              📋 COPY LỜI CHÀO
+            </button>
+            <button type="button" class="btn-status-toggle ${isHandled ? 'handled' : ''}" onclick="toggleLeadStatus('${l.stt}')">
+              ${isHandled ? '✅ Đã liên hệ' : '⏳ Chưa xử lý'}
+            </button>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  async function fetchRadarFromFirebase() {
+    if (isFetching) return;
+    isFetching = true;
+    const syncPill = document.getElementById("statSyncTime");
+    if (syncPill) syncPill.textContent = "⚡ Đang tải...";
+
+    try {
+      const res = await fetch(FIREBASE_RADAR_URL + "?nocache=" + Date.now());
+      if (res.ok) {
+        const data = await res.json();
+        if (data && Array.isArray(data.leads) && data.leads.length > 0) {
+          radarLeads = data.leads;
+          updateCounters();
+          renderLeads();
+          if (syncPill) syncPill.textContent = "⚡ Cập nhật: " + (data.updated_at || "Vừa xong");
+        }
+      }
+    } catch (e) {
+      console.warn("Không thể tải Firebase Radar:", e);
+      if (syncPill) syncPill.textContent = "⚡ Offline Cache";
+    } finally {
+      isFetching = false;
+    }
+  }
+
+  window.initRadar = function() {
+    updateCounters();
+    renderLeads();
+    fetchRadarFromFirebase();
+  };
+
+  // Lắng nghe sự kiện Toolbar
+  document.addEventListener("DOMContentLoaded", function() {
+    const sInput = document.getElementById("radarSearchInput");
+    if (sInput) {
+      sInput.addEventListener("input", function(e) {
+        searchQuery = e.target.value.trim();
+        renderLeads();
+      });
+    }
+
+    document.querySelectorAll(".rf-tab").forEach(tab => {
+      tab.addEventListener("click", function() {
+        document.querySelectorAll(".rf-tab").forEach(t => t.classList.remove("active"));
+        this.classList.add("active");
+        currentFilter = this.dataset.rf;
+        renderLeads();
+      });
+    });
+
+    const btnRefresh = document.getElementById("btnRefreshRadar");
+    if (btnRefresh) {
+      btnRefresh.addEventListener("click", function() {
+        fetchRadarFromFirebase();
+        showToast("Đang đồng bộ dữ liệu mới nhất từ Radar...");
+      });
+    }
+
+    // Tự động kiểm tra cập nhật mỗi 30 giây
+    setInterval(fetchRadarFromFirebase, 30000);
+  });
+})();
+</script>
+
+</body></html>";
         } finally {
           meta.loading = null;
         }
@@ -902,7 +1596,11 @@
 
       activateButtons(".tab", "tab", tab);
 
-      if (tab === "qlkh") {
+      if (tab === "radar") {
+        if (typeof window.initRadar === "function") {
+          window.initRadar();
+        }
+      } else if (tab === "qlkh") {
         loadModule("qlkh");
       } else if (tab === "chitieu") {
         loadModule("chitieu");
@@ -1337,5 +2035,294 @@
   }
 })();
 </script>
+
+<!-- RADAR SĂN LEAD 24H JAVASCRIPT ENGINE -->
+<script id="radarEngineV1">
+(function() {
+  "use strict";
+
+  const FIREBASE_RADAR_URL = "https://qlkh-c3298-default-rtdb.asia-southeast1.firebasedatabase.app/qlkh/radar_leads.json";
+  let radarLeads = [{"stt": "1", "date": "30/10/2026", "time": "06:07", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "2", "date": "30/10/2026", "time": "06:07", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "3", "date": "30/10/2026", "time": "06:07", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "4", "date": "30/10/2026", "time": "07:49", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "5", "date": "30/10/2026", "time": "09:04", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "6", "date": "30/10/2026", "time": "09:04", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "7", "date": "30/10/2026", "time": "10:06", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "8", "date": "30/10/2026", "time": "10:37", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "9", "date": "30/10/2026", "time": "11:08", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "10", "date": "30/10/2026", "time": "11:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "11", "date": "30/10/2026", "time": "11:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "12", "date": "30/10/2026", "time": "11:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "13", "date": "30/10/2026", "time": "11:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "14", "date": "30/10/2026", "time": "12:05", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "15", "date": "30/10/2026", "time": "12:11", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "16", "date": "30/10/2026", "time": "12:36", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "17", "date": "30/10/2026", "time": "13:05", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "18", "date": "30/10/2026", "time": "13:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "19", "date": "30/10/2026", "time": "13:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "20", "date": "30/10/2026", "time": "14:20", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "21", "date": "30/10/2026", "time": "14:20", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "22", "date": "30/10/2026", "time": "14:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "23", "date": "30/10/2026", "time": "14:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "24", "date": "30/10/2026", "time": "15:25", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "25", "date": "30/10/2026", "time": "15:57", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "26", "date": "30/10/2026", "time": "16:30", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "27", "date": "30/10/2026", "time": "17:02", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "28", "date": "30/10/2026", "time": "17:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "29", "date": "30/10/2026", "time": "17:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "30", "date": "30/10/2026", "time": "17:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "31", "date": "30/10/2026", "time": "17:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "32", "date": "30/10/2026", "time": "18:06", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "33", "date": "30/10/2026", "time": "18:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "34", "date": "30/10/2026", "time": "19:05", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "35", "date": "30/10/2026", "time": "20:08", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "36", "date": "30/10/2026", "time": "20:41", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "37", "date": "30/10/2026", "time": "20:41", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "38", "date": "30/10/2026", "time": "21:14", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "39", "date": "30/10/2026", "time": "21:47", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "40", "date": "30/10/2026", "time": "21:47", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "41", "date": "30/10/2026", "time": "22:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "42", "date": "30/10/2026", "time": "23:25", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "43", "date": "30/10/2026", "time": "23:25", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "44", "date": "30/10/2026", "time": "23:58", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "45", "date": "31/10/2026", "time": "00:31", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "46", "date": "31/10/2026", "time": "01:04", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "47", "date": "31/10/2026", "time": "01:04", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "48", "date": "31/10/2026", "time": "02:10", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "49", "date": "31/10/2026", "time": "02:10", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "50", "date": "31/10/2026", "time": "07:29", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "51", "date": "31/10/2026", "time": "07:29", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}];
+  let currentFilter = "all";
+  let searchQuery = "";
+  let isFetching = false;
+
+  function showToast(msg) {
+    const t = document.getElementById("radarToast");
+    if (!t) return;
+    t.innerHTML = "<span>✅</span> " + msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 2800);
+  }
+
+  // Deep Link thần tốc: Mở thẳng App Facebook hoặc Threads trên điện thoại Sếp Duy
+  window.openLeadInApp = function(url) {
+    if (!url) return;
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    if (url.includes("facebook.com") || url.includes("fb.watch") || url.includes("fb.me")) {
+      if (isMobile) {
+        // Giao thức mở thẳng vào Native Facebook App
+        const fbAppUrl = "fb://facewebmodal/f?href=" + encodeURIComponent(url);
+        const start = Date.now();
+        window.location.href = fbAppUrl;
+        setTimeout(() => {
+          if (Date.now() - start < 2000) {
+            window.open(url, "_blank");
+          }
+        }, 1400);
+        return;
+      }
+    } else if (url.includes("threads.net") || url.includes("threads.com")) {
+      if (isMobile) {
+        // Threads Universal Link trên điện thoại
+        window.open(url, "_blank");
+        return;
+      }
+    }
+    window.open(url, "_blank");
+  };
+
+  // Soạn kịch bản mở lời chuẩn chỉnh Sacombank cá nhân hóa cho từng khách
+  window.copySacombankPitch = function(leadJsonStr) {
+    try {
+      const lead = typeof leadJsonStr === "string" ? JSON.parse(decodeURIComponent(leadJsonStr)) : leadJsonStr;
+      const name = lead.name || "anh/chị";
+      const product = (lead.product || "").toLowerCase();
+      const content = (lead.content || "").toLowerCase();
+      const isSav = product.includes("tiết kiệm") || product.includes("tiền gửi") || content.includes("gửi tiết kiệm") || content.includes("tiết kiệm");
+      
+      let pitch = "";
+      if (isSav) {
+        pitch = "Dạ em chào anh/chị " + name + ", em là Duy - Chuyên viên Quản lý Khách hàng tại Sacombank TP.HCM (SĐT/Zalo: 0964240616). Thấy mình đang tìm hiểu gửi tiết kiệm, bên em hiện đang có gói Tiết kiệm Đa Lợi với lãi suất cực kỳ ưu đãi, đặc biệt hỗ trợ cấp ngay Thấu chi/Thẻ tín dụng lên đến 95% sổ tiết kiệm để mình linh hoạt xoay vòng vốn. Em xin phép gửi anh/chị bảng lãi suất chi tiết để mình tham khảo nhé!";
+      } else {
+        pitch = "Dạ em chào anh/chị " + name + ", em là Duy - Chuyên viên Quản lý Khách hàng Sacombank TP.HCM (SĐT/Zalo: 0964240616). Thấy mình đang có nhu cầu về thẻ tín dụng, Sacombank bên em đang có chính sách sang ngang thẻ hạn mức cao (hoặc dòng Sacombank Visa Platinum Cashback hoàn tiền 16.8% mọi chi tiêu), hồ sơ duyệt nhanh trong ngày, miễn chứng minh thu nhập và miễn phí thường niên. Em hỗ trợ chi tiết cho mình nhé!";
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(pitch).then(() => {
+          showToast("Đã copy kịch bản mở lời cho khách " + name + "!");
+        }).catch(() => {
+          prompt("Copy kịch bản mở lời:", pitch);
+        });
+      } else {
+        prompt("Copy kịch bản mở lời:", pitch);
+      }
+    } catch (e) {
+      console.error("Lỗi copy kịch bản:", e);
+    }
+  };
+
+  // Đánh dấu trạng thái [Đã liên hệ] đồng bộ sang Firebase
+  window.toggleLeadStatus = async function(stt) {
+    const lead = radarLeads.find(l => String(l.stt) === String(stt));
+    if (!lead) return;
+
+    const newStatus = lead.status === "Đã liên hệ" ? "Mới" : "Đã liên hệ";
+    lead.status = newStatus;
+    renderLeads();
+    showToast(newStatus === "Đã liên hệ" ? "Đã đánh dấu ĐÃ LIÊN HỆ khách #" + stt : "Đã chuyển về CHƯA LIÊN HỆ #" + stt);
+
+    // Patch lên Firebase RTDB
+    try {
+      const leadIndex = radarLeads.findIndex(l => String(l.stt) === String(stt));
+      if (leadIndex >= 0) {
+        fetch(FIREBASE_RADAR_URL.replace(".json", "") + "/leads/" + leadIndex + ".json", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus })
+        });
+      }
+    } catch (err) {
+      console.warn("Lỗi patch Firebase:", err);
+    }
+  };
+
+  function updateCounters() {
+    const total = radarLeads.length;
+    let cardCount = 0;
+    let savCount = 0;
+
+    radarLeads.forEach(l => {
+      const p = (l.product || "").toLowerCase();
+      const c = (l.content || "").toLowerCase();
+      const n = (l.note || "").toLowerCase();
+      if (p.includes("tiết kiệm") || p.includes("tiền gửi") || c.includes("gửi tiết kiệm") || n.includes("tiền gửi") || c.includes("1 tỷ") || c.includes("400tr")) {
+        savCount++;
+      } else {
+        cardCount++;
+      }
+    });
+
+    const elTop = document.getElementById("radarHeaderCount");
+    const elTot = document.getElementById("statTotalLead");
+    const elCard = document.getElementById("statCardLead");
+    const elSav = document.getElementById("statSavingsLead");
+    const elRfAll = document.getElementById("rfCountAll");
+    const elRfCard = document.getElementById("rfCountCard");
+    const elRfSav = document.getElementById("rfCountSavings");
+
+    if (elTop) elTop.textContent = total;
+    if (elTot) elTot.textContent = total;
+    if (elCard) elCard.textContent = cardCount;
+    if (elSav) elSav.textContent = savCount;
+    if (elRfAll) elRfAll.textContent = total;
+    if (elRfCard) elRfCard.textContent = cardCount;
+    if (elRfSav) elRfSav.textContent = savCount;
+  }
+
+  function renderLeads() {
+    const container = document.getElementById("radarLeadsList");
+    if (!container) return;
+
+    let filtered = radarLeads.filter(l => {
+      const p = (l.product || "").toLowerCase();
+      const c = (l.content || "").toLowerCase();
+      const n = (l.note || "").toLowerCase();
+      const name = (l.name || "").toLowerCase();
+      const isSav = p.includes("tiết kiệm") || p.includes("tiền gửi") || c.includes("gửi tiết kiệm") || n.includes("tiền gửi") || c.includes("1 tỷ") || c.includes("400tr");
+
+      if (currentFilter === "card" && isSav) return false;
+      if (currentFilter === "savings" && !isSav) return false;
+      if (currentFilter === "vip" && !c.includes("1 tỷ") && !c.includes("500tr") && !c.includes("thấu chi") && !c.includes("thẻ đen") && !p.includes("signature")) return false;
+      if (currentFilter === "unhandled" && l.status === "Đã liên hệ") return false;
+
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        return name.includes(q) || c.includes(q) || p.includes(q) || n.includes(q);
+      }
+      return true;
+    });
+
+    if (filtered.length === 0) {
+      container.innerHTML = '<div style="padding: 40px 20px; text-align: center; color: #64748B; font-size: 14px; grid-column: 1 / -1;">Không có khách hàng nào khớp với bộ lọc hiện tại.</div>';
+      return;
+    }
+
+    container.innerHTML = filtered.map(l => {
+      const p = (l.product || "").toLowerCase();
+      const c = (l.content || "").toLowerCase();
+      const n = (l.note || "").toLowerCase();
+      const isSav = p.includes("tiết kiệm") || p.includes("tiền gửi") || c.includes("gửi tiết kiệm") || n.includes("tiền gửi") || c.includes("1 tỷ") || c.includes("400tr");
+      const cardTypeClass = isSav ? "type-savings" : "type-card";
+      const tagTypeHtml = isSav ? '<span class="rlc-tag savings">🟡 TIỀN GỬI</span>' : '<span class="rlc-tag card">🟢 THẺ TÍN DỤNG</span>';
+      
+      const isThreads = (l.note || "").includes("THREADS") || (l.content || "").includes("[THREADS]");
+      const sourceTag = isThreads ? '<span class="rlc-tag source">🧵 THREADS</span>' : '<span class="rlc-tag source">🌐 FB</span>';
+      const initial = (l.name || "K").trim().charAt(0).toUpperCase();
+      const isHandled = l.status === "Đã liên hệ";
+
+      const encJson = encodeURIComponent(JSON.stringify(l));
+
+      return `
+        <div class="radar-lead-card ${cardTypeClass}">
+          <div class="rlc-header">
+            <div class="rlc-tags">
+              <span style="font-weight:900; color:#075B9A; font-size:12px;">#${l.stt}</span>
+              ${tagTypeHtml}
+              ${sourceTag}
+            </div>
+            <div class="rlc-time">🕒 ${l.time || ""} ${l.date || ""}</div>
+          </div>
+
+          <div class="rlc-body">
+            <div class="rlc-author">
+              <div class="rlc-avatar-circle">${initial}</div>
+              <div style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                ${l.name || "Khách hàng"}
+              </div>
+            </div>
+
+            <div class="rlc-lead-content">
+              ${l.content || ""}
+            </div>
+
+            <div class="rlc-recommendation">
+              <strong>🎯 Đề xuất Sacombank:</strong>
+              <div>${l.product || "Tư vấn sản phẩm phù hợp"}</div>
+              <div style="font-weight:700; margin-top:2px;">💰 ${l.limit || "Hạn mức linh hoạt"}</div>
+            </div>
+          </div>
+
+          <div class="rlc-actions">
+            <button type="button" class="btn-open-app" onclick="openLeadInApp('${l.link || ""}')">
+              📲 MỞ APP
+            </button>
+            <button type="button" class="btn-copy-pitch" onclick="copySacombankPitch('${encJson}')">
+              📋 COPY LỜI CHÀO
+            </button>
+            <button type="button" class="btn-status-toggle ${isHandled ? 'handled' : ''}" onclick="toggleLeadStatus('${l.stt}')">
+              ${isHandled ? '✅ Đã liên hệ' : '⏳ Chưa xử lý'}
+            </button>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  async function fetchRadarFromFirebase() {
+    if (isFetching) return;
+    isFetching = true;
+    const syncPill = document.getElementById("statSyncTime");
+    if (syncPill) syncPill.textContent = "⚡ Đang tải...";
+
+    try {
+      const res = await fetch(FIREBASE_RADAR_URL + "?nocache=" + Date.now());
+      if (res.ok) {
+        const data = await res.json();
+        if (data && Array.isArray(data.leads) && data.leads.length > 0) {
+          radarLeads = data.leads;
+          updateCounters();
+          renderLeads();
+          if (syncPill) syncPill.textContent = "⚡ Cập nhật: " + (data.updated_at || "Vừa xong");
+        }
+      }
+    } catch (e) {
+      console.warn("Không thể tải Firebase Radar:", e);
+      if (syncPill) syncPill.textContent = "⚡ Offline Cache";
+    } finally {
+      isFetching = false;
+    }
+  }
+
+  window.initRadar = function() {
+    updateCounters();
+    renderLeads();
+    fetchRadarFromFirebase();
+  };
+
+  // Lắng nghe sự kiện Toolbar
+  document.addEventListener("DOMContentLoaded", function() {
+    const sInput = document.getElementById("radarSearchInput");
+    if (sInput) {
+      sInput.addEventListener("input", function(e) {
+        searchQuery = e.target.value.trim();
+        renderLeads();
+      });
+    }
+
+    document.querySelectorAll(".rf-tab").forEach(tab => {
+      tab.addEventListener("click", function() {
+        document.querySelectorAll(".rf-tab").forEach(t => t.classList.remove("active"));
+        this.classList.add("active");
+        currentFilter = this.dataset.rf;
+        renderLeads();
+      });
+    });
+
+    const btnRefresh = document.getElementById("btnRefreshRadar");
+    if (btnRefresh) {
+      btnRefresh.addEventListener("click", function() {
+        fetchRadarFromFirebase();
+        showToast("Đang đồng bộ dữ liệu mới nhất từ Radar...");
+      });
+    }
+
+    // Tự động kiểm tra cập nhật mỗi 30 giây
+    setInterval(fetchRadarFromFirebase, 30000);
+  });
+})();
+</script>
+
 </body>
 </html>
