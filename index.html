@@ -656,13 +656,14 @@
       gap: 4px;
       align-items: center;
       justify-content: center;
+      flex-wrap: nowrap;
     }
 
     .btn-sheet-app {
       padding: 4px 8px;
       font-size: 11px;
       font-weight: 800;
-      color: #FFFFFF;
+      color: #FFFFFF !important;
       background: #075B9A;
       border: 0;
       border-radius: 4px;
@@ -671,9 +672,20 @@
       align-items: center;
       gap: 3px;
       white-space: nowrap;
+      text-decoration: none !important;
+      line-height: 1.2;
+    }
+    .btn-sheet-app:hover {
+      background: #004B80;
     }
     .btn-sheet-app:active {
       transform: scale(0.96);
+    }
+    .btn-sheet-app.disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      pointer-events: none;
+      background: #94A3B8 !important;
     }
 
     .btn-sheet-copy {
@@ -686,9 +698,43 @@
       border-radius: 4px;
       cursor: pointer;
       white-space: nowrap;
+      line-height: 1.2;
     }
     .btn-sheet-copy:hover {
       background: #EAF4FF;
+    }
+    .btn-sheet-copy:active {
+      transform: scale(0.96);
+    }
+
+    .btn-sheet-link {
+      padding: 3px 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #475569;
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      border-radius: 4px;
+      cursor: pointer;
+      white-space: nowrap;
+      line-height: 1.2;
+    }
+    .btn-sheet-link:hover {
+      background: #E2E8F0;
+      color: #0F172A;
+    }
+    .btn-sheet-link:active {
+      transform: scale(0.96);
+    }
+
+    .lead-name-link {
+      color: #003B73 !important;
+      font-weight: 700;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .lead-name-link:hover {
+      color: #0284C7 !important;
     }
 
     .sheet-status-tag {
@@ -1643,30 +1689,62 @@
     setTimeout(() => t.classList.remove("show"), 2500);
   }
 
-  // Deep Link: Mở thẳng App Facebook hoặc Threads trên điện thoại Sếp Duy
-  window.openLeadInApp = function(url) {
-    if (!url) return;
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    
-    if (url.includes("facebook.com") || url.includes("fb.watch") || url.includes("fb.me")) {
-      if (isMobile) {
-        const fbAppUrl = "fb://facewebmodal/f?href=" + encodeURIComponent(url);
-        const start = Date.now();
-        window.location.href = fbAppUrl;
-        setTimeout(() => {
-          if (Date.now() - start < 2000) {
-            window.open(url, "_blank");
-          }
-        }, 1400);
-        return;
-      }
-    } else if (url.includes("threads.net") || url.includes("threads.com")) {
-      if (isMobile) {
-        window.open(url, "_blank");
-        return;
-      }
+  // Deep Link: Mở thẳng bài viết chuẩn xác trên điện thoại (Facebook / Threads App)
+  window.openLeadInApp = function(event, url) {
+    if (!url || url.trim() === "" || url === "#") {
+      if (event) event.preventDefault();
+      showToast("⚠️ Khách hàng này không có liên kết bài viết!");
+      return false;
     }
-    window.open(url, "_blank");
+
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    // 1. ANDROID: Chạy Intent chính thức của Meta để mở trực tiếp App Facebook / Threads đến đúng bài viết
+    if (isAndroid) {
+      if (event) event.preventDefault();
+      const cleanUrl = url.replace(/^https?:\/\//i, "");
+
+      if (url.includes("facebook.com") || url.includes("fb.watch") || url.includes("fb.me")) {
+        const intentUrl = "intent://" + cleanUrl + "#Intent;scheme=https;package=com.facebook.katana;S.browser_fallback_url=" + encodeURIComponent(url) + ";end;";
+        window.location.href = intentUrl;
+        return false;
+      } else if (url.includes("threads.net") || url.includes("threads.com")) {
+        const intentUrl = "intent://" + cleanUrl + "#Intent;scheme=https;package=com.instagram.barcelona;S.browser_fallback_url=" + encodeURIComponent(url) + ";end;";
+        window.location.href = intentUrl;
+        return false;
+      }
+      window.open(url, "_blank");
+      return false;
+    }
+
+    // 2. iOS (iPhone / iPad):
+    // Cho phép sự kiện click tự nhiên trên thẻ <a href="https://..." target="_blank">
+    // kích hoạt Universal Link của hệ điều hành iOS đưa thẳng vào App Facebook/Threads.
+    // Không dùng fb://facewebmodal (bị Meta bỏ rơi gây lỗi trắng trang/về trang chủ).
+    if (isIOS) {
+      return true; // Cho phép mở link tự nhiên
+    }
+
+    // 3. Desktop / Máy tính: Mở tab mới bình thường
+    return true;
+  };
+
+  // Sao chép nhanh liên kết bài viết để Sếp dán vào Messenger, Zalo hoặc tìm kiếm
+  window.copyLeadLink = function(url) {
+    if (!url || url.trim() === "" || url === "#") {
+      showToast("⚠️ Không có link bài viết!");
+      return;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(() => {
+        showToast("Đã copy liên kết bài viết!");
+      }).catch(() => {
+        prompt("Sao chép link bài viết:", url);
+      });
+    } else {
+      prompt("Sao chép link bài viết:", url);
+    }
   };
 
   // Soạn kịch bản mở lời chuẩn chỉnh Sacombank
@@ -1813,6 +1891,20 @@
       const isHandled = l.status === "Đã liên hệ";
       const encJson = encodeURIComponent(JSON.stringify(l));
 
+      const hasLink = Boolean(l.link && l.link.trim() && l.link !== "#");
+      const safeLink = hasLink ? l.link.trim() : "#";
+      const nameHtml = hasLink
+        ? `<a href="${safeLink}" target="_blank" rel="noopener noreferrer" class="lead-name-link" onclick="return openLeadInApp(event, '${safeLink}')" title="Mở bài viết">${l.name || "Khách hàng"}</a>`
+        : `<span>${l.name || "Khách hàng"}</span>`;
+
+      const appBtnHtml = hasLink
+        ? `<a href="${safeLink}" target="_blank" rel="noopener noreferrer" class="btn-sheet-app" onclick="return openLeadInApp(event, '${safeLink}')" title="Mở bài viết trong ứng dụng">📲 Mở bài</a>`
+        : `<span class="btn-sheet-app disabled" title="Không có liên kết">📲 Không link</span>`;
+
+      const linkBtnHtml = hasLink
+        ? `<button type="button" class="btn-sheet-link" onclick="copyLeadLink('${safeLink}')" title="Sao chép liên kết bài viết">🔗 Link</button>`
+        : ``;
+
       return `
         <tr class="${rowClass}">
           <td class="center" style="font-weight: 800; color: #003B73;">${l.stt}</td>
@@ -1820,7 +1912,7 @@
             ${l.time || ""}<br>${l.date || ""}
           </td>
           <td style="font-weight: 700; color: #0F172A;">
-            ${l.name || "Khách hàng"}
+            ${nameHtml}
           </td>
           <td class="center">
             ${sourceBadge}
@@ -1836,12 +1928,11 @@
           </td>
           <td class="center">
             <div class="sheet-action-btns">
-              <button type="button" class="btn-sheet-app" onclick="openLeadInApp('${l.link || ""}')">
-                📲 App
+              ${appBtnHtml}
+              <button type="button" class="btn-sheet-copy" onclick="copySacombankPitch('${encJson}')" title="Sao chép kịch bản mở lời Sacombank">
+                📋 Soạn
               </button>
-              <button type="button" class="btn-sheet-copy" onclick="copySacombankPitch('${encJson}')">
-                📋 Copy
-              </button>
+              ${linkBtnHtml}
             </div>
           </td>
           <td class="center">
