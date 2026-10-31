@@ -500,7 +500,7 @@
     body.shared-fund-shell .wrap {
       padding-top: 6px;
     }
-  
+
     /* ========================================================
        RADAR SĂN LEAD 24H - PHONG CÁCH SACOMBANK TP.HCM
        ======================================================== */
@@ -954,7 +954,8 @@
         </div>
       </div>
     </section>
-      <section id="panel-radar" class="panel" data-panel="radar">
+
+    <section id="panel-radar" class="panel" data-panel="radar">
       <div class="card radar-card-wrapper">
         <div class="card-head radar-top-bar">
           <div class="radar-head-info">
@@ -1281,296 +1282,7 @@
               "&": "&amp;",
               '"': "&quot;"
             })[character]) +
-            "
-<!-- RADAR SĂN LEAD 24H JAVASCRIPT ENGINE -->
-<script id="radarEngineV1">
-(function() {
-  "use strict";
-
-  const FIREBASE_RADAR_URL = "https://qlkh-c3298-default-rtdb.asia-southeast1.firebasedatabase.app/qlkh/radar_leads.json";
-  let radarLeads = [{"stt": "1", "date": "30/10/2026", "time": "06:07", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "2", "date": "30/10/2026", "time": "06:07", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "3", "date": "30/10/2026", "time": "06:07", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "4", "date": "30/10/2026", "time": "07:49", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "5", "date": "30/10/2026", "time": "09:04", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "6", "date": "30/10/2026", "time": "09:04", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "7", "date": "30/10/2026", "time": "10:06", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "8", "date": "30/10/2026", "time": "10:37", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "9", "date": "30/10/2026", "time": "11:08", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "10", "date": "30/10/2026", "time": "11:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "11", "date": "30/10/2026", "time": "11:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "12", "date": "30/10/2026", "time": "11:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "13", "date": "30/10/2026", "time": "11:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "14", "date": "30/10/2026", "time": "12:05", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "15", "date": "30/10/2026", "time": "12:11", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "16", "date": "30/10/2026", "time": "12:36", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "17", "date": "30/10/2026", "time": "13:05", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "18", "date": "30/10/2026", "time": "13:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "19", "date": "30/10/2026", "time": "13:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "20", "date": "30/10/2026", "time": "14:20", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "21", "date": "30/10/2026", "time": "14:20", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "22", "date": "30/10/2026", "time": "14:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "23", "date": "30/10/2026", "time": "14:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "24", "date": "30/10/2026", "time": "15:25", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "25", "date": "30/10/2026", "time": "15:57", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "26", "date": "30/10/2026", "time": "16:30", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "27", "date": "30/10/2026", "time": "17:02", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "28", "date": "30/10/2026", "time": "17:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "29", "date": "30/10/2026", "time": "17:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "30", "date": "30/10/2026", "time": "17:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "31", "date": "30/10/2026", "time": "17:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "32", "date": "30/10/2026", "time": "18:06", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "33", "date": "30/10/2026", "time": "18:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "34", "date": "30/10/2026", "time": "19:05", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "35", "date": "30/10/2026", "time": "20:08", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "36", "date": "30/10/2026", "time": "20:41", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "37", "date": "30/10/2026", "time": "20:41", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "38", "date": "30/10/2026", "time": "21:14", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "39", "date": "30/10/2026", "time": "21:47", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "40", "date": "30/10/2026", "time": "21:47", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "41", "date": "30/10/2026", "time": "22:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "42", "date": "30/10/2026", "time": "23:25", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "43", "date": "30/10/2026", "time": "23:25", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "44", "date": "30/10/2026", "time": "23:58", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "45", "date": "31/10/2026", "time": "00:31", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "46", "date": "31/10/2026", "time": "01:04", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "47", "date": "31/10/2026", "time": "01:04", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "48", "date": "31/10/2026", "time": "02:10", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "49", "date": "31/10/2026", "time": "02:10", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "50", "date": "31/10/2026", "time": "07:29", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "51", "date": "31/10/2026", "time": "07:29", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}];
-  let currentFilter = "all";
-  let searchQuery = "";
-  let isFetching = false;
-
-  function showToast(msg) {
-    const t = document.getElementById("radarToast");
-    if (!t) return;
-    t.innerHTML = "<span>✅</span> " + msg;
-    t.classList.add("show");
-    setTimeout(() => t.classList.remove("show"), 2800);
-  }
-
-  // Deep Link thần tốc: Mở thẳng App Facebook hoặc Threads trên điện thoại Sếp Duy
-  window.openLeadInApp = function(url) {
-    if (!url) return;
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    
-    if (url.includes("facebook.com") || url.includes("fb.watch") || url.includes("fb.me")) {
-      if (isMobile) {
-        // Giao thức mở thẳng vào Native Facebook App
-        const fbAppUrl = "fb://facewebmodal/f?href=" + encodeURIComponent(url);
-        const start = Date.now();
-        window.location.href = fbAppUrl;
-        setTimeout(() => {
-          if (Date.now() - start < 2000) {
-            window.open(url, "_blank");
-          }
-        }, 1400);
-        return;
-      }
-    } else if (url.includes("threads.net") || url.includes("threads.com")) {
-      if (isMobile) {
-        // Threads Universal Link trên điện thoại
-        window.open(url, "_blank");
-        return;
-      }
-    }
-    window.open(url, "_blank");
-  };
-
-  // Soạn kịch bản mở lời chuẩn chỉnh Sacombank cá nhân hóa cho từng khách
-  window.copySacombankPitch = function(leadJsonStr) {
-    try {
-      const lead = typeof leadJsonStr === "string" ? JSON.parse(decodeURIComponent(leadJsonStr)) : leadJsonStr;
-      const name = lead.name || "anh/chị";
-      const product = (lead.product || "").toLowerCase();
-      const content = (lead.content || "").toLowerCase();
-      const isSav = product.includes("tiết kiệm") || product.includes("tiền gửi") || content.includes("gửi tiết kiệm") || content.includes("tiết kiệm");
-      
-      let pitch = "";
-      if (isSav) {
-        pitch = "Dạ em chào anh/chị " + name + ", em là Duy - Chuyên viên Quản lý Khách hàng tại Sacombank TP.HCM (SĐT/Zalo: 0964240616). Thấy mình đang tìm hiểu gửi tiết kiệm, bên em hiện đang có gói Tiết kiệm Đa Lợi với lãi suất cực kỳ ưu đãi, đặc biệt hỗ trợ cấp ngay Thấu chi/Thẻ tín dụng lên đến 95% sổ tiết kiệm để mình linh hoạt xoay vòng vốn. Em xin phép gửi anh/chị bảng lãi suất chi tiết để mình tham khảo nhé!";
-      } else {
-        pitch = "Dạ em chào anh/chị " + name + ", em là Duy - Chuyên viên Quản lý Khách hàng Sacombank TP.HCM (SĐT/Zalo: 0964240616). Thấy mình đang có nhu cầu về thẻ tín dụng, Sacombank bên em đang có chính sách sang ngang thẻ hạn mức cao (hoặc dòng Sacombank Visa Platinum Cashback hoàn tiền 16.8% mọi chi tiêu), hồ sơ duyệt nhanh trong ngày, miễn chứng minh thu nhập và miễn phí thường niên. Em hỗ trợ chi tiết cho mình nhé!";
-      }
-
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(pitch).then(() => {
-          showToast("Đã copy kịch bản mở lời cho khách " + name + "!");
-        }).catch(() => {
-          prompt("Copy kịch bản mở lời:", pitch);
-        });
-      } else {
-        prompt("Copy kịch bản mở lời:", pitch);
-      }
-    } catch (e) {
-      console.error("Lỗi copy kịch bản:", e);
-    }
-  };
-
-  // Đánh dấu trạng thái [Đã liên hệ] đồng bộ sang Firebase
-  window.toggleLeadStatus = async function(stt) {
-    const lead = radarLeads.find(l => String(l.stt) === String(stt));
-    if (!lead) return;
-
-    const newStatus = lead.status === "Đã liên hệ" ? "Mới" : "Đã liên hệ";
-    lead.status = newStatus;
-    renderLeads();
-    showToast(newStatus === "Đã liên hệ" ? "Đã đánh dấu ĐÃ LIÊN HỆ khách #" + stt : "Đã chuyển về CHƯA LIÊN HỆ #" + stt);
-
-    // Patch lên Firebase RTDB
-    try {
-      const leadIndex = radarLeads.findIndex(l => String(l.stt) === String(stt));
-      if (leadIndex >= 0) {
-        fetch(FIREBASE_RADAR_URL.replace(".json", "") + "/leads/" + leadIndex + ".json", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: newStatus })
-        });
-      }
-    } catch (err) {
-      console.warn("Lỗi patch Firebase:", err);
-    }
-  };
-
-  function updateCounters() {
-    const total = radarLeads.length;
-    let cardCount = 0;
-    let savCount = 0;
-
-    radarLeads.forEach(l => {
-      const p = (l.product || "").toLowerCase();
-      const c = (l.content || "").toLowerCase();
-      const n = (l.note || "").toLowerCase();
-      if (p.includes("tiết kiệm") || p.includes("tiền gửi") || c.includes("gửi tiết kiệm") || n.includes("tiền gửi") || c.includes("1 tỷ") || c.includes("400tr")) {
-        savCount++;
-      } else {
-        cardCount++;
-      }
-    });
-
-    const elTop = document.getElementById("radarHeaderCount");
-    const elTot = document.getElementById("statTotalLead");
-    const elCard = document.getElementById("statCardLead");
-    const elSav = document.getElementById("statSavingsLead");
-    const elRfAll = document.getElementById("rfCountAll");
-    const elRfCard = document.getElementById("rfCountCard");
-    const elRfSav = document.getElementById("rfCountSavings");
-
-    if (elTop) elTop.textContent = total;
-    if (elTot) elTot.textContent = total;
-    if (elCard) elCard.textContent = cardCount;
-    if (elSav) elSav.textContent = savCount;
-    if (elRfAll) elRfAll.textContent = total;
-    if (elRfCard) elRfCard.textContent = cardCount;
-    if (elRfSav) elRfSav.textContent = savCount;
-  }
-
-  function renderLeads() {
-    const container = document.getElementById("radarLeadsList");
-    if (!container) return;
-
-    let filtered = radarLeads.filter(l => {
-      const p = (l.product || "").toLowerCase();
-      const c = (l.content || "").toLowerCase();
-      const n = (l.note || "").toLowerCase();
-      const name = (l.name || "").toLowerCase();
-      const isSav = p.includes("tiết kiệm") || p.includes("tiền gửi") || c.includes("gửi tiết kiệm") || n.includes("tiền gửi") || c.includes("1 tỷ") || c.includes("400tr");
-
-      if (currentFilter === "card" && isSav) return false;
-      if (currentFilter === "savings" && !isSav) return false;
-      if (currentFilter === "vip" && !c.includes("1 tỷ") && !c.includes("500tr") && !c.includes("thấu chi") && !c.includes("thẻ đen") && !p.includes("signature")) return false;
-      if (currentFilter === "unhandled" && l.status === "Đã liên hệ") return false;
-
-      if (searchQuery) {
-        const q = searchQuery.toLowerCase();
-        return name.includes(q) || c.includes(q) || p.includes(q) || n.includes(q);
-      }
-      return true;
-    });
-
-    if (filtered.length === 0) {
-      container.innerHTML = '<div style="padding: 40px 20px; text-align: center; color: #64748B; font-size: 14px; grid-column: 1 / -1;">Không có khách hàng nào khớp với bộ lọc hiện tại.</div>';
-      return;
-    }
-
-    container.innerHTML = filtered.map(l => {
-      const p = (l.product || "").toLowerCase();
-      const c = (l.content || "").toLowerCase();
-      const n = (l.note || "").toLowerCase();
-      const isSav = p.includes("tiết kiệm") || p.includes("tiền gửi") || c.includes("gửi tiết kiệm") || n.includes("tiền gửi") || c.includes("1 tỷ") || c.includes("400tr");
-      const cardTypeClass = isSav ? "type-savings" : "type-card";
-      const tagTypeHtml = isSav ? '<span class="rlc-tag savings">🟡 TIỀN GỬI</span>' : '<span class="rlc-tag card">🟢 THẺ TÍN DỤNG</span>';
-      
-      const isThreads = (l.note || "").includes("THREADS") || (l.content || "").includes("[THREADS]");
-      const sourceTag = isThreads ? '<span class="rlc-tag source">🧵 THREADS</span>' : '<span class="rlc-tag source">🌐 FB</span>';
-      const initial = (l.name || "K").trim().charAt(0).toUpperCase();
-      const isHandled = l.status === "Đã liên hệ";
-
-      const encJson = encodeURIComponent(JSON.stringify(l));
-
-      return `
-        <div class="radar-lead-card ${cardTypeClass}">
-          <div class="rlc-header">
-            <div class="rlc-tags">
-              <span style="font-weight:900; color:#075B9A; font-size:12px;">#${l.stt}</span>
-              ${tagTypeHtml}
-              ${sourceTag}
-            </div>
-            <div class="rlc-time">🕒 ${l.time || ""} ${l.date || ""}</div>
-          </div>
-
-          <div class="rlc-body">
-            <div class="rlc-author">
-              <div class="rlc-avatar-circle">${initial}</div>
-              <div style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                ${l.name || "Khách hàng"}
-              </div>
-            </div>
-
-            <div class="rlc-lead-content">
-              ${l.content || ""}
-            </div>
-
-            <div class="rlc-recommendation">
-              <strong>🎯 Đề xuất Sacombank:</strong>
-              <div>${l.product || "Tư vấn sản phẩm phù hợp"}</div>
-              <div style="font-weight:700; margin-top:2px;">💰 ${l.limit || "Hạn mức linh hoạt"}</div>
-            </div>
-          </div>
-
-          <div class="rlc-actions">
-            <button type="button" class="btn-open-app" onclick="openLeadInApp('${l.link || ""}')">
-              📲 MỞ APP
-            </button>
-            <button type="button" class="btn-copy-pitch" onclick="copySacombankPitch('${encJson}')">
-              📋 COPY LỜI CHÀO
-            </button>
-            <button type="button" class="btn-status-toggle ${isHandled ? 'handled' : ''}" onclick="toggleLeadStatus('${l.stt}')">
-              ${isHandled ? '✅ Đã liên hệ' : '⏳ Chưa xử lý'}
-            </button>
-          </div>
-        </div>
-      `;
-    }).join("");
-  }
-
-  async function fetchRadarFromFirebase() {
-    if (isFetching) return;
-    isFetching = true;
-    const syncPill = document.getElementById("statSyncTime");
-    if (syncPill) syncPill.textContent = "⚡ Đang tải...";
-
-    try {
-      const res = await fetch(FIREBASE_RADAR_URL + "?nocache=" + Date.now());
-      if (res.ok) {
-        const data = await res.json();
-        if (data && Array.isArray(data.leads) && data.leads.length > 0) {
-          radarLeads = data.leads;
-          updateCounters();
-          renderLeads();
-          if (syncPill) syncPill.textContent = "⚡ Cập nhật: " + (data.updated_at || "Vừa xong");
-        }
-      }
-    } catch (e) {
-      console.warn("Không thể tải Firebase Radar:", e);
-      if (syncPill) syncPill.textContent = "⚡ Offline Cache";
-    } finally {
-      isFetching = false;
-    }
-  }
-
-  window.initRadar = function() {
-    updateCounters();
-    renderLeads();
-    fetchRadarFromFirebase();
-  };
-
-  // Lắng nghe sự kiện Toolbar
-  document.addEventListener("DOMContentLoaded", function() {
-    const sInput = document.getElementById("radarSearchInput");
-    if (sInput) {
-      sInput.addEventListener("input", function(e) {
-        searchQuery = e.target.value.trim();
-        renderLeads();
-      });
-    }
-
-    document.querySelectorAll(".rf-tab").forEach(tab => {
-      tab.addEventListener("click", function() {
-        document.querySelectorAll(".rf-tab").forEach(t => t.classList.remove("active"));
-        this.classList.add("active");
-        currentFilter = this.dataset.rf;
-        renderLeads();
-      });
-    });
-
-    const btnRefresh = document.getElementById("btnRefreshRadar");
-    if (btnRefresh) {
-      btnRefresh.addEventListener("click", function() {
-        fetchRadarFromFirebase();
-        showToast("Đang đồng bộ dữ liệu mới nhất từ Radar...");
-      });
-    }
-
-    // Tự động kiểm tra cập nhật mỗi 30 giây
-    setInterval(fetchRadarFromFirebase, 30000);
-  });
-})();
-</script>
-
-</body></html>";
+            "</body></html>";
         } finally {
           meta.loading = null;
         }
@@ -2042,7 +1754,7 @@
   "use strict";
 
   const FIREBASE_RADAR_URL = "https://qlkh-c3298-default-rtdb.asia-southeast1.firebasedatabase.app/qlkh/radar_leads.json";
-  let radarLeads = [{"stt": "1", "date": "30/10/2026", "time": "06:07", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "2", "date": "30/10/2026", "time": "06:07", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "3", "date": "30/10/2026", "time": "06:07", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "4", "date": "30/10/2026", "time": "07:49", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "5", "date": "30/10/2026", "time": "09:04", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "6", "date": "30/10/2026", "time": "09:04", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "7", "date": "30/10/2026", "time": "10:06", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "8", "date": "30/10/2026", "time": "10:37", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "9", "date": "30/10/2026", "time": "11:08", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "10", "date": "30/10/2026", "time": "11:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "11", "date": "30/10/2026", "time": "11:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "12", "date": "30/10/2026", "time": "11:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "13", "date": "30/10/2026", "time": "11:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "14", "date": "30/10/2026", "time": "12:05", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "15", "date": "30/10/2026", "time": "12:11", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "16", "date": "30/10/2026", "time": "12:36", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "17", "date": "30/10/2026", "time": "13:05", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "18", "date": "30/10/2026", "time": "13:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "19", "date": "30/10/2026", "time": "13:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "20", "date": "30/10/2026", "time": "14:20", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "21", "date": "30/10/2026", "time": "14:20", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "22", "date": "30/10/2026", "time": "14:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "23", "date": "30/10/2026", "time": "14:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "24", "date": "30/10/2026", "time": "15:25", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "25", "date": "30/10/2026", "time": "15:57", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "26", "date": "30/10/2026", "time": "16:30", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "27", "date": "30/10/2026", "time": "17:02", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "28", "date": "30/10/2026", "time": "17:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "29", "date": "30/10/2026", "time": "17:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "30", "date": "30/10/2026", "time": "17:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "31", "date": "30/10/2026", "time": "17:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "32", "date": "30/10/2026", "time": "18:06", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "33", "date": "30/10/2026", "time": "18:35", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "34", "date": "30/10/2026", "time": "19:05", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "35", "date": "30/10/2026", "time": "20:08", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "36", "date": "30/10/2026", "time": "20:41", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "37", "date": "30/10/2026", "time": "20:41", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "38", "date": "30/10/2026", "time": "21:14", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "39", "date": "30/10/2026", "time": "21:47", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "40", "date": "30/10/2026", "time": "21:47", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "41", "date": "30/10/2026", "time": "22:52", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "42", "date": "30/10/2026", "time": "23:25", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "43", "date": "30/10/2026", "time": "23:25", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "44", "date": "30/10/2026", "time": "23:58", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "45", "date": "31/10/2026", "time": "00:31", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "46", "date": "31/10/2026", "time": "01:04", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "47", "date": "31/10/2026", "time": "01:04", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "48", "date": "31/10/2026", "time": "02:10", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "49", "date": "31/10/2026", "time": "02:10", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "50", "date": "31/10/2026", "time": "07:29", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}, {"stt": "51", "date": "31/10/2026", "time": "07:29", "name": "", "link": "", "content": "", "product": "", "limit": "", "status": "Mới", "note": ""}];
+  let radarLeads = [{"stt": "1", "date": "30/10/2026", "time": "06:07", "name": "Khách đổi thẻ TPBank EVO", "link": "https://www.facebook.com/groups/reviewthecogivui/", "content": "23t, thu nhập >20tr, thẻ EVO tiêu 3-5tr/tháng vé máy bay/shopping ít hoàn tiền", "product": "Sacombank Visa Platinum Cashback (Hoàn tối đa 600k/tháng)", "limit": "50 - 80 triệu", "status": "Mới", "note": "Ăn đứt thẻ TPB EVO bẫy doanh số"}, {"stt": "2", "date": "30/10/2026", "time": "06:07", "name": "EfficientFalcon5253", "link": "https://www.facebook.com/groups/canhohcmgiare/posts/1785506156079812/", "content": "Có sẵn thẻ Techcombank hạn mức 21tr, CIC nhóm 1", "product": "Sang ngang thẻ Sacombank JCB / Visa Platinum", "limit": "25 - 35 triệu", "status": "Mới", "note": "Chỉ cần chụp CCCD + ảnh thẻ TCB"}, {"stt": "3", "date": "30/10/2026", "time": "06:07", "name": "ProficientLizard1430", "link": "https://www.facebook.com/groups/xe.tien.chuyen.ha.noi/posts/1832270451554013/", "content": "Khách gửi tiền lớn đang phàn nàn nhân viên bank cũ làm phiền", "product": "Gói Khách hàng Ưu tiên Sacombank Imperial (Bảo mật 1-1)", "limit": "Thương lượng VIP", "status": "Mới", "note": "Kéo khách tiền gửi về Sacombank"}, {"stt": "4", "date": "30/10/2026", "time": "07:49", "name": "ProductiveElk8676", "link": "https://www.facebook.com/groups/xe.tien.chuyen.ha.noi/posts/1830029941778064/", "content": "Có 100–400tr cần tìm ngân hàng lãi suất cao 6 tháng ạ", "product": "Tiết kiệm Đa Lợi 6T + Cấp thẻ tín dụng thấu chi 95% sổ (380tr)", "limit": "95% sổ tiết kiệm", "status": "Mới", "note": "Khách tiền gửi tươi mới quét được"}, {"stt": "5", "date": "30/10/2026", "time": "09:04", "name": "Người tham gia ẩn danh", "link": "https://www.facebook.com/groups/471701795562084/posts/1117227454342845/", "content": "[BÀI ĐĂNG] Thẻ VP Bank Finex em được duyệt 10tr. Vậy cho em hỏi có thể nâng hạn mức không ạ? Từ chối thẻ và duyệt lại hồ sơ hay thế nào ạ ?", "product": "Sacombank Visa Platinum Cashback / Sang ngang thẻ", "limit": "30 - 80 triệu", "status": "Mới", "note": "Hội Mở Thẻ Tín Dụng (POST)"}, {"stt": "6", "date": "30/10/2026", "time": "09:04", "name": "Người tham gia ẩn danh", "link": "https://www.facebook.com/groups/471701795562084/posts/1117209401011317/", "content": "[BÀI ĐĂNG] Em cần mở thẻ HM 30tr, có cash back, lãi suất ok, chủ yếu mua sắm và du lịch. A/C tư vấn giúp em với nhen", "product": "Sacombank Visa Platinum Cashback / Sang ngang thẻ", "limit": "30 - 80 triệu", "status": "Mới", "note": "Hội Mở Thẻ Tín Dụng (POST)"}, {"stt": "7", "date": "30/10/2026", "time": "10:06", "name": "kukukakaaaaaa", "link": "https://www.facebook.com/groups/reviewthecogivui/posts/1429806948870610/", "content": "[BÀI ĐĂNG] Các bác cho em xin ý kiến ạ Em 23t, thu nhập >20tr/tháng, hiện tại em đang dùng thẻ tp evo thỉnh thoảng mua sắm, mua vé máy bay, vui chơi, giải trí, mỗi tháng 3-5tr ... và luôn tha", "product": "Sacombank Visa Platinum Cashback / Sang ngang thẻ", "limit": "30 - 80 triệu", "status": "Mới", "note": "Review thẻ có gì vui ? (POST)"}, {"stt": "8", "date": "30/10/2026", "time": "10:37", "name": "TruthfulLeo287", "link": "https://www.facebook.com/groups/reviewthecogivui/posts/1429854615532510/", "content": "[BÀI ĐĂNG] Hai vợ chồng sắp phẫu thuật xoá cận tổng 120tr, cần tìm thẻ tích điểm / cashback / ưu đãi lĩnh vực y tế viện phí", "product": "Sacombank Visa Platinum Cashback / Visa Signature (Miễn lãi 55 ngày - Trả góp 0%)", "limit": "100 - 150 triệu", "status": "Mới", "note": "KÈO THƠM 120TR: Phẫu thuật mắt 2 vợ chồng - Cần tư vấn gấp!"}, {"stt": "9", "date": "30/10/2026", "time": "11:08", "name": "Đỗ Khánh", "link": "https://www.facebook.com/groups/471701795562084/posts/1117614317637492/", "content": "[BÀI ĐĂNG] Có thẻ HSBC, VIB, VP, Sacom. Cần mở thêm thẻ Visa hạn mức cao để đóng các thẻ nhỏ, ưu đãi miễn phí thường niên", "product": "Nâng hạn mức thẻ Sacombank hiện tại / Sang ngang Visa Signature VIP", "limit": "80 - 150 triệu", "status": "Mới", "note": "KH CỦA SACOMBANK: Sang ngang nâng hạn mức cao + Miễn phí thường niên"}, {"stt": "10", "date": "30/10/2026", "time": "11:52", "name": "RedSloth7747", "link": "https://www.facebook.com/groups/471701795562084/posts/1117637830968474/", "content": "[BÀI ĐĂNG] Thắc mắc thẻ tín dụng thanh toán tiền điện nước có chuyển qua trả góp được không, phí thế nào", "product": "Sacombank Visa Platinum Cashback (Hoàn tiền hoá đơn sinh hoạt + Trả góp 0%)", "limit": "30 - 80 triệu", "status": "Mới", "note": "Hội Mở Thẻ Tín Dụng (POST)"}, {"stt": "11", "date": "30/10/2026", "time": "11:52", "name": "Người tham gia ẩn danh", "link": "https://www.facebook.com/groups/guitietkiemnganhang/posts/4480779762138700/", "content": "[BÀI ĐĂNG] Cần tư vấn gửi tiết kiệm, có 1 tỷ muốn gửi", "product": "Tiết kiệm Đa Lợi Sacombank + Cấp thẻ tín dụng VIP thấu chi 950tr", "limit": "1 tỷ đồng", "status": "Mới", "note": "KÈO TIỀN GỬI 1 TỶ: Lãi suất vượt trội Standard Chartered"}, {"stt": "12", "date": "30/10/2026", "time": "11:52", "name": "Bee.beee47", "link": "https://www.facebook.com/groups/471701795562084/user/2204334633471892/", "content": "[TOÀN FACEBOOK] Mình cần mở thẻ hsbc. Hiện mình đang có thẻ tech 100tr r ah", "product": "Sang ngang thẻ Sacombank JCB Ultimate / Visa Signature hạn mức 100tr", "limit": "100 triệu", "status": "Mới", "note": "KÈO SANG NGANG 100TR: Có sẵn thẻ Techcombank 100 triệu"}, {"stt": "13", "date": "30/10/2026", "time": "11:52", "name": "Kiều Oanh", "link": "https://www.facebook.com/groups/716550913529554/user/100004724163365/", "content": "[TOÀN FACEBOOK] Cần mua điện máy lớn 48tr, cần mở thẻ tín dụng thanh toán và chuyển đổi trả góp", "product": "Sacombank Visa Platinum Cashback (Hạn mức 50-80tr + Trả góp 0% Điện Máy Chợ Lớn/ĐMX)", "limit": "50 - 80 triệu", "status": "Mới", "note": "Chi tiêu điện máy 48 triệu"}, {"stt": "14", "date": "30/10/2026", "time": "12:05", "name": "KindPenguin4388", "link": "https://www.facebook.com/groups/guitietkiemnganhang/posts/4480786855471324/", "content": "[BÌNH LUẬN] KindPenguin4388: Ngân hàng nào vậy bạn? Có điều kiện gì không? (Hỏi về gửi tiết kiệm lãi suất cao)", "product": "Tiết kiệm Đa Lợi 6T - 12T Sacombank + Cấp thẻ tín dụng VIP thấu chi 95% sổ", "limit": "Tùy số tiền gửi", "status": "Mới", "note": "Gửi Tiết Kiệm & Lãi Suất Ngân Hàng (COMMENT)"}, {"stt": "15", "date": "30/10/2026", "time": "12:11", "name": "Ta Minh Tuan", "link": "https://www.facebook.com/groups/471701795562084/posts/1117668484298742/", "content": "[BÀI ĐĂNG] Techcombank hạn mức 30tr có bank nào nhận sang ngang không ạ?", "product": "Sacombank Visa Platinum Cashback / Sang ngang thẻ", "limit": "30 - 50 triệu", "status": "Mới", "note": "KÈO SANG NGANG 30TR: Có sẵn thẻ Techcombank 30tr"}, {"stt": "16", "date": "30/10/2026", "time": "12:36", "name": "RadiantApricot5882", "link": "https://www.facebook.com/groups/471701795562084/posts/1117680300964227/", "content": "[BÀI ĐĂNG] M đang co thẻ tech 100, muốn mở thêm bank khác sang ngang đc với bank nào online cashback tốt", "product": "Sacombank Visa Platinum Cashback / JCB Ultimate", "limit": "100 - 150 triệu", "status": "Mới", "note": "KÈO VÀNG 100TR: Có sẵn thẻ Tech 100tr, cần sang ngang thẻ Cashback tốt"}, {"stt": "17", "date": "30/10/2026", "time": "13:05", "name": "Người tham gia ẩn danh", "link": "https://www.facebook.com/groups/guitietkiemnganhang/posts/4480835998799743/", "content": "[BÀI ĐĂNG] Vpbank nay có chương trình gửi tk gì thơm ko mn ơi! Mình gửi đợt vừa rồi 9.2 giờ muốn gửi thêm mà thấy ls giảm ạ?", "product": "Tiết kiệm Đa Lợi 6T - 12T Sacombank + Thấu chi 95% sổ làm thẻ VIP", "limit": "500 triệu - 2 tỷ", "status": "Mới", "note": "KÈO TIỀN GỬI VIP: Đang gửi bank khác thấy giảm lãi, muốn tìm bank gửi thêm tiền"}, {"stt": "18", "date": "30/10/2026", "time": "13:35", "name": "Người tham gia ẩn danh", "link": "https://www.facebook.com/groups/guitietkiemnganhang/posts/4480885428794800/", "content": "[BÀI ĐĂNG] Cần gửi tiết kiệm 1 năm và có thể rút lãi hàng tháng (khoảng 5 tỉ) Ngân hàng nào có phòng chờ sân bay và lãi suất tốt tư vấn giúp mình.", "product": "Gói VIP Sacombank Imperial + Tiết kiệm lĩnh lãi hàng tháng + Thẻ Visa Signature (Phòng chờ VIP)", "limit": "5 TỶ ĐỒNG", "status": "Mới", "note": "SIÊU KÈO 5 TỶ: Cần gửi 1 năm lãi hàng tháng + Đặc quyền phòng chờ sân bay Sacombank Imperial"}, {"stt": "19", "date": "30/10/2026", "time": "13:35", "name": "Người tham gia ẩn danh", "link": "https://www.facebook.com/groups/guitietkiemnganhang/posts/4480881848795158/", "content": "[BÀI ĐĂNG] Mình có 100 triệu, mún gửi 12 / 13 tháng. Lãi hàng tháng. Xin hỏi Ls của Vikky, Sacombank ạ ? Cảm ơn. (Các bank khác mình ko có nhu cầu gửi)", "product": "Tiết kiệm truyền thống / Đa Lợi 12-13T lĩnh lãi hàng tháng Sacombank", "limit": "100 triệu", "status": "Mới", "note": "KHÁCH GỌI ĐÍCH DANH SACOMBANK: Có sẵn 100tr gửi 12-13T, chỉ muốn gửi Sacombank!"}, {"stt": "20", "date": "30/10/2026", "time": "14:20", "name": "Lucas Nguyễn", "link": "https://www.facebook.com/groups/reviewthecogivui/posts/1430409302143708/", "content": "[BÀI ĐĂNG] JCB Z bóp cashback rồi hả các CT Mình mới làm thẻ được 1 tháng , bạn mình thì được 8 ngày . Nay vô app thì bảo được phê duyệt mở thẻ thứ 2 . Cũng tò mò xem được duyệt cái gì thì th", "product": "Sacombank Visa Platinum Cashback (Hoàn 16.8% bền vững) / JCB Ultimate", "limit": "50 - 100 triệu", "status": "Mới", "note": "ĐỔI THẺ HOÀN TIỀN: Thẻ JCB Z bị bóp cashback, tư vấn Sacombank Visa Platinum Cashback"}, {"stt": "21", "date": "30/10/2026", "time": "14:20", "name": "SteadyLizard8870", "link": "https://www.facebook.com/groups/xe.tien.chuyen.ha.noi/posts/1825023485612043/", "content": "[BÀI ĐĂNG] Co khoảng gần 1 tỷ sắp đáo hạn va mong muốn lãi suất 3 năm có ngân hàng nào ls tot uy tin không? De lại tt mình sẽ liên lạc. Khu vực tphcm q1-3-5-10.", "product": "Tiết kiệm dài hạn Sacombank + Thấu chi 95% sổ cấp thẻ VIP (900tr)", "limit": "GẦN 1 TỶ ĐỒNG", "status": "Mới", "note": "KÈO 1 TỶ TẠI TP.HCM: Khách Q1-3-5-10 sắp đáo hạn 1 tỷ, cần gửi ngân hàng uy tín!"}, {"stt": "22", "date": "30/10/2026", "time": "14:52", "name": "bsty_mawngcujt", "link": "https://www.facebook.com/groups/reviewthecogivui/posts/1430317675486204/", "content": "[BÌNH LUẬN] bsty_mawngcujt · 53 phút Hình như BIDV không muốn cho khách mở thẻ tín dụng đúng không bà con ơi :(( mình xài BIDV hơn năm nay lương chuyển khoản vào >… Xem thêm Trả lời Chia sẻ (Tại bài: Bidv trừ phí\nAC dùng BIDV cho em hỏi, mng có bị tr...)", "product": "Sacombank Visa Platinum Cashback / Sang ngang thẻ", "limit": "30 - 80 triệu", "status": "Mới", "note": "Review thẻ có gì vui ? (COMMENT)"}, {"stt": "23", "date": "30/10/2026", "time": "14:52", "name": "Người tham gia ẩn danh", "link": "https://www.facebook.com/groups/guitietkiemnganhang/posts/4480936192123057/", "content": "[BÀI ĐĂNG] đang có 1 tỷ cần tham khảo ls các bên để gửi luôn hnay", "product": "Tiết kiệm Đa Lợi / Thấu chi 95% sổ làm thẻ tín dụng", "limit": "100 triệu - 10 tỷ", "status": "Mới", "note": "Gửi Tiết Kiệm & Lãi Suất Ngân Hàng (POST)"}, {"stt": "24", "date": "30/10/2026", "time": "15:25", "name": "Applevv82", "link": "https://www.facebook.com/groups/reviewthecogivui/posts/1430446822139956/", "content": "[BÀI ĐĂNG] PNJ payday Nay lướt mạng lại thấy chương trình PNJ payday cuối tháng 10 2 ngày, đầu tháng 11 cũng 2 ngày. Có CT nào mua chưa cho mình xin review với, đọc mấy bài tháng trước thấy c", "product": "Sacombank JCB Ultimate / Visa Signature (Hoàn tiền & Phòng chờ sân bay)", "limit": "50 - 150 triệu", "status": "Mới", "note": "KÈO VIP: Khách chi tiêu PNJ hỏi thẻ hoàn tiền + tích lượt phòng chờ sân bay"}, {"stt": "25", "date": "30/10/2026", "time": "15:57", "name": "JoyfulJaguar8839", "link": "https://www.facebook.com/groups/guitietkiemnganhang/posts/4480996508783692/", "content": "[BÌNH LUẬN] JoyfulJaguar8839 · 10 phút Mình có 1 tỷ, ai cần cm nhe Trả lời Chia sẻ (Tại bài: Cần 2 tỷ casa qua đêm 31/10 ib em với ạ...)", "product": "Tiết kiệm Đa Lợi / Thấu chi 95% sổ làm thẻ tín dụng", "limit": "1 TỶ ĐỒNG", "status": "Mới", "note": "KÈO VÀNG 1 TỶ: Khách có sẵn 1 tỷ tiền mặt cmt tìm nơi gửi lãi tốt"}, {"stt": "26", "date": "30/10/2026", "time": "16:30", "name": "Phạm Ngọc", "link": "https://www.facebook.com/groups/canhohcmgiare/posts/1786312742665820/", "content": "[BÀI ĐĂNG] cần mở thẻ tín dụng MB . có ai hỗ trợ ko ạ", "product": "Sacombank Visa Platinum Cashback / Sang ngang thẻ", "limit": "30 - 80 triệu", "status": "Mới", "note": "Mở Thẻ Tín Dụng Toàn Quốc (POST)"}, {"stt": "27", "date": "30/10/2026", "time": "17:02", "name": "Lovegoldforever💛", "link": "https://www.facebook.com/groups/reviewthecogivui/posts/1430482658803039/", "content": "[BÀI ĐĂNG] Có bác nào như e bank phát cho thẻ nào thì dùng thẻ đấy ko ah? Vào nhóm mới thấy trước nay mình gà quá đi Em chi tiêu chủ yếu du lịch, đóng bảo hiểm, mua shopee, và siêu thị thì e", "product": "Sacombank Visa Platinum Cashback (Hoàn 16.8% du lịch, 6.8% siêu thị/Shopee)", "limit": "50 - 100 triệu", "status": "Mới", "note": "KÈO VÀNG: Khách có sẵn thẻ hỏi mở thẻ bào hoàn tiền du lịch, siêu thị, Shopee, bảo hiểm"}, {"stt": "28", "date": "30/10/2026", "time": "17:35", "name": "helpme1738", "link": "https://www.facebook.com/groups/471701795562084/posts/1115900494475541/", "content": "[BÌNH LUẬN] helpme1738 · 19 phút Đang có thẻ TP 35tr( xài trên 6 tháng) , VP 60tr mới xài 1 tháng. Muốn mở thẻ VIB hoặc MB được không mấy bác Trả lời Chia sẻ (Tại bài: shoppe hạng vàng có mở đc thẻ nào kh ạ em 19t...)", "product": "Sacombank Visa Platinum Cashback (Sang ngang thẻ TP 35tr / VP 60tr)", "limit": "60 - 80 triệu", "status": "Mới", "note": "KÈO SANG NGANG: Khách có thẻ TP 35tr > 6T, VP 60tr 1T cần mở thẻ mới"}, {"stt": "29", "date": "30/10/2026", "time": "17:35", "name": "Người tham gia ẩn danh", "link": "", "content": "[BÀI ĐĂNG] Hi mn. Em đang có thẻ UOB mà xài khá chán nên muốn sang ngang thẻ. Có bank nào oke và sang được UOB thì để comment giúp mình nhé. Cảm ơn mn.", "product": "Sacombank Visa Platinum Cashback (Sang ngang thẻ UOB)", "limit": "50 - 100 triệu", "status": "Mới", "note": "KÈO SANG NGANG: Khách có thẻ UOB chán muốn sang ngang thẻ cashback"}, {"stt": "30", "date": "30/10/2026", "time": "17:35", "name": "Người tham gia ẩn danh", "link": "https://www.facebook.com/groups/471701795562084/posts/1117895607609363/", "content": "[BÀI ĐĂNG] Làm Vin lương 40tr/1th thì có làm đc thẻ hay vay được không ah. Cic trắng", "product": "Sacombank Visa Signature / Visa Platinum Cashback (Cấp theo lương Vin 40tr)", "limit": "120 - 160 triệu", "status": "Mới", "note": "KÈO KIM CƯƠNG: Nhân viên Vin lương CK 40tr/tháng, CIC trắng đẹp, cần làm thẻ/vay"}, {"stt": "31", "date": "30/10/2026", "time": "17:35", "name": "Xinhxinhchungtink", "link": "https://www.facebook.com/groups/guitietkiemnganhang/posts/4481092405440769/", "content": "[BÀI ĐĂNG] M mới gửi ở vcb kì hạn 6 tháng mà họ bảo sau 6th phải ra quầy đáo hạn vì lãi suất ở thời điểm khác nhau, nếu k ra sẽ về lãu suất niêm yết rất thấp phải k ạ . Mn cho m xin ý kiến nh", "product": "Tiết kiệm Đa Lợi Sacombank (Tự động tái tục lãi suất cao không cần ra quầy)", "limit": "100 triệu - 1 tỷ", "status": "Mới", "note": "KÈO TIẾT KIỆM: Khách gửi VCB 6 tháng băn khoăn đáo hạn quầy bị hạ lãi"}, {"stt": "32", "date": "30/10/2026", "time": "18:06", "name": "BalancedShark1963", "link": "https://www.facebook.com/groups/guitietkiemnganhang/posts/4481110302105646/", "content": "[BÀI ĐĂNG] Em có 300tr muốn gửi tiết kiệm ạ .A/ chi cho e xin lãi suất ạ", "product": "Tiết kiệm Đa Lợi Sacombank + Thấu chi 95% sổ cấp thẻ tín dụng (285tr)", "limit": "300 TRIỆU ĐỒNG", "status": "Mới", "note": "KÈO TIẾT KIỆM 300TR: Khách có sẵn 300tr tiền mặt hỏi biểu lãi suất gửi tiết kiệm"}, {"stt": "33", "date": "30/10/2026", "time": "18:35", "name": "Bọ_chét_óng_ả", "link": "https://www.facebook.com/groups/guitietkiemnganhang/posts/4481149272101749/", "content": "[BÀI ĐĂNG] Em có 100tr, đến cuối tháng 11 sẽ có khoảng hơn 200tr có ngân hàng nào lãi suất tốt ko ạ? Ưu tiên gửi online các ngân hàng TPBank, Vietin, Vietcom vì e đã có sẵn tài khoản", "product": "Tiết kiệm Online Sacombank Pay (Lãi suất cao hơn quầy + Nạp thêm 200tr)", "limit": "100 - 300 triệu", "status": "Mới", "note": "KÈO TIẾT KIỆM TÍCH LŨY: Có sẵn 100tr, cuối tháng 11 có thêm 200tr, cần gửi online lãi tốt"}, {"stt": "34", "date": "30/10/2026", "time": "19:05", "name": "CuriousRaccoon9625", "link": "https://www.facebook.com/groups/guitietkiemnganhang/posts/4481155528767790/", "content": "[BÀI ĐĂNG] Em nghe nói Techcombank chứng chỉ tiền gửi bảo lộc từ 10tr, nhập mã giới thiệu từ 3 tháng trở lên 8%. Anh chị nào bên tech xác nhận xem phải không ạ?", "product": "Tiết kiệm Đa Lợi / Tiết kiệm Online Sacombank Pay (Lãi suất minh bạch)", "limit": "10 - 200 triệu", "status": "Mới", "note": "KÈO TIỀN GỬI: Khách hỏi CCTG Bảo Lộc Tech 8%, tư vấn Tiết kiệm Sacombank minh bạch"}, {"stt": "35", "date": "30/10/2026", "time": "20:08", "name": "Người tham gia ẩn danh", "link": "https://www.facebook.com/groups/reviewthecogivui/posts/1430447925473179/", "content": "[BÀI ĐĂNG] Chương trình hoàn tiền của MSB còn áp dụng không ạ các CT? Em có 2 thẻ mỗi thẻ đã qua mấy kỳ hoàn điểm, chính sách mới đổi sang 60 ngày làm việc nhưng từ tháng 6 vẫn chưa được hoàn", "product": "Sacombank Visa Platinum Cashback / Sang ngang thẻ", "limit": "30 - 80 triệu", "status": "Mới", "note": "Review thẻ có gì vui ? (POST)"}, {"stt": "36", "date": "30/10/2026", "time": "20:41", "name": "CalmCamel5034", "link": "https://www.facebook.com/groups/reviewthecogivui/posts/1430583312126307/", "content": "[BÀI ĐĂNG] Nhờ sự giúp đỡ từ tổ tư vấn: VCB VÀ TCB Chào các CT, nhờ các CT tư vấn giúp em case này. Em dùng VCB đã gần 5 năm nay, lương thì mới đc 3x, cũng mới mở thẻ tín dụng đầu năm luôn và", "product": "Sacombank Visa Platinum Cashback / Visa Signature (Lương 3x + Sang ngang VCB)", "limit": "100 - 150 triệu", "status": "Mới", "note": "Review thẻ có gì vui ? (POST)"}, {"stt": "37", "date": "30/10/2026", "time": "20:41", "name": "ĐM_SUNSHINE", "link": "https://www.facebook.com/groups/3024315181118506/user/1404978831449036/", "content": "[BÀI ĐĂNG] BẠN NÀO LÀM VIETA BANK KHÔNG MÌNH HỎI CHÚT ??", "product": "Tiết kiệm Đa Lợi Sacombank (Tư vấn lãi suất cạnh tranh VietABank)", "limit": "100 - 500 triệu", "status": "Mới", "note": "Gửi Tiết Kiệm & Lãi Suất Ngân Hàng (POST)"}, {"stt": "38", "date": "30/10/2026", "time": "21:14", "name": "QuickOwl861", "link": "https://www.facebook.com/groups/471701795562084/posts/1118011977597726/", "content": "[BÀI ĐĂNG] Mình muốn mở thẻ td. Đã có thẻ bên tech. Ưu tiên rút tiền mặt k mất phí ạ.", "product": "Sacombank Easy Card / Sang ngang Techcombank (Rút tiền mặt 0% phí)", "limit": "30 - 80 triệu", "status": "Mới", "note": "Hội Mở Thẻ Tín Dụng (POST)"}, {"stt": "39", "date": "30/10/2026", "time": "21:47", "name": "Người tham gia ẩn danh 855", "link": "https://www.facebook.com/groups/guitietkiemnganhang/posts/4481337022082974/", "content": "[BÌNH LUẬN] Người tham gia ẩn danh 855 · 28 phút Ngân hàng nào vậy e? Tiết kiệm truyền thống? Trả lời Chia sẻ (Tại bài: Lãi suất gửi 9.8 từ 12th\nLH 0966863717...)", "product": "Tiết kiệm Đa Lợi / Thấu chi 95% sổ làm thẻ tín dụng", "limit": "100 triệu - 10 tỷ", "status": "Mới", "note": "Gửi Tiết Kiệm & Lãi Suất Ngân Hàng (COMMENT)"}, {"stt": "40", "date": "30/10/2026", "time": "21:47", "name": "Người tham gia ẩn danh", "link": "https://www.facebook.com/groups/guitietkiemnganhang/posts/4481323208751022/", "content": "[BÀI ĐĂNG] Mình gửi tiết kiệm ACB SG (2-3 tỷ ) Bên nào TC cao trên 95% không", "product": "Tiết kiệm Đa Lợi / Thấu chi 95% sổ làm thẻ tín dụng", "limit": "100 triệu - 10 tỷ", "status": "Mới", "note": "Gửi Tiết Kiệm & Lãi Suất Ngân Hàng (POST)"}, {"stt": "41", "date": "30/10/2026", "time": "22:52", "name": "Bơ_bột", "link": "https://www.facebook.com/groups/471701795562084/user/1431865085763309/", "content": "[BÀI ĐĂNG] 1 người được mở tối đa bao nhiêu thẻ tín dụng vậy mọi người?", "product": "Sacombank Visa Platinum Cashback / Sang ngang thẻ", "limit": "30 - 80 triệu", "status": "Mới", "note": "Hội Mở Thẻ Tín Dụng (POST)"}, {"stt": "42", "date": "30/10/2026", "time": "23:25", "name": "Người tham gia ẩn danh", "link": "https://www.facebook.com/groups/guitietkiemnganhang/posts/4481436118739731/", "content": "[BÀI ĐĂNG] Mình có tầm 100tr tháng 1 này mình rút ra.có ngân hàng nào lãi suất tốt để mình gửi vào không ạ?", "product": "Tiết kiệm Online Sacombank Pay (Ưu đãi kỳ hạn ngắn rút tháng 1)", "limit": "100 triệu", "status": "Mới", "note": "Gửi Tiết Kiệm & Lãi Suất Ngân Hàng (POST)"}, {"stt": "43", "date": "30/10/2026", "time": "23:25", "name": "Người tham gia ẩn danh", "link": "https://www.facebook.com/groups/guitietkiemnganhang/posts/4481409235409086/", "content": "[BÀI ĐĂNG] Em có 500tr muốn gửi tkiem online 3 tháng. Bên nào có ls tốt ạ. Em cảm ơn ạ", "product": "Tiết kiệm Online Sacombank Pay (Cộng thêm lãi suất 500tr kỳ hạn 3T) / Thấu chi 95% sổ", "limit": "500 triệu", "status": "Mới", "note": "Gửi Tiết Kiệm & Lãi Suất Ngân Hàng (POST)"}, {"stt": "44", "date": "30/10/2026", "time": "23:58", "name": "CopperLobster6684", "link": "https://www.facebook.com/groups/3024315181118506/user/2312836519515983/", "content": "[BÀI ĐĂNG] E muốn gửi tk techcombank 1/tháng 1 ,có b nào có % lãi tốt k ạ ???", "product": "Tiết kiệm Đa Lợi / Thấu chi 95% sổ làm thẻ tín dụng", "limit": "100 triệu - 10 tỷ", "status": "Mới", "note": "Gửi Tiết Kiệm & Lãi Suất Ngân Hàng (POST)"}, {"stt": "45", "date": "31/10/2026", "time": "00:31", "name": "Le Thai Phan", "link": "https://www.facebook.com/groups/reviewthecogivui/posts/1430706185447353/", "content": "[BÌNH LUẬN] Le Thai Phan · 2 giờ Em cx dùng thẻ này, thể lệ hoàn như nào v ạ? Trả lời Chia sẻ (Tại bài: Lúa \"hộ chiếu Phương Đông\" đã về với bản làng rùi ...)", "product": "Sacombank Visa Platinum Cashback / Sang ngang thẻ", "limit": "30 - 80 triệu", "status": "Mới", "note": "Review thẻ có gì vui ? (COMMENT)"}, {"stt": "46", "date": "31/10/2026", "time": "01:04", "name": "CapableQuince6134", "link": "https://www.facebook.com/groups/3024315181118506/user/1159757116706839/", "content": "[BÀI ĐĂNG] có ngân hàng nào lãi suất bằng cake mà có chi nhánh trực tiếp không ạ? Chứ cake khiếu nại mà ko thấy phản hồi", "product": "Tiết kiệm Đa Lợi Sacombank (Chi nhánh quầy trực tiếp + Hỗ trợ chuyên viên 1-1)", "limit": "100 - 500 triệu", "status": "Mới", "note": "Gửi Tiết Kiệm & Lãi Suất Ngân Hàng (POST)"}, {"stt": "47", "date": "31/10/2026", "time": "01:04", "name": "Người tham gia ẩn danh", "link": "https://www.facebook.com/groups/canhohcmgiare/posts/1786663459297415/", "content": "[BÀI ĐĂNG] Mình cần sang ngang thẻ đen ngân hàng khác, sale nào sang ngang hm cao ko ạ", "product": "Sacombank Visa Signature / Platinum Cashback (Sang ngang Thẻ Đen hạn mức cao)", "limit": "100 - 300 triệu", "status": "Mới", "note": "Mở Thẻ Tín Dụng Toàn Quốc (POST)"}, {"stt": "48", "date": "31/10/2026", "time": "02:10", "name": "Người tham gia ẩn danh", "link": "https://www.facebook.com/groups/guitietkiemnganhang/posts/4481618045388205/", "content": "[BÀI ĐĂNG] Cho e hỏi hiện có bank nào gửi 100tr 6th nhận lãi đầu kỳ không ạ?", "product": "Tiết kiệm Đa Lợi / Tiết kiệm Trả Lãi Đầu Kỳ Sacombank", "limit": "100 triệu", "status": "Mới", "note": "Gửi Tiết Kiệm & Lãi Suất Ngân Hàng (POST)"}, {"stt": "49", "date": "31/10/2026", "time": "02:10", "name": "Người tham gia ẩn danh", "link": "https://www.facebook.com/groups/canhohcmgiare/posts/1786757032621391/", "content": "[BÀI ĐĂNG] Mình có VIB 110tr sang ngang thêm được bank nào HM cao hơn. Cảm ơn ạ!", "product": "Sacombank Visa Signature / Platinum Cashback (Sang ngang thẻ VIB 110tr)", "limit": "110 - 150 triệu", "status": "Mới", "note": "Căn Hộ TP.HCM Giá Rẻ (POST)"}, {"stt": "50", "date": "31/10/2026", "time": "07:29", "name": "Người tham gia ẩn danh", "link": "https://www.facebook.com/groups/471701795562084/posts/1118113437587580/", "content": "[BÀI ĐĂNG] Mình đi làm bệnh viện nhưng đang đi học sau đại học có mở được thẻ tín dụng không ạ?", "product": "Sacombank Visa Platinum Cashback (Gói ưu đãi Cán bộ Nhân viên Y tế / Bệnh viện)", "limit": "50 - 100 triệu", "status": "Mới", "note": "Hội Mở Thẻ Tín Dụng (POST)"}, {"stt": "51", "date": "31/10/2026", "time": "07:29", "name": "UpbeatOwl1542", "link": "https://www.facebook.com/groups/guitietkiemnganhang/posts/4481636162053060/", "content": "[BÀI ĐĂNG] Mình đang có 1 tỷ muốn gửi cho mình ls tốt nhất là bao nhiêu", "product": "Tiết kiệm Đa Lợi Sacombank (Gói VIP 1 TỶ) + Thấu chi 95% sổ cấp thẻ Visa Signature", "limit": "1 TỶ ĐỒNG", "status": "Mới", "note": "Gửi Tiết Kiệm & Lãi Suất Ngân Hàng (POST)"}];
   let currentFilter = "all";
   let searchQuery = "";
   let isFetching = false;
@@ -2293,6 +2005,7 @@
 
   // Lắng nghe sự kiện Toolbar
   document.addEventListener("DOMContentLoaded", function() {
+    updateCounters();
     const sInput = document.getElementById("radarSearchInput");
     if (sInput) {
       sInput.addEventListener("input", function(e) {
