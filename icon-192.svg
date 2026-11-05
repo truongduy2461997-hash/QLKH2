@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#003B73"/>
+      <stop offset="100%" stop-color="#075B9A"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#FCD34D"/>
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="42" fill="url(#bg)"/>
+  <!-- Biểu tượng biểu đồ tăng trưởng và tài chính -->
+  <path d="M42 144h108c4.4 0 8-3.6 8-8s-3.6-8-8-8H42c-4.4 0-8 3.6-8 8s3.6 8 8 8z" fill="#E2E8F0"/>
+  <rect x="48" y="96" width="20" height="32" rx="5" fill="#38BDF8"/>
+  <rect x="78" y="74" width="20" height="54" rx="5" fill="#60A5FA"/>
+  <rect x="108" y="52" width="20" height="76" rx="5" fill="url(#gold)"/>
+  <path d="M50 78l38-24 30 14 36-28" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="154" cy="40" r="7" fill="#FCD34D" stroke="#FFFFFF" stroke-width="3"/>
+</svg>
