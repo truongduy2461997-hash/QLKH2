@@ -2427,7 +2427,7 @@ function todayBaseRows(){
   // Nếu file mới đã chuyển kỳ/không còn dòng QH, lấy chính Sổ quá hạn làm nguồn cho Vay cần thu.
   overdueLedgerRows().filter(e=>e.status==='open'&&!seenTrackerKeys.has(e.key)&&!isLoanPaid(e.key)).forEach(e=>{
     const raw=(state.loans||[]).find(r=>overdueTrackerKey(r,e.kind)===e.key)||{maKH:e.maKH||'',name:e.name||'',contract:e.contract||'',cbtd:e.cbtd||'',loanType:e.loanType||'Kinh doanh'};
-    const due=e.currentDays===null?null:addDays(todayDate(),-e.currentDays);
+    const due=e.source==='scheduled_due'&&e.firstDueDate?excelDate(e.firstDueDate):(e.currentDays===null?null:addDays(todayDate(),-e.currentDays));
     const comp={raw,key:e.key,trackerKey:e.key,overdueUnknown:e.currentDays===null,kind:e.kindLabel,dueDate:due,days:e.currentDays===null?null:-e.currentDays,amount:Number(e.amount||0),principal:e.kind==='principal'?Number(e.amount||0):0,interest:e.kind==='interest'?Number(e.amount||0):0};
     addItem(raw,makeDueRowFromComponents(raw,[comp],{consumer:isConsumerLoan(raw),business:!isConsumerLoan(raw)}),{consumer:isConsumerLoan(raw)});
   });
@@ -2558,7 +2558,7 @@ function due7BaseRows(rangeDays,includePaid=false){
   map.forEach(g=>(g.componentKeys||[]).forEach(k=>alreadyIncluded.add(k)));
   overdueLedgerRows().filter(e=>e.status==='open'&&!alreadyIncluded.has(e.key)&&!isLoanPaid(e.key)).forEach((e,overdueIndex)=>{
     const raw=(state.loans||[]).find(r=>overdueTrackerKey(r,e.kind)===e.key)||{maKH:e.maKH||'',name:e.name||'',contract:e.contract||'',cbtd:e.cbtd||'',loanType:'Kinh doanh'};
-    const due=e.currentDays===null?null:addDays(todayDate(),-e.currentDays),amount=Math.max(0,Number(e.amount||0));
+    const due=e.source==='scheduled_due'&&e.firstDueDate?excelDate(e.firstDueDate):(e.currentDays===null?null:addDays(todayDate(),-e.currentDays)),amount=Math.max(0,Number(e.amount||0));
     if(amount<=0)return;
     const comp={raw,key:e.key,trackerKey:e.key,overdueUnknown:e.currentDays===null,kind:e.kindLabel||'Quá hạn',dueDate:due,days:e.currentDays===null?null:-e.currentDays,amount,principal:e.kind==='principal'?amount:0,interest:e.kind==='interest'?amount:0};
     const row=makeDueRowFromComponents(raw,[comp],{consumer:isConsumerLoan(raw),business:!isConsumerLoan(raw)});
