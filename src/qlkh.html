@@ -2290,7 +2290,8 @@ function todayBaseRows(){
     const d=loanDueParts(r,7);
     if(d.need<=0||!d.kind)return;
     const comps=loanDueComponents(r,d).filter(c=>{
-      return !isLoanPaid(c.key,r)&&!isOverdueTrackerPaidKey(c.key);
+      // Giữ khoản Excel còn báo QH trong Tổng quan, không để tick cũ làm mất cảnh báo thu nợ.
+      return due7ComponentFromExcelOverdue(c)||(!isLoanPaid(c.key,r)&&!isOverdueTrackerPaidKey(c.key));
     });
     if(!comps.length)return;
     groupLoanComponentsByDueDate(comps).forEach(group=>{
