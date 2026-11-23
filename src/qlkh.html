@@ -1478,11 +1478,15 @@ function captureScheduledDueLedger(loans,cloudDirty=false){
       const key=trackedScheduledKey(r,kind,due);
       const prior=next[key];
       if(prior||isLoanPaid(key,r)||isOverdueTrackerPaidKey(key))return;
+      const oldOverdue=next[overdueTrackerKey(r,kind)];
+      const reportedNext=oldOverdue?dateOrdinal(oldOverdue.nextScheduledDate):null;
+      const recordedAsPaid=!!(oldOverdue&&['paid','paid_waiting_clear'].includes(oldOverdue.status)
+        &&ordinal<=dateOrdinal(todayDate())&&(reportedNext===null||ordinal<reportedNext));
       next[key]={key,source:'scheduled_due',kind,kindLabel:kind==='principal'?'Gốc':'Lãi',
         maKH:r.maKH||'',name:r.name||'',contract:r.contract||'',cbtd:r.cbtd||'',
         loanType:r.loanType||'',amount,
         firstDueDate:due,nextScheduledDate:due,firstSeenDate:today,lastSeenDate:today,
-        baseAsOfDate:today,baseDays:null,present:true,status:'open',workflowStatus:'unreported',updatedAt:now};
+        baseAsOfDate:today,baseDays:null,present:true,status:recordedAsPaid?'paid':'open',workflowStatus:'unreported',updatedAt:now};
       added++;
     });
   });
@@ -1665,6 +1669,18 @@ function updateOverdueDays(keys,value){
   const now=new Date().toISOString(),today=dkey(todayDate());
   if(raw==='')found.forEach(key=>{store[key]={...store[key],baseDays:null,baseAsOfDate:today,updatedAt:now}});
   else{const n=Math.round(Number(raw.replace(/\D+/g,'')));if(!Number.isFinite(n)||n<0||n>99999)return alert('Số ngày quá hạn không hợp lệ.');found.forEach(key=>{store[key]={...store[key],baseDays:n,baseAsOfDate:today,status:'open',updatedAt:now}});}
+  // Khi Excel báo số dư QH cho kỳ đã lưu, lưu số ngày Chồng nhập ở cả kỳ gốc,
+  // để kỳ ấy không bị mất mốc khi Excel chuyển sang kỳ mới.
+  if(raw!==''){
+    const n=Math.round(Number(raw.replace(/\D+/g,'')));
+    const alreadyEdited=new Set(found);
+    linkedLoanPaidKeys(found.join('||')).forEach(key=>{
+      const previous=store[key];
+      if(!previous||previous.source!=='scheduled_due'||alreadyEdited.has(key)||previous.status!=='open')return;
+      if(previous.baseDays!==null&&previous.baseDays!==undefined&&previous.baseDays!=='')return;
+      store[key]={...previous,baseDays:n,baseAsOfDate:today,updatedAt:now};
+    });
+  }
   saveOverdueTrackerStore(store,'cập nhật số ngày quá hạn');
   renderOverdueLedger();
 }
@@ -2182,7 +2198,7 @@ function groupLoanComponentsByDueDate(components){const map=new Map(); (componen
 function makeDueRowFromComponents(r,components,d){components=components||[]; const principal=components.reduce((s,c)=>s+Number(c.principal||0),0), interest=components.reduce((s,c)=>s+Number(c.interest||0),0); const days=components.map(c=>c.days).filter(x=>x!==null&&x!==undefined); const minDays=days.length?Math.min(...days):null; const dueComp=(minDays!==null?components.find(c=>c.days===minDays):components[0])||{}; let kind=''; if(principal>0&&interest>0)kind='Gốc + Lãi'; else if(principal>0)kind='Gốc'; else if(interest>0)kind='Lãi'; return {raw:r,key:components.map(c=>c.key).join('||'),componentKeys:components.map(c=>c.key),components,maKH:r.maKH,name:r.name,contract:r.contract,loanType:r.loanType||'Kinh doanh',cbtd:r.cbtd,kind,minDays,dueDate:dueComp.dueDate||null,principal,interest,need:principal+interest,consumer:d&&d.consumer,business:d&&d.business,overdueTracker:components.some(c=>!!c.trackerKey),overdueUnknown:components.some(c=>!!c.overdueUnknown)}}
 function findLoanComponentByKey(key){for(const r of state.loans){const d=loanDueParts(r,99999); const c=loanDueComponents(r,d).find(x=>x.key===key||x.legacyKey===key); if(c)return c} return null}
 function loanPaidEntryFromComponent(c,r,source,extra){c=c||{}; return loanPaidEntry(c.key,c.raw||r||{},source,{kind:c.kind,dueDate:c.dueDate,amount:c.amount,principal:c.principal,interest:c.interest,...(extra||{})})}
-function loanPaidEntryFromKey(key,source,extra){const c=findLoanComponentByKey(key); if(c)return loanPaidEntryFromComponent(c,c.raw,source,extra); const tracked=overdueTrackerStore()[key]; if(tracked){const days=(tracked.baseDays===null||tracked.baseDays===undefined||tracked.baseDays==='')?null:Math.max(0,Math.round(Number(tracked.baseDays)||0)+Math.max(0,(dateOrdinal(todayDate())??0)-(dateOrdinal(tracked.baseAsOfDate||tracked.firstSeenDate||todayDate())??0)));const amount=Number(tracked.amount||0),kind=tracked.kindLabel||'Khoản vay quá hạn';return loanPaidEntry(key,{},source,{maKH:tracked.maKH||'',name:tracked.name||'',contract:tracked.contract||'',cbtd:tracked.cbtd||'',kind,dueDate:days===null?'':addDays(todayDate(),-days),amount,principal:tracked.kind==='principal'?amount:0,interest:tracked.kind==='interest'?amount:0,...(extra||{})})} const r=findLoanByPaidKey(key)||{}; const p=String(key||'').split('|'); const kind=p[1]||'Khoản vay', dueDate=p[5]||'', amount=Number((extra&&extra.amount)||p[6]||0); return loanPaidEntry(key,r,source,{kind,dueDate,amount,principal:kind==='Gốc'?amount:0,interest:kind==='Lãi'?amount:0,...(extra||{})})}
+function loanPaidEntryFromKey(key,source,extra){const c=findLoanComponentByKey(key); if(c)return loanPaidEntryFromComponent(c,c.raw,source,extra); const tracked=overdueTrackerStore()[key]; if(tracked){const days=(tracked.baseDays===null||tracked.baseDays===undefined||tracked.baseDays==='')?null:Math.max(0,Math.round(Number(tracked.baseDays)||0)+Math.max(0,(dateOrdinal(todayDate())??0)-(dateOrdinal(tracked.baseAsOfDate||tracked.firstSeenDate||todayDate())??0)));const amount=Number(tracked.amount||0),kind=tracked.kindLabel||'Khoản vay quá hạn';return loanPaidEntry(key,{},source,{maKH:tracked.maKH||'',name:tracked.name||'',contract:tracked.contract||'',cbtd:tracked.cbtd||'',kind,dueDate:tracked.source==='scheduled_due'?tracked.firstDueDate:(days===null?'':addDays(todayDate(),-days)),amount,principal:tracked.kind==='principal'?amount:0,interest:tracked.kind==='interest'?amount:0,...(extra||{})})} const r=findLoanByPaidKey(key)||{}; const p=String(key||'').split('|'); const kind=p[1]||'Khoản vay', dueDate=p[5]||'', amount=Number((extra&&extra.amount)||p[6]||0); return loanPaidEntry(key,r,source,{kind,dueDate,amount,principal:kind==='Gốc'?amount:0,interest:kind==='Lãi'?amount:0,...(extra||{})})}
 function makeLoanEntryFromDueRow(x,source,extra){return loanPaidEntryFromKey(x.key,source,{maKH:x.maKH,name:x.name,contract:x.contract,cbtd:x.cbtd,loanType:x.loanType,kind:x.kind,dueDate:x.dueDate,amount:x.need,principal:x.principal,interest:x.interest,...(extra||{})})}
 function savePaidStore(s,reason){s.today=s.today||{};s.loan=s.loan||{};s.deposit=s.deposit||{};s.birthday=s.birthday||{};storageSet(PAID_KEY,s);markLastSave(reason||'cập nhật sổ đã xử lý',true);markCloudDirty(reason||'cập nhật sổ đã xử lý');scheduleSaveUIState()}
 function setLoanKeysPaid(keys,checked,source,extra){
