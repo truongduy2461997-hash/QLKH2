@@ -1518,6 +1518,40 @@ function updateDue7TrackedDays(keys,value){
 }
 
 function overdueEntryForLoan(r,kind){return overdueTrackerStore()[overdueTrackerKey(r,kind)]||null}
+
+function linkedLoanPaidKeys(keys){
+  const selected=new Set(String(keys||'').split('||').filter(Boolean));
+  const ledger=overdueTrackerStore(),nowOrdinal=dateOrdinal(todayDate()),groups=new Set();
+  selected.forEach(key=>{
+    const e=ledger[key];
+    if(e&&e.contract&&e.kind)groups.add([String(e.contract).trim(),String(e.maKH||'').trim(),e.kind].join('|'));
+    (state.loans||[]).forEach(r=>{
+      if(!r.contract)return;
+      const groupBase=[String(r.contract).trim(),String(r.maKH||'').trim()];
+      if(key===overdueTrackerKey(r,'principal'))groups.add([...groupBase,'principal'].join('|'));
+      if(key===overdueTrackerKey(r,'interest'))groups.add([...groupBase,'interest'].join('|'));
+    });
+  });
+  if(!groups.size)return [...selected];
+  Object.values(ledger).forEach(e=>{
+    if(!e||e.source!=='scheduled_due'||!e.key||!e.contract||!e.kind)return;
+    const group=[String(e.contract).trim(),String(e.maKH||'').trim(),e.kind].join('|');
+    const ordinal=dateOrdinal(e.firstDueDate);
+    if(groups.has(group)&&ordinal!==null&&ordinal<=nowOrdinal)selected.add(e.key);
+  });
+  return [...selected];
+}
+function sourceOverdueShadowsScheduled(e){
+  if(!e||e.source!=='scheduled_due'||e.status!=='open')return false;
+  const oldDay=dateOrdinal(e.firstDueDate),today=dateOrdinal(todayDate());
+  if(oldDay===null||today===null||oldDay>=today)return false;
+  return (state.loans||[]).some(r=>{
+    if(String(r.contract||'').trim()!==String(e.contract||'').trim()
+       ||String(r.maKH||'').trim()!==String(e.maKH||'').trim())return false;
+    return e.kind==='principal'?Number(r.vonQH||0)>0:(Number(r.laiQH||0)+Number(r.laiPhat||0)>0);
+  });
+}
+
 function isOverdueTrackerPaidKey(key){const e=overdueTrackerStore()[key];return !!(e&&['paid','paid_waiting_clear'].includes(e.status))}
 function overdueTrackedDays(r,kind){
   const e=overdueEntryForLoan(r,kind);
@@ -1598,7 +1632,7 @@ function captureRolledScheduledObligations(previousLoans,nextLoans){
   return count;
 }
 function overdueLedgerRows(){
-  return Object.values(overdueTrackerStore()).filter(e=>e&&e.status!=='closed'&&(e.source!=='scheduled_due'||(dateOrdinal(e.firstDueDate)!==null&&dateOrdinal(e.firstDueDate)<dateOrdinal(todayDate())))).map(e=>({...e,status:e.status==='paid_waiting_clear'?'paid':e.status,currentDays:(e.baseDays===null||e.baseDays===undefined||e.baseDays==='')?null:Math.max(0,Math.round(Number(e.baseDays)||0)+Math.max(0,(dateOrdinal(todayDate())??0)-(dateOrdinal(e.baseAsOfDate||e.firstSeenDate||todayDate())??0)))})).sort((a,b)=>((b.currentDays??-1)-(a.currentDays??-1))||(Number(b.amount||0)-Number(a.amount||0))||String(a.name||'').localeCompare(String(b.name||''),'vi'));
+  return Object.values(overdueTrackerStore()).filter(e=>e&&e.status!=='closed'&&(e.source!=='scheduled_due'||(dateOrdinal(e.firstDueDate)!==null&&dateOrdinal(e.firstDueDate)<dateOrdinal(todayDate())))&&!sourceOverdueShadowsScheduled(e)).map(e=>({...e,status:e.status==='paid_waiting_clear'?'paid':e.status,currentDays:(e.baseDays===null||e.baseDays===undefined||e.baseDays==='')?null:Math.max(0,Math.round(Number(e.baseDays)||0)+Math.max(0,(dateOrdinal(todayDate())??0)-(dateOrdinal(e.baseAsOfDate||e.firstSeenDate||todayDate())??0)))})).sort((a,b)=>((b.currentDays??-1)-(a.currentDays??-1))||(Number(b.amount||0)-Number(a.amount||0))||String(a.name||'').localeCompare(String(b.name||''),'vi'));
 }
 function normalizeOverdueWorkflowStatus(v){return ['unreported','reported','resolved'].includes(v)?v:'unreported'}
 function overdueWorkflowLabel(v){v=normalizeOverdueWorkflowStatus(v);return v==='reported'?'Đã báo cáo':(v==='resolved'?'Đã xử lý':'Chưa báo cáo')}
@@ -2153,11 +2187,12 @@ function makeLoanEntryFromDueRow(x,source,extra){return loanPaidEntryFromKey(x.k
 function savePaidStore(s,reason){s.today=s.today||{};s.loan=s.loan||{};s.deposit=s.deposit||{};s.birthday=s.birthday||{};storageSet(PAID_KEY,s);markLastSave(reason||'cập nhật sổ đã xử lý',true);markCloudDirty(reason||'cập nhật sổ đã xử lý');scheduleSaveUIState()}
 function setLoanKeysPaid(keys,checked,source,extra){
   const s=paidStore(); s.loan=s.loan||{};
-  String(keys||'').split('||').filter(Boolean).forEach(k=>{
+  const affected=linkedLoanPaidKeys(keys);
+  affected.forEach(k=>{
     if(checked)s.loan[k]=paidActiveEntry(loanPaidEntryFromKey(k,source||'tab2_tab3',extra));
     else s.loan[k]=paidRestoredEntry(k,'loan',s.loan[k]||loanPaidEntryFromKey(k,source||'tab2_tab3',extra),{source:source||'tab2_tab3'});
   });
-  updateOverdueTrackerPaidFromKeys(keys,checked);
+  updateOverdueTrackerPaidFromKeys(affected.join('||'),checked);
   savePaidStore(s,checked?'tích đã thanh toán/đã xử lý khoản vay':'khôi phục khoản vay khỏi sổ xử lý');
   renderAll();
 }
@@ -2203,7 +2238,7 @@ function setTodayPaid(key,checked){
     loanItems.forEach(x=>{(x.components&&x.components.length?x.components:[{key:x.key}]).forEach(c=>{if(c.key)s.loan[c.key]=paidRestoredEntry(c.key,'loan',s.loan[c.key]||loanPaidEntryFromKey(c.key,'today',{todayKey:key}),{source:'today',todayKey:key})})});
   }
   const overdueKeys=loanItems.flatMap(x=>(x.components&&x.components.length?x.components:[{key:x.key}]).map(c=>c.key)).filter(Boolean).join('||');
-  updateOverdueTrackerPaidFromKeys(overdueKeys,checked);
+  updateOverdueTrackerPaidFromKeys(linkedLoanPaidKeys(overdueKeys).join('||'),checked);
   savePaidStore(s,checked?'tích đã thanh toán tab 1 và ghi vào sổ xử lý':'khôi phục dòng tab 1 khỏi sổ xử lý');
   renderAll();
 }
@@ -2597,12 +2632,11 @@ function renderDue7(){
   const rangeDays=due7RangeDays();
   const rows=applyDue7();
   const cb=officerFilterValue('due7CBTD');
-  const rawOverdueCount=(state.loans||[]).filter(r=>(Number(r.vonQH||0)>0||Number(r.laiQH||0)>0||Number(r.laiPhat||0)>0)&&(!cb||sameOfficerName(r.cbtd,cb))).length;
   const over=rows.filter(x=>x.minDays<0||(x.components||[]).some(c=>c.overdueUnknown)).length,
         total=rows.reduce((sum,x)=>sum+x.need,0),
         goc=rows.filter(x=>x.kind==='Gốc'||x.kind==='Gốc + Lãi').length,
         lai=rows.filter(x=>x.kind==='Lãi'||x.kind==='Gốc + Lãi').length;
-  $('due7Metrics').innerHTML=`<div class="metric"><div class="metric-lbl">⏰ Khách/ngày đến hạn</div><div class="metric-val red">${rows.length}</div><div class="metric-sub">Đã cộng gộp cùng khách + cùng ngày</div></div><div class="metric"><div class="metric-lbl">🔴 Quá hạn</div><div class="metric-val red">${over}</div><div class="metric-sub">Excel có ${rawOverdueCount} HĐ báo dư quá hạn</div></div><div class="metric"><div class="metric-lbl">💰 Có gốc đến hạn</div><div class="metric-val amber">${goc}</div><div class="metric-sub">Cần TT gồm tiền gốc</div></div><div class="metric"><div class="metric-lbl">💵 Có lãi đến hạn</div><div class="metric-val blue">${lai}</div><div class="metric-sub">Cần TT gồm tiền lãi</div></div><div class="metric"><div class="metric-lbl">📌 Cần thanh toán</div><div class="metric-val green" style="font-size:17px">${moneyShort(total)}</div><div class="metric-sub">${moneyShort(total)}</div></div>`;
+  $('due7Metrics').innerHTML=`<div class="metric"><div class="metric-lbl">⏰ Khách/ngày đến hạn</div><div class="metric-val red">${rows.length}</div><div class="metric-sub">Đã cộng gộp cùng khách + cùng ngày</div></div><div class="metric"><div class="metric-lbl">🔴 Quá hạn</div><div class="metric-val red">${over}</div><div class="metric-sub">Chỉ gồm khoản chưa tích Đã TT</div></div><div class="metric"><div class="metric-lbl">💰 Có gốc đến hạn</div><div class="metric-val amber">${goc}</div><div class="metric-sub">Cần TT gồm tiền gốc</div></div><div class="metric"><div class="metric-lbl">💵 Có lãi đến hạn</div><div class="metric-val blue">${lai}</div><div class="metric-sub">Cần TT gồm tiền lãi</div></div><div class="metric"><div class="metric-lbl">📌 Cần thanh toán</div><div class="metric-val green" style="font-size:17px">${moneyShort(total)}</div><div class="metric-sub">${moneyShort(total)}</div></div>`;
   const empty=$('due7Empty'),wrap=$('due7Wrap'),body=$('due7Body');
   if(!rows.length){
     empty.style.display='block';wrap.style.display='none';
