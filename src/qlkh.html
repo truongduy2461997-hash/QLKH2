@@ -1118,8 +1118,8 @@
     </section>
 
     <section id="tab-due7" class="panel">
-      <div class="toolbar"><div class="toolbar-left"><button class="btn" onclick="exportDue7()">⬇ Xuất tiền vay đến hạn</button></div><div class="toolbar-right"><input id="due7Search" type="text" placeholder="🔍 Tên KH / HĐ / CBTD" oninput="scheduleTabRender('due7')"><select id="due7Range" onchange="scheduleTabRender('due7')"><option value="7">Đến hạn trong 7 ngày</option><option value="30">Đến hạn trong 30 ngày</option><option value="all">Tất cả ngày trong Excel</option></select><select id="due7Kind" onchange="scheduleTabRender('due7')"><option value="all">Tất cả gốc/lãi</option><option value="Gốc">Đến hạn gốc</option><option value="Lãi">Đến hạn lãi</option><option value="Gốc + Lãi">Gốc + lãi</option></select><select id="due7Sort" onchange="scheduleTabRender('due7')"><option value="date_asc">Ngày gần nhất</option><option value="amount_desc">Số tiền cần TT lớn trước</option><option value="name_asc">Tên KH A→Z</option></select><label style="display:inline-flex;gap:5px;align-items:center;white-space:nowrap;font-size:12px;padding:4px 6px" title="Cho xem lại cả khoản đã tích Đã TT, để kiểm tra khách bị ẩn"><input id="due7ShowPaid" type="checkbox" onchange="scheduleTabRender('due7')"> Hiện đã tích</label></div></div>
-      <div id="due7Metrics" class="metrics"></div><div id="due7Audit" class="strong-note" style="display:none;margin:8px 0;border:1px solid #fbbf24;background:#fffbeb;color:#7c2d12;padding:12px;border-radius:10px"></div><div id="due7Empty" class="empty-state" style="display:none"></div><div class="table-wrap" id="due7Wrap" style="display:none"><table><thead><tr><th>Đã TT</th><th>#</th><th>Mã KH</th><th>Khách hàng</th><th>Số HĐ</th><th>Nhóm vay</th><th>CBTD</th><th>Đến hạn gì</th><th>Ngày đến hạn</th><th>Còn/quá hạn</th><th style="text-align:right">Gốc đến hạn</th><th style="text-align:right">Lãi đến hạn</th><th style="text-align:right">Cần thanh toán</th></tr></thead><tbody id="due7Body"></tbody></table></div><div id="due7Footer" class="footer-info"></div>
+      <div class="toolbar"><div class="toolbar-left"><button class="btn" onclick="exportDue7()">⬇ Xuất tiền vay đến hạn</button></div><div class="toolbar-right"><input id="due7Search" type="text" placeholder="🔍 Tên KH / HĐ / CBTD" oninput="scheduleTabRender('due7')"><select id="due7Range" onchange="scheduleTabRender('due7')"><option value="7">Đến hạn trong 7 ngày</option><option value="30">Đến hạn trong 30 ngày</option><option value="all">Tất cả ngày trong Excel</option></select><select id="due7Kind" onchange="scheduleTabRender('due7')"><option value="all">Tất cả gốc/lãi</option><option value="Gốc">Đến hạn gốc</option><option value="Lãi">Đến hạn lãi</option><option value="Gốc + Lãi">Gốc + lãi</option></select><select id="due7Sort" onchange="scheduleTabRender('due7')"><option value="date_asc">Ngày gần nhất</option><option value="amount_desc">Số tiền cần TT lớn trước</option><option value="name_asc">Tên KH A→Z</option></select></div></div>
+      <div id="due7Metrics" class="metrics"></div><div id="due7Empty" class="empty-state" style="display:none"></div><div class="table-wrap" id="due7Wrap" style="display:none"><table><thead><tr><th>Đã TT</th><th>#</th><th>Mã KH</th><th>Khách hàng</th><th>Số HĐ</th><th>Nhóm vay</th><th>CBTD</th><th>Đến hạn gì</th><th>Ngày đến hạn</th><th>Còn/quá hạn</th><th style="text-align:right">Gốc đến hạn</th><th style="text-align:right">Lãi đến hạn</th><th style="text-align:right">Cần thanh toán</th></tr></thead><tbody id="due7Body"></tbody></table></div><div id="due7Footer" class="footer-info"></div>
     </section>
 
 
@@ -1444,7 +1444,118 @@ function overdueTrackerStore(){
   return perf.overdueCache;
 }
 function overdueTrackerKey(r,kind){const contract=String(r&&r.contract||'').trim(),ma=String(r&&r.maKH||'').trim(),name=norm(r&&r.name||'')||'khong_ten';return ['overdue',contract?('hd:'+contract):'khong_hd','kh:'+(ma||name),kind==='interest'?'lai':'goc'].join('|')}
+
+/* Nghĩa vụ gốc/lãi theo từng HĐ + ngày đến hạn; không phụ thuộc kỳ tiếp theo ở file LN80.
+ * Lưu cùng overdueTrackerStore để đồng bộ bằng overdueTrackerJSON Firebase hiện hữu.
+ * Chỉ loại khỏi nguồn chờ thu khi có thao tác thanh toán cho đúng nghĩa vụ.
+ */
+function trackedScheduledKey(r,kind,due){
+  return loanObligationKey(r,kind==='principal'?'Gốc':'Lãi',due);
+}
+function trackedScheduledAmount(r,kind){
+  return Math.max(0,Number(kind==='principal'?r.vonAmount:r.laiAmount)||0);
+}
+function trackedScheduledDays(entry){
+  if(!entry||entry.baseDays===null||entry.baseDays===undefined||entry.baseDays==='')return null;
+  const delta=Math.max(0,(dateOrdinal(todayDate())??0)-(dateOrdinal(entry.baseAsOfDate||entry.firstSeenDate||todayDate())??0));
+  return Math.max(0,Math.round(Number(entry.baseDays)||0)+delta);
+}
+function trackedScheduledComponentDays(key,rawDays){
+  const e=overdueTrackerStore()[key];
+  if(!e||e.source!=='scheduled_due'||rawDays===null||rawDays>=0)return rawDays;
+  const manual=trackedScheduledDays(e);
+  return manual===null?rawDays:-manual;
+}
+function captureScheduledDueLedger(loans,cloudDirty=false){
+  if(!Array.isArray(loans)||!loans.length)return 0;
+  const old=overdueTrackerStore(),next={...old},day=todayDate(),threshold=dateOrdinal(addDays(day,60)),now=new Date().toISOString(),today=dkey(day);
+  let added=0;
+  loans.forEach(r=>{
+    if(!r||!r.contract)return;
+    [['principal','vonDate'],['interest','laiDate']].forEach(([kind,dateField])=>{
+      const due=dkey(r[dateField]),ordinal=dateOrdinal(due),amount=trackedScheduledAmount(r,kind);
+      if(ordinal===null||ordinal>threshold||amount<=0)return;
+      const key=trackedScheduledKey(r,kind,due);
+      const prior=next[key];
+      if(prior||isLoanPaid(key,r)||isOverdueTrackerPaidKey(key))return;
+      const oldOverdue=next[overdueTrackerKey(r,kind)];
+      const reportedNext=oldOverdue?dateOrdinal(oldOverdue.nextScheduledDate):null;
+      const recordedAsPaid=!!(oldOverdue&&['paid','paid_waiting_clear'].includes(oldOverdue.status)
+        &&ordinal<=dateOrdinal(todayDate())&&(reportedNext===null||ordinal<reportedNext));
+      next[key]={key,source:'scheduled_due',kind,kindLabel:kind==='principal'?'Gốc':'Lãi',
+        maKH:r.maKH||'',name:r.name||'',contract:r.contract||'',cbtd:r.cbtd||'',
+        loanType:r.loanType||'',amount,
+        firstDueDate:due,nextScheduledDate:due,firstSeenDate:today,lastSeenDate:today,
+        baseAsOfDate:today,baseDays:null,present:true,status:recordedAsPaid?'paid':'open',workflowStatus:'unreported',updatedAt:now};
+      added++;
+    });
+  });
+  if(added)saveOverdueTrackerStore(next,'ghi nhớ lịch đến hạn gốc/lãi',cloudDirty);
+  return added;
+}
+function trackedFutureDueRows(rangeDays=30,includePaid=false){
+  const todayOrd=dateOrdinal(todayDate());
+  return Object.values(overdueTrackerStore()).filter(e=>{
+    if(!e||e.source!=='scheduled_due')return false;
+    if(e.status!=='open'&&!(includePaid&&e.status==='paid'))return false;
+    if(!includePaid&&isLoanPaid(e.key))return false;
+    const dueOrd=dateOrdinal(e.firstDueDate);
+    return dueOrd!==null&&dueOrd>=todayOrd&&dueOrd-todayOrd<=rangeDays&&Number(e.amount||0)>0;
+  });
+}
+function trackedDueEditorForRow(row){
+  const entries=(row.components||[]).filter(c=>{
+    const e=overdueTrackerStore()[c.trackerKey||c.key];
+    return e&&e.status==='open'&&(c.overdueUnknown||c.days===null||c.days<0);
+  }).map(c=>overdueTrackerStore()[c.trackerKey||c.key]);
+  if(!entries.length)return '';
+  const keys=[...new Set(entries.map(e=>e.key))];
+  const manual=entries.map(trackedScheduledDays).find(x=>x!==null&&x!==undefined);
+  return '<div class="small" style="margin-top:4px;display:flex;align-items:center;gap:4px;flex-wrap:wrap">'
+    +'<label>Số ngày QH</label><input class="edit-input mono" type="number" min="0" max="99999" inputmode="numeric" style="width:82px;min-width:82px" placeholder="Nhập lần đầu" value="'+(manual===undefined?'':manual)+'"'
+    +' title="Nhập số ngày trễ hạn thực tế. Hệ thống sẽ tự cộng theo thời gian và giữ tới khi đánh dấu đã thanh toán." onchange="updateDue7TrackedDays(\''+jsq(keys.join('||'))+'\',this.value)">'
+    +'</div>';
+}
+function updateDue7TrackedDays(keys,value){
+  updateOverdueDays(keys,value);
+  if(currentTab!=='overdue')renderActiveTab();
+}
+
 function overdueEntryForLoan(r,kind){return overdueTrackerStore()[overdueTrackerKey(r,kind)]||null}
+
+function linkedLoanPaidKeys(keys){
+  const selected=new Set(String(keys||'').split('||').filter(Boolean));
+  const ledger=overdueTrackerStore(),nowOrdinal=dateOrdinal(todayDate()),groups=new Set();
+  selected.forEach(key=>{
+    const e=ledger[key];
+    if(e&&e.contract&&e.kind)groups.add([String(e.contract).trim(),String(e.maKH||'').trim(),e.kind].join('|'));
+    (state.loans||[]).forEach(r=>{
+      if(!r.contract)return;
+      const groupBase=[String(r.contract).trim(),String(r.maKH||'').trim()];
+      if(key===overdueTrackerKey(r,'principal'))groups.add([...groupBase,'principal'].join('|'));
+      if(key===overdueTrackerKey(r,'interest'))groups.add([...groupBase,'interest'].join('|'));
+    });
+  });
+  if(!groups.size)return [...selected];
+  Object.values(ledger).forEach(e=>{
+    if(!e||e.source!=='scheduled_due'||!e.key||!e.contract||!e.kind)return;
+    const group=[String(e.contract).trim(),String(e.maKH||'').trim(),e.kind].join('|');
+    const ordinal=dateOrdinal(e.firstDueDate);
+    if(groups.has(group)&&ordinal!==null&&ordinal<=nowOrdinal)selected.add(e.key);
+  });
+  return [...selected];
+}
+function sourceOverdueShadowsScheduled(e){
+  if(!e||e.source!=='scheduled_due'||e.status!=='open')return false;
+  const oldDay=dateOrdinal(e.firstDueDate),today=dateOrdinal(todayDate());
+  if(oldDay===null||today===null||oldDay>=today)return false;
+  return (state.loans||[]).some(r=>{
+    if(String(r.contract||'').trim()!==String(e.contract||'').trim()
+       ||String(r.maKH||'').trim()!==String(e.maKH||'').trim())return false;
+    return e.kind==='principal'?Number(r.vonQH||0)>0:(Number(r.laiQH||0)+Number(r.laiPhat||0)>0);
+  });
+}
+
 function isOverdueTrackerPaidKey(key){const e=overdueTrackerStore()[key];return !!(e&&['paid','paid_waiting_clear'].includes(e.status))}
 function overdueTrackedDays(r,kind){
   const e=overdueEntryForLoan(r,kind);
@@ -1479,7 +1590,7 @@ function syncOverdueTrackerFromLoans(cloudDirty=false){
       }
     });
   });
-  Object.keys(next).forEach(key=>{if(!seen.has(key)&&next[key].status!=='closed'&&next[key].present!==false)next[key]={...next[key],present:false,updatedAt:now}});
+  Object.keys(next).forEach(key=>{if(!seen.has(key)&&next[key].source!=='scheduled_due'&&next[key].status!=='closed'&&next[key].present!==false)next[key]={...next[key],present:false,updatedAt:now}});
   const changed=JSON.stringify(old)!==JSON.stringify(next);
   if(changed)saveOverdueTrackerStore(next,'đồng bộ sổ quá hạn từ Excel',cloudDirty);
   return changed;
@@ -1525,7 +1636,7 @@ function captureRolledScheduledObligations(previousLoans,nextLoans){
   return count;
 }
 function overdueLedgerRows(){
-  return Object.values(overdueTrackerStore()).filter(e=>e&&e.status!=='closed').map(e=>({...e,status:e.status==='paid_waiting_clear'?'paid':e.status,currentDays:(e.baseDays===null||e.baseDays===undefined||e.baseDays==='')?null:Math.max(0,Math.round(Number(e.baseDays)||0)+Math.max(0,(dateOrdinal(todayDate())??0)-(dateOrdinal(e.baseAsOfDate||e.firstSeenDate||todayDate())??0)))})).sort((a,b)=>((b.currentDays??-1)-(a.currentDays??-1))||(Number(b.amount||0)-Number(a.amount||0))||String(a.name||'').localeCompare(String(b.name||''),'vi'));
+  return Object.values(overdueTrackerStore()).filter(e=>e&&e.status!=='closed'&&(e.source!=='scheduled_due'||(dateOrdinal(e.firstDueDate)!==null&&dateOrdinal(e.firstDueDate)<dateOrdinal(todayDate())))&&!sourceOverdueShadowsScheduled(e)).map(e=>({...e,status:e.status==='paid_waiting_clear'?'paid':e.status,currentDays:(e.baseDays===null||e.baseDays===undefined||e.baseDays==='')?null:Math.max(0,Math.round(Number(e.baseDays)||0)+Math.max(0,(dateOrdinal(todayDate())??0)-(dateOrdinal(e.baseAsOfDate||e.firstSeenDate||todayDate())??0)))})).sort((a,b)=>((b.currentDays??-1)-(a.currentDays??-1))||(Number(b.amount||0)-Number(a.amount||0))||String(a.name||'').localeCompare(String(b.name||''),'vi'));
 }
 function normalizeOverdueWorkflowStatus(v){return ['unreported','reported','resolved'].includes(v)?v:'unreported'}
 function overdueWorkflowLabel(v){v=normalizeOverdueWorkflowStatus(v);return v==='reported'?'Đã báo cáo':(v==='resolved'?'Đã xử lý':'Chưa báo cáo')}
@@ -1558,6 +1669,18 @@ function updateOverdueDays(keys,value){
   const now=new Date().toISOString(),today=dkey(todayDate());
   if(raw==='')found.forEach(key=>{store[key]={...store[key],baseDays:null,baseAsOfDate:today,updatedAt:now}});
   else{const n=Math.round(Number(raw.replace(/\D+/g,'')));if(!Number.isFinite(n)||n<0||n>99999)return alert('Số ngày quá hạn không hợp lệ.');found.forEach(key=>{store[key]={...store[key],baseDays:n,baseAsOfDate:today,status:'open',updatedAt:now}});}
+  // Khi Excel báo số dư QH cho kỳ đã lưu, lưu số ngày Chồng nhập ở cả kỳ gốc,
+  // để kỳ ấy không bị mất mốc khi Excel chuyển sang kỳ mới.
+  if(raw!==''){
+    const n=Math.round(Number(raw.replace(/\D+/g,'')));
+    const alreadyEdited=new Set(found);
+    linkedLoanPaidKeys(found.join('||')).forEach(key=>{
+      const previous=store[key];
+      if(!previous||previous.source!=='scheduled_due'||alreadyEdited.has(key)||previous.status!=='open')return;
+      if(previous.baseDays!==null&&previous.baseDays!==undefined&&previous.baseDays!=='')return;
+      store[key]={...previous,baseDays:n,baseAsOfDate:today,updatedAt:now};
+    });
+  }
   saveOverdueTrackerStore(store,'cập nhật số ngày quá hạn');
   renderOverdueLedger();
 }
@@ -1628,7 +1751,7 @@ function normalizeDateFields(){
   (state.insurances||[]).forEach(r=>['recordDate','expiryDate','effectiveDate'].forEach(k=>{r[k]=stableDateString(r[k])}));
 }
 function serializableState(){return {loans:state.loans,customers:state.customers,deposits:state.deposits,creditCards:state.creditCards,renewals:state.renewals,insurances:state.insurances,debtOverrides:normalizeDebtOverrides(state.debtOverrides),customerNotes:notesStore()}}
-function setState(obj){obj=obj||{};if(obj.customerNotes)storageSet(NOTE_KEY,mergeByUpdatedAt(notesStore(),obj.customerNotes));state.loans=Array.isArray(obj.loans)?obj.loans:[];state.customers=Array.isArray(obj.customers)?obj.customers:[];state.deposits=Array.isArray(obj.deposits)?obj.deposits:[];state.creditCards=Array.isArray(obj.creditCards)?obj.creditCards:[];state.renewals=Array.isArray(obj.renewals)?obj.renewals:[];state.insurances=Array.isArray(obj.insurances)?obj.insurances:[];state.debtOverrides=normalizeDebtOverrides(obj.debtOverrides||state.debtOverrides);normalizeDateFields();applyDebtOverridesToLoans();applyNoteOverridesToCustomers();normalizeDateFields();rebuildRuntimeIndexes();syncOverdueTrackerFromLoans(false)}
+function setState(obj){obj=obj||{};if(obj.customerNotes)storageSet(NOTE_KEY,mergeByUpdatedAt(notesStore(),obj.customerNotes));state.loans=Array.isArray(obj.loans)?obj.loans:[];state.customers=Array.isArray(obj.customers)?obj.customers:[];state.deposits=Array.isArray(obj.deposits)?obj.deposits:[];state.creditCards=Array.isArray(obj.creditCards)?obj.creditCards:[];state.renewals=Array.isArray(obj.renewals)?obj.renewals:[];state.insurances=Array.isArray(obj.insurances)?obj.insurances:[];state.debtOverrides=normalizeDebtOverrides(obj.debtOverrides||state.debtOverrides);normalizeDateFields();applyDebtOverridesToLoans();applyNoteOverridesToCustomers();normalizeDateFields();rebuildRuntimeIndexes();syncOverdueTrackerFromLoans(false);captureScheduledDueLedger(state.loans,false)}
 function dataSnapshot(){return {version:VERSION,savedAt:new Date().toISOString(),...serializableState()}}
 async function persistDataSnapshot(reason){
   if(perf.snapshotSaving){if(perf.snapshotDirty)perf.snapshotAgain=true;return perf.snapshotPromise}
@@ -1801,7 +1924,7 @@ function insuranceAssetCustomerCandidate(v){const s=String(v||'').trim(),m=s.mat
 function parseInsurancePNT(rows){return (rows||[]).map(r=>{const assetId=String(get(r,['Mã TSBĐ','Ma TSBD','Mã tài sản bảo đảm','Ma tai san bao dam'])||'').trim();return {type:'BHPNT',contract:String(get(r,['Số HĐBH','So HDBH','HĐBH'])||'').trim(),application:String(get(r,['Số Giao dịch','So Giao dich'])||'').trim(),maKH:'',assetId,assetCustomerCandidate:insuranceAssetCustomerCandidate(assetId),name:String(get(r,['BMBH','Bên mua bảo hiểm','Ben mua bao hiem'])||'').trim(),status:String(get(r,['Trạng thái','Trang thai'])||'').trim(),recordDate:stableDateString(get(r,['Ngày thanh toán','Ngay thanh toan','Ngày hiệu lực HĐ','Ngay hieu luc HD'])),effectiveDate:stableDateString(get(r,['Ngày hiệu lực HĐ','Ngay hieu luc HD'])),expiryDate:stableDateString(get(r,['Ngày hết hiệu lực','Ngay het hieu luc'])),amount:num(get(r,['Doanh số phí bảo hiểm','Doanh so phi bao hiem'])),amountNoVat:num(get(r,['Doanh số phí bảo hiểm (không VAT)','Doanh so phi bao hiem khong VAT'])),faceAmount:0,product:String(get(r,['Tên Sản phẩm','Ten San pham','Sản phẩm','San pham'])||'').trim(),productGroup:String(get(r,['Tên CTBH','Ten CTBH'])||'').trim(),cbtd:canonicalOfficerName(get(r,['Tên NV nhập liệu CT.QLBH','Ten NV nhap lieu CT.QLBH'])),advisor:String(get(r,['Tên NV Bảo hiểm','Ten NV Bao hiem'])||'').trim(),income:num(get(r,['Thu nhập phân bổ CN/PGD','Thu nhap phan bo CN/PGD'])),source:'bảo hiểm PNT'}}).filter(x=>x.contract||x.name||x.amount||x.recordDate)}
 
 function uniqueCustomersFromData(source){const src=source||state,map=new Map(); [...(src.loans||[]),...(src.deposits||[])].forEach(x=>{const k=x.maKH||norm(x.name); if(!k||map.has(k))return; map.set(k,{maKH:x.maKH||'',name:x.name||'',phone:x.phone||'',note:'',address:'',birthday:'',cbtd:x.cbtd||x.daoName||x.sellId||''})}); return [...map.values()]}
-function loadWorkbook(wb){const saved=storageGet(DATA_KEY,null)||{};const keepDebtOverrides=normalizeDebtOverrides(state.debtOverrides&&Object.keys(state.debtOverrides).length?state.debtOverrides:saved.debtOverrides);if(saved.customerNotes)storageSet(NOTE_KEY,mergeByUpdatedAt(notesStore(),saved.customerNotes));const out={loans:[],customers:[],deposits:[],creditCards:[],renewals:[],insurances:[],map:[],debtOverrides:keepDebtOverrides,customerNotes:notesStore()};(wb.SheetNames||[]).forEach((sn,idx)=>{const ws=wb.Sheets[sn],type=detectSheet(ws,sn,idx);out.map.push(sn+' → '+(type||'bỏ qua'));if(!type)return;const rows=tableRows(ws,type);if(type==='loan')out.loans.push(...parseLoans(rows));if(type==='customer')out.customers.push(...parseCustomers(rows));if(type==='deposit')out.deposits.push(...parseDeposits(rows));if(type==='credit')out.creditCards.push(...parseCreditCards(rows));if(type==='renewal')out.renewals.push(...parseRenewals(rows));if(type==='insurance_nt')out.insurances.push(...parseInsuranceNT(rows));if(type==='insurance_pnt')out.insurances.push(...parseInsurancePNT(rows))});if(!out.customers.length)out.customers=uniqueCustomersFromData(out);const cloudBaseData=cloudBaseDataFrom(out);captureRolledScheduledObligations(state.loans,out.loans);setState(out);paidStore();saveData({immediate:true,reason:'upload Excel'});out.cloudBaseData=cloudBaseData;return out}
+function loadWorkbook(wb){const saved=storageGet(DATA_KEY,null)||{};const keepDebtOverrides=normalizeDebtOverrides(state.debtOverrides&&Object.keys(state.debtOverrides).length?state.debtOverrides:saved.debtOverrides);if(saved.customerNotes)storageSet(NOTE_KEY,mergeByUpdatedAt(notesStore(),saved.customerNotes));const out={loans:[],customers:[],deposits:[],creditCards:[],renewals:[],insurances:[],map:[],debtOverrides:keepDebtOverrides,customerNotes:notesStore()};(wb.SheetNames||[]).forEach((sn,idx)=>{const ws=wb.Sheets[sn],type=detectSheet(ws,sn,idx);out.map.push(sn+' → '+(type||'bỏ qua'));if(!type)return;const rows=tableRows(ws,type);if(type==='loan')out.loans.push(...parseLoans(rows));if(type==='customer')out.customers.push(...parseCustomers(rows));if(type==='deposit')out.deposits.push(...parseDeposits(rows));if(type==='credit')out.creditCards.push(...parseCreditCards(rows));if(type==='renewal')out.renewals.push(...parseRenewals(rows));if(type==='insurance_nt')out.insurances.push(...parseInsuranceNT(rows));if(type==='insurance_pnt')out.insurances.push(...parseInsurancePNT(rows))});if(!out.customers.length)out.customers=uniqueCustomersFromData(out);const cloudBaseData=cloudBaseDataFrom(out);captureScheduledDueLedger(state.loans,true);setState(out);paidStore();saveData({immediate:true,reason:'upload Excel'});out.cloudBaseData=cloudBaseData;return out}
 
 function customerInfo(maKH,name){return runtimeCustomerInfo(maKH,name)}
 function phoneFor(x){const c=runtimeCustomerInfo(x&&x.maKH,x&&x.name);return (x&&x.phone)||c.phone||''}
@@ -2059,7 +2182,7 @@ function loanDueComponents(r,d){
   if(d.includePrincipal&&d.scheduledPrincipalDue&&d.scheduledPrincipal>0){
     const due=r.vonDate||r.maturityDate||d.dueDate,amount=d.scheduledPrincipal;
     const key=loanObligationKey(r,'Gốc',due,amount);
-    out.push({raw:r,key,trackerKey:'',overdueUnknown:false,legacyKey:loanObligationLegacyAmountKey(r,'Gốc',due,amount),kind:'Gốc',dueDate:due,days:d.dvRaw,amount,principal:amount,interest:0,principalPart:'scheduled'});
+    out.push({raw:r,key,trackerKey:'',overdueUnknown:false,legacyKey:loanObligationLegacyAmountKey(r,'Gốc',due,amount),kind:'Gốc',dueDate:due,days:trackedScheduledComponentDays(key,d.dvRaw),amount,principal:amount,interest:0,principalPart:'scheduled'});
   }
   if(d.includeInterest&&d.overdueInterest>0){
     const due=d.interestDate||loanEffectiveDueDate(r,'interest')||null,e=overdueEntryForLoan(r,'interest'),amount=d.overdueInterest;
@@ -2067,7 +2190,7 @@ function loanDueComponents(r,d){
   }
   if(d.includeInterest&&d.scheduledInterestDue&&d.scheduledInterest>0){
     const due=r.laiDate||d.dueDate,days=d.dlRaw,amount=d.scheduledInterest,key=loanObligationKey(r,'Lãi',due,amount);
-    out.push({raw:r,key,trackerKey:'',overdueUnknown:false,legacyKey:loanObligationLegacyAmountKey(r,'Lãi',due,amount),kind:'Lãi',dueDate:due,days,amount,principal:0,interest:amount,interestPart:'scheduled'});
+    out.push({raw:r,key,trackerKey:'',overdueUnknown:false,legacyKey:loanObligationLegacyAmountKey(r,'Lãi',due,amount),kind:'Lãi',dueDate:due,days:trackedScheduledComponentDays(key,days),amount,principal:0,interest:amount,interestPart:'scheduled'});
   }
   return out
 }
@@ -2075,16 +2198,17 @@ function groupLoanComponentsByDueDate(components){const map=new Map(); (componen
 function makeDueRowFromComponents(r,components,d){components=components||[]; const principal=components.reduce((s,c)=>s+Number(c.principal||0),0), interest=components.reduce((s,c)=>s+Number(c.interest||0),0); const days=components.map(c=>c.days).filter(x=>x!==null&&x!==undefined); const minDays=days.length?Math.min(...days):null; const dueComp=(minDays!==null?components.find(c=>c.days===minDays):components[0])||{}; let kind=''; if(principal>0&&interest>0)kind='Gốc + Lãi'; else if(principal>0)kind='Gốc'; else if(interest>0)kind='Lãi'; return {raw:r,key:components.map(c=>c.key).join('||'),componentKeys:components.map(c=>c.key),components,maKH:r.maKH,name:r.name,contract:r.contract,loanType:r.loanType||'Kinh doanh',cbtd:r.cbtd,kind,minDays,dueDate:dueComp.dueDate||null,principal,interest,need:principal+interest,consumer:d&&d.consumer,business:d&&d.business,overdueTracker:components.some(c=>!!c.trackerKey),overdueUnknown:components.some(c=>!!c.overdueUnknown)}}
 function findLoanComponentByKey(key){for(const r of state.loans){const d=loanDueParts(r,99999); const c=loanDueComponents(r,d).find(x=>x.key===key||x.legacyKey===key); if(c)return c} return null}
 function loanPaidEntryFromComponent(c,r,source,extra){c=c||{}; return loanPaidEntry(c.key,c.raw||r||{},source,{kind:c.kind,dueDate:c.dueDate,amount:c.amount,principal:c.principal,interest:c.interest,...(extra||{})})}
-function loanPaidEntryFromKey(key,source,extra){const c=findLoanComponentByKey(key); if(c)return loanPaidEntryFromComponent(c,c.raw,source,extra); const tracked=overdueTrackerStore()[key]; if(tracked){const days=(tracked.baseDays===null||tracked.baseDays===undefined||tracked.baseDays==='')?null:Math.max(0,Math.round(Number(tracked.baseDays)||0)+Math.max(0,(dateOrdinal(todayDate())??0)-(dateOrdinal(tracked.baseAsOfDate||tracked.firstSeenDate||todayDate())??0)));const amount=Number(tracked.amount||0),kind=tracked.kindLabel||'Khoản vay quá hạn';return loanPaidEntry(key,{},source,{maKH:tracked.maKH||'',name:tracked.name||'',contract:tracked.contract||'',cbtd:tracked.cbtd||'',kind,dueDate:days===null?'':addDays(todayDate(),-days),amount,principal:tracked.kind==='principal'?amount:0,interest:tracked.kind==='interest'?amount:0,...(extra||{})})} const r=findLoanByPaidKey(key)||{}; const p=String(key||'').split('|'); const kind=p[1]||'Khoản vay', dueDate=p[5]||'', amount=Number((extra&&extra.amount)||p[6]||0); return loanPaidEntry(key,r,source,{kind,dueDate,amount,principal:kind==='Gốc'?amount:0,interest:kind==='Lãi'?amount:0,...(extra||{})})}
+function loanPaidEntryFromKey(key,source,extra){const c=findLoanComponentByKey(key); if(c)return loanPaidEntryFromComponent(c,c.raw,source,extra); const tracked=overdueTrackerStore()[key]; if(tracked){const days=(tracked.baseDays===null||tracked.baseDays===undefined||tracked.baseDays==='')?null:Math.max(0,Math.round(Number(tracked.baseDays)||0)+Math.max(0,(dateOrdinal(todayDate())??0)-(dateOrdinal(tracked.baseAsOfDate||tracked.firstSeenDate||todayDate())??0)));const amount=Number(tracked.amount||0),kind=tracked.kindLabel||'Khoản vay quá hạn';return loanPaidEntry(key,{},source,{maKH:tracked.maKH||'',name:tracked.name||'',contract:tracked.contract||'',cbtd:tracked.cbtd||'',kind,dueDate:tracked.source==='scheduled_due'?tracked.firstDueDate:(days===null?'':addDays(todayDate(),-days)),amount,principal:tracked.kind==='principal'?amount:0,interest:tracked.kind==='interest'?amount:0,...(extra||{})})} const r=findLoanByPaidKey(key)||{}; const p=String(key||'').split('|'); const kind=p[1]||'Khoản vay', dueDate=p[5]||'', amount=Number((extra&&extra.amount)||p[6]||0); return loanPaidEntry(key,r,source,{kind,dueDate,amount,principal:kind==='Gốc'?amount:0,interest:kind==='Lãi'?amount:0,...(extra||{})})}
 function makeLoanEntryFromDueRow(x,source,extra){return loanPaidEntryFromKey(x.key,source,{maKH:x.maKH,name:x.name,contract:x.contract,cbtd:x.cbtd,loanType:x.loanType,kind:x.kind,dueDate:x.dueDate,amount:x.need,principal:x.principal,interest:x.interest,...(extra||{})})}
 function savePaidStore(s,reason){s.today=s.today||{};s.loan=s.loan||{};s.deposit=s.deposit||{};s.birthday=s.birthday||{};storageSet(PAID_KEY,s);markLastSave(reason||'cập nhật sổ đã xử lý',true);markCloudDirty(reason||'cập nhật sổ đã xử lý');scheduleSaveUIState()}
 function setLoanKeysPaid(keys,checked,source,extra){
   const s=paidStore(); s.loan=s.loan||{};
-  String(keys||'').split('||').filter(Boolean).forEach(k=>{
+  const affected=linkedLoanPaidKeys(keys);
+  affected.forEach(k=>{
     if(checked)s.loan[k]=paidActiveEntry(loanPaidEntryFromKey(k,source||'tab2_tab3',extra));
     else s.loan[k]=paidRestoredEntry(k,'loan',s.loan[k]||loanPaidEntryFromKey(k,source||'tab2_tab3',extra),{source:source||'tab2_tab3'});
   });
-  updateOverdueTrackerPaidFromKeys(keys,checked);
+  updateOverdueTrackerPaidFromKeys(affected.join('||'),checked);
   savePaidStore(s,checked?'tích đã thanh toán/đã xử lý khoản vay':'khôi phục khoản vay khỏi sổ xử lý');
   renderAll();
 }
@@ -2130,7 +2254,7 @@ function setTodayPaid(key,checked){
     loanItems.forEach(x=>{(x.components&&x.components.length?x.components:[{key:x.key}]).forEach(c=>{if(c.key)s.loan[c.key]=paidRestoredEntry(c.key,'loan',s.loan[c.key]||loanPaidEntryFromKey(c.key,'today',{todayKey:key}),{source:'today',todayKey:key})})});
   }
   const overdueKeys=loanItems.flatMap(x=>(x.components&&x.components.length?x.components:[{key:x.key}]).map(c=>c.key)).filter(Boolean).join('||');
-  updateOverdueTrackerPaidFromKeys(overdueKeys,checked);
+  updateOverdueTrackerPaidFromKeys(linkedLoanPaidKeys(overdueKeys).join('||'),checked);
   savePaidStore(s,checked?'tích đã thanh toán tab 1 và ghi vào sổ xử lý':'khôi phục dòng tab 1 khỏi sổ xử lý');
   renderAll();
 }
@@ -2291,8 +2415,8 @@ function todayBaseRows(){
     const d=loanDueParts(r,7);
     if(d.need<=0||!d.kind)return;
     const comps=loanDueComponents(r,d).filter(c=>{
-      // Giữ khoản Excel còn báo QH trong Tổng quan, không để tick cũ làm mất cảnh báo thu nợ.
-      return due7ComponentFromExcelOverdue(c)||(!isLoanPaid(c.key,r)&&!isOverdueTrackerPaidKey(c.key));
+      // Tích Đã TT là thao tác xác nhận hoàn tất, cũng ẩn khỏi Tổng quan.
+      return !isLoanPaid(c.key,r)&&!isOverdueTrackerPaidKey(c.key);
     });
     if(!comps.length)return;
     groupLoanComponentsByDueDate(comps).forEach(group=>{
@@ -2303,8 +2427,16 @@ function todayBaseRows(){
   // Nếu file mới đã chuyển kỳ/không còn dòng QH, lấy chính Sổ quá hạn làm nguồn cho Vay cần thu.
   overdueLedgerRows().filter(e=>e.status==='open'&&!seenTrackerKeys.has(e.key)&&!isLoanPaid(e.key)).forEach(e=>{
     const raw=(state.loans||[]).find(r=>overdueTrackerKey(r,e.kind)===e.key)||{maKH:e.maKH||'',name:e.name||'',contract:e.contract||'',cbtd:e.cbtd||'',loanType:e.loanType||'Kinh doanh'};
-    const due=e.currentDays===null?null:addDays(todayDate(),-e.currentDays);
+    const due=e.source==='scheduled_due'&&e.firstDueDate?excelDate(e.firstDueDate):(e.currentDays===null?null:addDays(todayDate(),-e.currentDays));
     const comp={raw,key:e.key,trackerKey:e.key,overdueUnknown:e.currentDays===null,kind:e.kindLabel,dueDate:due,days:e.currentDays===null?null:-e.currentDays,amount:Number(e.amount||0),principal:e.kind==='principal'?Number(e.amount||0):0,interest:e.kind==='interest'?Number(e.amount||0):0};
+    addItem(raw,makeDueRowFromComponents(raw,[comp],{consumer:isConsumerLoan(raw),business:!isConsumerLoan(raw)}),{consumer:isConsumerLoan(raw)});
+  });
+
+  // Kỳ đến hạn cũ vẫn chưa thanh toán dù file LN80 đã đổi sang kỳ tiếp theo.
+  trackedFutureDueRows(7).filter(e=>!seenTrackerKeys.has(e.key)).forEach(e=>{
+    const raw={maKH:e.maKH,name:e.name,contract:e.contract,cbtd:e.cbtd,loanType:e.loanType};
+    const due=excelDate(e.firstDueDate),days=daysDiff(due),amount=Math.max(0,Number(e.amount||0));
+    const comp={raw,key:e.key,trackerKey:'',kind:e.kindLabel,dueDate:due,days,amount,principal:e.kind==='principal'?amount:0,interest:e.kind==='interest'?amount:0,fromSavedDue:true};
     addItem(raw,makeDueRowFromComponents(raw,[comp],{consumer:isConsumerLoan(raw),business:!isConsumerLoan(raw)}),{consumer:isConsumerLoan(raw)});
   });
   return [...map.values()].map(x=>({...x,minDays:x.minDays===99999?null:x.minDays,contracts:[...new Set(x.contracts)],loanKeys:[...x.loanKeys],typeLabel:[...x.types].join(', '),total:x.principal+x.interest,key:todayPaidKey({...x,minDays:x.minDays===99999?null:x.minDays})}));
@@ -2368,7 +2500,7 @@ function renderPrincipal(){const rows=applyPrincipal(); const totalPrincipal=row
 
 // ===== 7. LOGIC TAB 3: TIỀN VAY ĐẾN HẠN =====
 function due7RangeDays(){const value=$('due7Range')?.value||'7';if(value==='all')return Infinity;return Number(value)===30?30:7}
-function due7IncludePaid(){return !!($('due7ShowPaid')&&$('due7ShowPaid').checked)||!!norm($('due7Search')?.value||'')}
+function due7IncludePaid(){return false}
 function due7ComponentFromExcelOverdue(c){return !!c&&(c.principalPart==='overdue'||c.interestPart==='overdue')}
 function due7RowFromExcelOverdue(x){return (x.components||[]).some(due7ComponentFromExcelOverdue)}
 function due7BaseRows(rangeDays,includePaid=false){
@@ -2378,8 +2510,8 @@ function due7BaseRows(rangeDays,includePaid=false){
     const d=loanDueParts(r,rangeDays);
     if(d.need<=0||!d.kind)return;
     const comps=loanDueComponents(r,d).filter(c=>{
-      // Excel vẫn báo số dư quá hạn: không che giấu chỉ vì một lần tick Đã TT trước đây.
-      return includePaid||due7ComponentFromExcelOverdue(c)||(!isLoanPaid(c.key,r)&&!isOverdueTrackerPaidKey(c.key));
+      // Đã TT luôn được ưu tiên: nghĩa vụ phải ẩn dù file mới vẫn còn số dư QH.
+      return !isLoanPaid(c.key,r)&&!isOverdueTrackerPaidKey(c.key);
     });
     if(!comps.length)return;
     groupLoanComponentsByDueDate(comps).forEach(group=>{
@@ -2424,9 +2556,9 @@ function due7BaseRows(rangeDays,includePaid=false){
   // Bổ sung khoản quá hạn còn mở trong Sổ, kể cả khi file LN80 đã chuyển kỳ / bỏ dòng cũ.
   const alreadyIncluded=new Set();
   map.forEach(g=>(g.componentKeys||[]).forEach(k=>alreadyIncluded.add(k)));
-  overdueLedgerRows().filter(e=>(e.status==='open'||(includePaid&&e.status==='paid'))&&!alreadyIncluded.has(e.key)&&(includePaid||!isLoanPaid(e.key))).forEach((e,overdueIndex)=>{
+  overdueLedgerRows().filter(e=>e.status==='open'&&!alreadyIncluded.has(e.key)&&!isLoanPaid(e.key)).forEach((e,overdueIndex)=>{
     const raw=(state.loans||[]).find(r=>overdueTrackerKey(r,e.kind)===e.key)||{maKH:e.maKH||'',name:e.name||'',contract:e.contract||'',cbtd:e.cbtd||'',loanType:'Kinh doanh'};
-    const due=e.currentDays===null?null:addDays(todayDate(),-e.currentDays),amount=Math.max(0,Number(e.amount||0));
+    const due=e.source==='scheduled_due'&&e.firstDueDate?excelDate(e.firstDueDate):(e.currentDays===null?null:addDays(todayDate(),-e.currentDays)),amount=Math.max(0,Number(e.amount||0));
     if(amount<=0)return;
     const comp={raw,key:e.key,trackerKey:e.key,overdueUnknown:e.currentDays===null,kind:e.kindLabel||'Quá hạn',dueDate:due,days:e.currentDays===null?null:-e.currentDays,amount,principal:e.kind==='principal'?amount:0,interest:e.kind==='interest'?amount:0};
     const row=makeDueRowFromComponents(raw,[comp],{consumer:isConsumerLoan(raw),business:!isConsumerLoan(raw)});
@@ -2441,6 +2573,27 @@ function due7BaseRows(rangeDays,includePaid=false){
     g.consumer=g.consumer||!!row.consumer;g.business=g.business||!!row.business;
     if(g.minDays===null||g.minDays===undefined||(row.minDays!==null&&row.minDays!==undefined&&row.minDays<g.minDays))g.minDays=row.minDays;
     if(!g.dueDate&&row.dueDate)g.dueDate=row.dueDate;
+  });
+
+  // Kỳ chưa thanh toán trước đây được giữ lại ngay cả khi báo cáo mới chuyển ngày trả.
+  // Các kỳ đã thành quá hạn được lấy từ overdueLedgerRows; chỉ cần bổ sung kỳ tương lai còn mở.
+  const includedAfterLedger=new Set();
+  map.forEach(g=>(g.componentKeys||[]).forEach(k=>includedAfterLedger.add(k)));
+  trackedFutureDueRows(rangeDays,includePaid).filter(e=>!includedAfterLedger.has(e.key)).forEach((e,idx)=>{
+    const raw={maKH:e.maKH||'',name:e.name||'',contract:e.contract||'',cbtd:e.cbtd||'',loanType:e.loanType||'Kinh doanh'};
+    const due=excelDate(e.firstDueDate),days=daysDiff(due),amount=Math.max(0,Number(e.amount||0));
+    if(!amount)return;
+    const c={raw,key:e.key,kind:e.kindLabel,dueDate:due,days,amount,principal:e.kind==='principal'?amount:0,interest:e.kind==='interest'?amount:0,fromSavedDue:true};
+    const row=makeDueRowFromComponents(raw,[c],{consumer:isConsumerLoan(raw),business:!isConsumerLoan(raw)});
+    const cust=String(row.maKH||'').trim()||norm(row.name||'')||('SAVED_'+idx),dateKey=dkey(row.dueDate),key=cust+'|'+dateKey;
+    if(!map.has(key))map.set(key,{raw,maKH:row.maKH,name:row.name,contracts:[],loanTypes:new Set(),cbtds:new Set(),componentKeys:[],components:[],minDays:row.minDays,dueDate:row.dueDate,principal:0,interest:0,consumer:false,business:false});
+    const g=map.get(key);
+    if(row.contract)g.contracts.push(row.contract);
+    if(row.loanType)g.loanTypes.add(row.loanType);
+    if(row.cbtd)g.cbtds.add(row.cbtd);
+    g.componentKeys.push(c.key);g.components.push(c);
+    g.principal+=c.principal;g.interest+=c.interest;g.consumer=g.consumer||!!row.consumer;g.business=g.business||!!row.business;
+    if(g.minDays===null||row.minDays<g.minDays)g.minDays=row.minDays;
   });
   return [...map.values()].map(g=>{
     const contracts=[...new Set(g.contracts.filter(Boolean))];
@@ -2475,46 +2628,39 @@ function due7BaseRows(rangeDays,includePaid=false){
   }).filter(x=>x.need>0&&x.kind);
 }
 function due7SortScore(r){return (r.components||[]).some(c=>c.overdueUnknown)?-99999:(r.minDays??99999)}
-function applyDue7(){const rangeDays=due7RangeDays(); const includePaid=due7IncludePaid();let rows=due7BaseRows(rangeDays,includePaid).filter(x=>includePaid||due7RowFromExcelOverdue(x)||!isLoanPaid(x.key,x.raw)); const q=norm($('due7Search')?.value||''),cb=officerFilterValue('due7CBTD'),kind=$('due7Kind')?.value||'all',sort=$('due7Sort')?.value||'date_asc'; if(q)rows=rows.filter(x=>norm(`${x.maKH} ${x.name} ${x.contract} ${x.cbtd}`).includes(q)); if(cb)rows=rows.filter(x=>sameOfficerName(x.cbtd,cb)); if(kind!=='all')rows=rows.filter(x=>x.kind===kind); let cmp; if(sort==='amount_desc')cmp=(a,b)=>((b.need||0)-(a.need||0))||cmpNameAsc(a,b); else if(sort==='name_asc')cmp=cmpNameAsc; else cmp=(a,b)=>(due7SortScore(a)-due7SortScore(b))||cmpNameAsc(a,b); return sortKeepCustomerTogether(rows,cmp)}
+function applyDue7(){const rangeDays=due7RangeDays(); let rows=due7BaseRows(rangeDays).filter(x=>!isLoanPaid(x.key,x.raw)); const q=norm($('due7Search')?.value||''),cb=officerFilterValue('due7CBTD'),kind=$('due7Kind')?.value||'all',sort=$('due7Sort')?.value||'date_asc'; if(q)rows=rows.filter(x=>norm(`${x.maKH} ${x.name} ${x.contract} ${x.cbtd}`).includes(q)); if(cb)rows=rows.filter(x=>sameOfficerName(x.cbtd,cb)); if(kind!=='all')rows=rows.filter(x=>x.kind===kind); let cmp; if(sort==='amount_desc')cmp=(a,b)=>((b.need||0)-(a.need||0))||cmpNameAsc(a,b); else if(sort==='name_asc')cmp=cmpNameAsc; else cmp=(a,b)=>(due7SortScore(a)-due7SortScore(b))||cmpNameAsc(a,b); return sortKeepCustomerTogether(rows,cmp)}
 function loanDueStatusText(x){return (x.components||[]).some(c=>c.overdueUnknown)?'Quá hạn (chưa xác định số ngày)':dayText(x.minDays)}
-function due7AuditData(){
-  const range=due7RangeDays(),cb=officerFilterValue('due7CBTD'),full=due7BaseRows(range,true),normal=due7BaseRows(range,false);
-  const scope=r=>!cb||String(r.cbtd||'').split(', ').some(name=>sameOfficerName(name,cb));
-  const fullRows=full.filter(scope),visibleKeys=new Set(normal.filter(scope).flatMap(r=>r.componentKeys||[]));
-  const hidden=fullRows.flatMap(r=>(r.components||[]).filter(c=>!visibleKeys.has(c.key)).map(c=>({maKH:r.maKH,name:r.name,contract:(c.raw&&c.raw.contract)||r.contract,key:c.key,amount:c.amount})));
-  const customers=new Set(hidden.map(r=>String(r.maKH||'').trim()||norm(r.name||'')));
-  return {hidden,customers:customers.size,total:fullRows.length,sourceLoans:state.loans.length};
+function due7ShowProcessedSearchResult(query){
+  const q=norm(query||'');if(!q)return '';
+  const paid=paidLogRawRows().filter(e=>e.scope==='loan'&&norm([e.maKH,e.name,e.contract].join(' ')).includes(q));
+  if(paid.length)return '<div class="small" style="padding:10px 0">Không có khoản chưa thanh toán khớp tìm kiếm. Có '+paid.length+' khoản đã tích Đã TT trong <b>Đã xử lý</b>. <button type="button" class="btn" onclick="openDue7PaidLog()">Mở Đã xử lý để kiểm tra/khôi phục</button></div>';
+  const source=(state.loans||[]).some(r=>norm([r.maKH,r.name,r.contract].join(' ')).includes(q));
+  return source?'Khách hàng có trong dữ liệu nhưng không có khoản chưa thanh toán phù hợp phạm vi/bộ lọc hiện tại.':'Không tìm thấy khách hàng khớp mã/tên trong dữ liệu đang tải.';
 }
-function revealDue7Paid(){const check=$('due7ShowPaid');if(check)check.checked=true;renderDue7();}
-function renderDue7Audit(){
-  const el=$('due7Audit');if(!el)return;
-  const audit=due7AuditData(),showPaid=$('due7ShowPaid')?.checked||false;
-  if(!audit.hidden.length){el.style.display='none';return;}
-  el.style.display='block';
-  const sample=audit.hidden.slice(0,5).map(x=>html(x.maKH||x.name||'Không rõ mã')).join(', ');
-  el.innerHTML='<b>⚠ Có '+audit.hidden.length+' khoản đến hạn đã bị ẩn do trạng thái xử lý trước đây ('+audit.customers+' khách hàng).</b> '
-    +'Ví dụ mã KH: '+sample+'. Đây là dữ liệu được đánh dấu đã xử lý, cần kiểm tra trước khi quyết định khôi phục.'
-    +(showPaid?' <b>Đang bật Hiện đã tích.</b>':' <button type="button" class="btn" onclick="revealDue7Paid()">👁 Xem tất cả khoản đã tích</button>');
+function openDue7PaidLog(){
+  const query=$('due7Search')?.value||'';switchTab('paidlog');
+  if($('paidLogSearch'))$('paidLogSearch').value=query;
+  if($('paidLogMonth'))$('paidLogMonth').value='';
+  if($('paidLogScope'))$('paidLogScope').value='loan';
+  renderPaidLog();
 }
 function renderDue7(){
   const rangeDays=due7RangeDays();
   const rows=applyDue7();
-  renderDue7Audit();
   const cb=officerFilterValue('due7CBTD');
-  const rawOverdueCount=(state.loans||[]).filter(r=>(Number(r.vonQH||0)>0||Number(r.laiQH||0)>0||Number(r.laiPhat||0)>0)&&(!cb||sameOfficerName(r.cbtd,cb))).length;
   const over=rows.filter(x=>x.minDays<0||(x.components||[]).some(c=>c.overdueUnknown)).length,
         total=rows.reduce((sum,x)=>sum+x.need,0),
         goc=rows.filter(x=>x.kind==='Gốc'||x.kind==='Gốc + Lãi').length,
         lai=rows.filter(x=>x.kind==='Lãi'||x.kind==='Gốc + Lãi').length;
-  $('due7Metrics').innerHTML=`<div class="metric"><div class="metric-lbl">⏰ Khách/ngày đến hạn</div><div class="metric-val red">${rows.length}</div><div class="metric-sub">Đã cộng gộp cùng khách + cùng ngày</div></div><div class="metric"><div class="metric-lbl">🔴 Quá hạn</div><div class="metric-val red">${over}</div><div class="metric-sub">Excel có ${rawOverdueCount} HĐ báo dư quá hạn</div></div><div class="metric"><div class="metric-lbl">💰 Có gốc đến hạn</div><div class="metric-val amber">${goc}</div><div class="metric-sub">Cần TT gồm tiền gốc</div></div><div class="metric"><div class="metric-lbl">💵 Có lãi đến hạn</div><div class="metric-val blue">${lai}</div><div class="metric-sub">Cần TT gồm tiền lãi</div></div><div class="metric"><div class="metric-lbl">📌 Cần thanh toán</div><div class="metric-val green" style="font-size:17px">${moneyShort(total)}</div><div class="metric-sub">${moneyShort(total)}</div></div>`;
+  $('due7Metrics').innerHTML=`<div class="metric"><div class="metric-lbl">⏰ Khách/ngày đến hạn</div><div class="metric-val red">${rows.length}</div><div class="metric-sub">Đã cộng gộp cùng khách + cùng ngày</div></div><div class="metric"><div class="metric-lbl">🔴 Quá hạn</div><div class="metric-val red">${over}</div><div class="metric-sub">Chỉ gồm khoản chưa tích Đã TT</div></div><div class="metric"><div class="metric-lbl">💰 Có gốc đến hạn</div><div class="metric-val amber">${goc}</div><div class="metric-sub">Cần TT gồm tiền gốc</div></div><div class="metric"><div class="metric-lbl">💵 Có lãi đến hạn</div><div class="metric-val blue">${lai}</div><div class="metric-sub">Cần TT gồm tiền lãi</div></div><div class="metric"><div class="metric-lbl">📌 Cần thanh toán</div><div class="metric-val green" style="font-size:17px">${moneyShort(total)}</div><div class="metric-sub">${moneyShort(total)}</div></div>`;
   const empty=$('due7Empty'),wrap=$('due7Wrap'),body=$('due7Body');
   if(!rows.length){
     empty.style.display='block';wrap.style.display='none';
-    empty.textContent='Không có khoản vay đến hạn trong phạm vi đang lọc/quá hạn theo bộ lọc, hoặc đã được tích thanh toán.';
+    empty.innerHTML=due7ShowProcessedSearchResult($('due7Search')?.value)||'Không có khoản vay chưa thanh toán phù hợp bộ lọc.';
     $('due7Footer').textContent='';return;
   }
   empty.style.display='none';wrap.style.display='block';
-  body.innerHTML=rows.map((x,i)=>`<tr class="${(x.components||[]).some(c=>c.overdueUnknown)?'row-over':(x.minDays!==null&&x.minDays<=7?(x.minDays<0?'row-over':'row-soon'):'')}"><td class="center"><input class="paid-check" type="checkbox" onchange="setPaid('loan','${jsq(x.key)}',this.checked)" ${isLoanPaid(x.key,x.raw)?'checked':''} title="${isLoanPaid(x.key,x.raw)?'Đã tick thanh toán. Bỏ tích để khôi phục':'Tích sau khi xác nhận đã thanh toán'}"></td><td class="center">${i+1}</td><td class="mono">${html(x.maKH||'—')}</td><td style="font-weight:700">${html(x.name||'—')}${due7RowFromExcelOverdue(x)&&(x.components||[]).some(c=>isLoanPaid(c.key)||isOverdueTrackerPaidKey(c.key))?'<div class="small" style="color:#b91c1c">⚠ Excel còn QH · đã từng tick Đã TT</div>':(isLoanPaid(x.key,x.raw)?'<div class="small" style="color:#475569">Đã tick Đã TT · bấm bỏ tích để khôi phục</div>':'')}</td><td class="mono" title="${attr((x.contracts||[]).join(', '))}">${(x.contracts||[]).length?(x.contracts||[]).slice(0,2).map(c=>html(c)).join('<br>'):'—'}${x.contractCount>2?`<div class="small">${x.contractCount} HĐ cùng ngày</div>`:''}</td><td>${html(x.loanType||'—')}</td><td>${html(x.cbtd||'—')}</td><td><span class="badge ${x.kind==='Lãi'?'badge-blue':(x.kind==='Gốc'?'badge-amber':'badge-red')}">${html(x.kind)}</span></td><td>${(x.components||[]).some(c=>c.overdueUnknown)&&!x.dueDate?'Kỳ cũ cần đối chiếu':fmtDate(x.dueDate)}</td><td>${(x.components||[]).some(c=>c.overdueUnknown)||(x.minDays!==null&&x.minDays<=7)?`<span class="due-red-text">${loanDueStatusText(x)}</span>`:loanDueStatusText(x)}</td><td class="num">${money(x.principal)}</td><td class="num">${money(x.interest)}</td><td class="num" style="font-weight:700"><div style="display:flex;align-items:center;justify-content:flex-end;gap:5px"><span>${money(x.need)}</span><button class="btn" type="button" title="Copy số tiền cần thanh toán" aria-label="Copy số tiền cần thanh toán" onclick="copyAmount(${Math.round(Number(x.need||0))},'Cần thanh toán')">📋</button></div></td></tr>`).join('');
+  body.innerHTML=rows.map((x,i)=>`<tr class="${(x.components||[]).some(c=>c.overdueUnknown)?'row-over':(x.minDays!==null&&x.minDays<=7?(x.minDays<0?'row-over':'row-soon'):'')}"><td class="center"><input class="paid-check" type="checkbox" onchange="setPaid('loan','${jsq(x.key)}',this.checked)" title="Tích để chuyển khoản này sang Đã xử lý; sau khi lưu, dòng sẽ biến mất"></td><td class="center">${i+1}</td><td class="mono">${html(x.maKH||'—')}</td><td style="font-weight:700">${html(x.name||'—')}</td><td class="mono" title="${attr((x.contracts||[]).join(', '))}">${(x.contracts||[]).length?(x.contracts||[]).slice(0,2).map(c=>html(c)).join('<br>'):'—'}${x.contractCount>2?`<div class="small">${x.contractCount} HĐ cùng ngày</div>`:''}</td><td>${html(x.loanType||'—')}</td><td>${html(x.cbtd||'—')}</td><td><span class="badge ${x.kind==='Lãi'?'badge-blue':(x.kind==='Gốc'?'badge-amber':'badge-red')}">${html(x.kind)}</span></td><td>${(x.components||[]).some(c=>c.overdueUnknown)&&!x.dueDate?'Kỳ cũ cần đối chiếu':fmtDate(x.dueDate)}</td><td>${(x.components||[]).some(c=>c.overdueUnknown)||(x.minDays!==null&&x.minDays<=7)?`<span class="due-red-text">${loanDueStatusText(x)}</span>`:loanDueStatusText(x)}${trackedDueEditorForRow(x)}</td><td class="num">${money(x.principal)}</td><td class="num">${money(x.interest)}</td><td class="num" style="font-weight:700"><div style="display:flex;align-items:center;justify-content:flex-end;gap:5px"><span>${money(x.need)}</span><button class="btn" type="button" title="Copy số tiền cần thanh toán" aria-label="Copy số tiền cần thanh toán" onclick="copyAmount(${Math.round(Number(x.need||0))},'Cần thanh toán')">📋</button></div></td></tr>`).join('');
   $('due7Footer').textContent=`Hiển thị ${rows.length} dòng khách/ngày · Các hợp đồng cùng khách hàng và cùng ngày đến hạn đã được cộng gộp; khác ngày vẫn tách riêng để không sai lịch thanh toán.`;
 }
 
