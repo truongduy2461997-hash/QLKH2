@@ -1118,7 +1118,7 @@
     </section>
 
     <section id="tab-due7" class="panel">
-      <div class="toolbar"><div class="toolbar-left"><button class="btn" onclick="exportDue7()">⬇ Xuất tiền vay đến hạn</button></div><div class="toolbar-right"><input id="due7Search" type="text" placeholder="🔍 Tên KH / HĐ / CBTD" oninput="scheduleTabRender('due7')"><select id="due7Range" onchange="scheduleTabRender('due7')"><option value="7">Đến hạn trong 7 ngày</option><option value="30">Đến hạn trong 30 ngày</option><option value="all">Tất cả ngày trong Excel</option></select><select id="due7Kind" onchange="scheduleTabRender('due7')"><option value="all">Tất cả gốc/lãi</option><option value="Gốc">Đến hạn gốc</option><option value="Lãi">Đến hạn lãi</option><option value="Gốc + Lãi">Gốc + lãi</option></select><select id="due7Sort" onchange="scheduleTabRender('due7')"><option value="date_asc">Ngày gần nhất</option><option value="amount_desc">Số tiền cần TT lớn trước</option><option value="name_asc">Tên KH A→Z</option></select></div></div>
+      <div class="toolbar"><div class="toolbar-left"><button class="btn" onclick="exportDue7()">⬇ Xuất tiền vay đến hạn</button></div><div class="toolbar-right"><input id="due7Search" type="text" placeholder="🔍 Tên KH / HĐ / CBTD" oninput="scheduleTabRender('due7')"><select id="due7Range" onchange="scheduleTabRender('due7')"><option value="7">Đến hạn trong 7 ngày</option><option value="30">Đến hạn trong 30 ngày</option><option value="all">Tất cả ngày trong Excel</option></select><select id="due7Kind" onchange="scheduleTabRender('due7')"><option value="all">Tất cả gốc/lãi</option><option value="Gốc">Đến hạn gốc</option><option value="Lãi">Đến hạn lãi</option><option value="Gốc + Lãi">Gốc + lãi</option></select><select id="due7Sort" onchange="scheduleTabRender('due7')"><option value="date_asc">Ngày gần nhất</option><option value="amount_desc">Số tiền cần TT lớn trước</option><option value="name_asc">Tên KH A→Z</option></select><label style="display:inline-flex;gap:5px;align-items:center;white-space:nowrap;font-size:12px;padding:4px 6px" title="Cho xem lại cả khoản đã tích Đã TT, để kiểm tra khách bị ẩn"><input id="due7ShowPaid" type="checkbox" onchange="scheduleTabRender('due7')"> Hiện đã tích</label></div></div>
       <div id="due7Metrics" class="metrics"></div><div id="due7Empty" class="empty-state" style="display:none"></div><div class="table-wrap" id="due7Wrap" style="display:none"><table><thead><tr><th>Đã TT</th><th>#</th><th>Mã KH</th><th>Khách hàng</th><th>Số HĐ</th><th>Nhóm vay</th><th>CBTD</th><th>Đến hạn gì</th><th>Ngày đến hạn</th><th>Còn/quá hạn</th><th style="text-align:right">Gốc đến hạn</th><th style="text-align:right">Lãi đến hạn</th><th style="text-align:right">Cần thanh toán</th></tr></thead><tbody id="due7Body"></tbody></table></div><div id="due7Footer" class="footer-info"></div>
     </section>
 
@@ -1279,6 +1279,7 @@ function dueCustomerGroupKey(r){r=r||{}; const name=norm(r.name||r.customerName|
 function cmpNameAsc(a,b){return (a.name||'').localeCompare(b.name||'','vi')||String(a.maKH||'').localeCompare(String(b.maKH||''),'vi')||String(a.contract||a.account||'').localeCompare(String(b.contract||b.account||''),'vi')}
 function dueGroupStatusBucket(r){
   r=r||{};
+  if(r.overdueUnknown||(r.components||[]).some(c=>c.overdueUnknown))return 'over';
   let days=null;
   if(r.minDays!==undefined&&r.minDays!==null&&isFinite(Number(r.minDays)))days=Number(r.minDays);
   else if(r.days!==undefined&&r.days!==null&&isFinite(Number(r.days)))days=Number(r.days);
@@ -2290,7 +2291,8 @@ function todayBaseRows(){
     const d=loanDueParts(r,7);
     if(d.need<=0||!d.kind)return;
     const comps=loanDueComponents(r,d).filter(c=>{
-      return !isLoanPaid(c.key,r)&&!isOverdueTrackerPaidKey(c.key);
+      // Giữ khoản Excel còn báo QH trong Tổng quan, không để tick cũ làm mất cảnh báo thu nợ.
+      return due7ComponentFromExcelOverdue(c)||(!isLoanPaid(c.key,r)&&!isOverdueTrackerPaidKey(c.key));
     });
     if(!comps.length)return;
     groupLoanComponentsByDueDate(comps).forEach(group=>{
@@ -2366,14 +2368,18 @@ function renderPrincipal(){const rows=applyPrincipal(); const totalPrincipal=row
 
 // ===== 7. LOGIC TAB 3: TIỀN VAY ĐẾN HẠN =====
 function due7RangeDays(){const value=$('due7Range')?.value||'7';if(value==='all')return Infinity;return Number(value)===30?30:7}
-function due7BaseRows(rangeDays){
+function due7IncludePaid(){return !!($('due7ShowPaid')&&$('due7ShowPaid').checked)||!!norm($('due7Search')?.value||'')}
+function due7ComponentFromExcelOverdue(c){return !!c&&(c.principalPart==='overdue'||c.interestPart==='overdue')}
+function due7RowFromExcelOverdue(x){return (x.components||[]).some(due7ComponentFromExcelOverdue)}
+function due7BaseRows(rangeDays,includePaid=false){
   rangeDays=Number(rangeDays||7);
   const map=new Map();
   state.loans.forEach((r,loanIndex)=>{
     const d=loanDueParts(r,rangeDays);
     if(d.need<=0||!d.kind)return;
     const comps=loanDueComponents(r,d).filter(c=>{
-      return !isLoanPaid(c.key,r)&&!isOverdueTrackerPaidKey(c.key);
+      // Excel vẫn báo số dư quá hạn: không che giấu chỉ vì một lần tick Đã TT trước đây.
+      return includePaid||due7ComponentFromExcelOverdue(c)||(!isLoanPaid(c.key,r)&&!isOverdueTrackerPaidKey(c.key));
     });
     if(!comps.length)return;
     groupLoanComponentsByDueDate(comps).forEach(group=>{
@@ -2418,7 +2424,7 @@ function due7BaseRows(rangeDays){
   // Bổ sung khoản quá hạn còn mở trong Sổ, kể cả khi file LN80 đã chuyển kỳ / bỏ dòng cũ.
   const alreadyIncluded=new Set();
   map.forEach(g=>(g.componentKeys||[]).forEach(k=>alreadyIncluded.add(k)));
-  overdueLedgerRows().filter(e=>e.status==='open'&&!alreadyIncluded.has(e.key)&&!isLoanPaid(e.key)).forEach((e,overdueIndex)=>{
+  overdueLedgerRows().filter(e=>(e.status==='open'||(includePaid&&e.status==='paid'))&&!alreadyIncluded.has(e.key)&&(includePaid||!isLoanPaid(e.key))).forEach((e,overdueIndex)=>{
     const raw=(state.loans||[]).find(r=>overdueTrackerKey(r,e.kind)===e.key)||{maKH:e.maKH||'',name:e.name||'',contract:e.contract||'',cbtd:e.cbtd||'',loanType:'Kinh doanh'};
     const due=e.currentDays===null?null:addDays(todayDate(),-e.currentDays),amount=Math.max(0,Number(e.amount||0));
     if(amount<=0)return;
@@ -2468,16 +2474,19 @@ function due7BaseRows(rangeDays){
     };
   }).filter(x=>x.need>0&&x.kind);
 }
-function applyDue7(){const rangeDays=due7RangeDays(); let rows=due7BaseRows(rangeDays).filter(x=>!isLoanPaid(x.key,x.raw)); const q=norm($('due7Search')?.value||''),cb=officerFilterValue('due7CBTD'),kind=$('due7Kind')?.value||'all',sort=$('due7Sort')?.value||'date_asc'; if(q)rows=rows.filter(x=>norm(`${x.maKH} ${x.name} ${x.contract} ${x.cbtd}`).includes(q)); if(cb)rows=rows.filter(x=>sameOfficerName(x.cbtd,cb)); if(kind!=='all')rows=rows.filter(x=>x.kind===kind); let cmp; if(sort==='amount_desc')cmp=(a,b)=>((b.need||0)-(a.need||0))||cmpNameAsc(a,b); else if(sort==='name_asc')cmp=cmpNameAsc; else cmp=(a,b)=>((a.minDays??99999)-(b.minDays??99999))||cmpNameAsc(a,b); return sortKeepCustomerTogether(rows,cmp)}
+function due7SortScore(r){return (r.components||[]).some(c=>c.overdueUnknown)?-99999:(r.minDays??99999)}
+function applyDue7(){const rangeDays=due7RangeDays(); const includePaid=due7IncludePaid();let rows=due7BaseRows(rangeDays,includePaid).filter(x=>includePaid||due7RowFromExcelOverdue(x)||!isLoanPaid(x.key,x.raw)); const q=norm($('due7Search')?.value||''),cb=officerFilterValue('due7CBTD'),kind=$('due7Kind')?.value||'all',sort=$('due7Sort')?.value||'date_asc'; if(q)rows=rows.filter(x=>norm(`${x.maKH} ${x.name} ${x.contract} ${x.cbtd}`).includes(q)); if(cb)rows=rows.filter(x=>sameOfficerName(x.cbtd,cb)); if(kind!=='all')rows=rows.filter(x=>x.kind===kind); let cmp; if(sort==='amount_desc')cmp=(a,b)=>((b.need||0)-(a.need||0))||cmpNameAsc(a,b); else if(sort==='name_asc')cmp=cmpNameAsc; else cmp=(a,b)=>(due7SortScore(a)-due7SortScore(b))||cmpNameAsc(a,b); return sortKeepCustomerTogether(rows,cmp)}
 function loanDueStatusText(x){return (x.components||[]).some(c=>c.overdueUnknown)?'Quá hạn (chưa xác định số ngày)':dayText(x.minDays)}
 function renderDue7(){
   const rangeDays=due7RangeDays();
   const rows=applyDue7();
+  const cb=officerFilterValue('due7CBTD');
+  const rawOverdueCount=(state.loans||[]).filter(r=>(Number(r.vonQH||0)>0||Number(r.laiQH||0)>0||Number(r.laiPhat||0)>0)&&(!cb||sameOfficerName(r.cbtd,cb))).length;
   const over=rows.filter(x=>x.minDays<0||(x.components||[]).some(c=>c.overdueUnknown)).length,
         total=rows.reduce((sum,x)=>sum+x.need,0),
         goc=rows.filter(x=>x.kind==='Gốc'||x.kind==='Gốc + Lãi').length,
         lai=rows.filter(x=>x.kind==='Lãi'||x.kind==='Gốc + Lãi').length;
-  $('due7Metrics').innerHTML=`<div class="metric"><div class="metric-lbl">⏰ Khách/ngày đến hạn</div><div class="metric-val red">${rows.length}</div><div class="metric-sub">Đã cộng gộp cùng khách + cùng ngày</div></div><div class="metric"><div class="metric-lbl">🔴 Quá hạn</div><div class="metric-val red">${over}</div></div><div class="metric"><div class="metric-lbl">💰 Có gốc đến hạn</div><div class="metric-val amber">${goc}</div><div class="metric-sub">Cần TT gồm tiền gốc</div></div><div class="metric"><div class="metric-lbl">💵 Có lãi đến hạn</div><div class="metric-val blue">${lai}</div><div class="metric-sub">Cần TT gồm tiền lãi</div></div><div class="metric"><div class="metric-lbl">📌 Cần thanh toán</div><div class="metric-val green" style="font-size:17px">${moneyShort(total)}</div><div class="metric-sub">${moneyShort(total)}</div></div>`;
+  $('due7Metrics').innerHTML=`<div class="metric"><div class="metric-lbl">⏰ Khách/ngày đến hạn</div><div class="metric-val red">${rows.length}</div><div class="metric-sub">Đã cộng gộp cùng khách + cùng ngày</div></div><div class="metric"><div class="metric-lbl">🔴 Quá hạn</div><div class="metric-val red">${over}</div><div class="metric-sub">Excel có ${rawOverdueCount} HĐ báo dư quá hạn</div></div><div class="metric"><div class="metric-lbl">💰 Có gốc đến hạn</div><div class="metric-val amber">${goc}</div><div class="metric-sub">Cần TT gồm tiền gốc</div></div><div class="metric"><div class="metric-lbl">💵 Có lãi đến hạn</div><div class="metric-val blue">${lai}</div><div class="metric-sub">Cần TT gồm tiền lãi</div></div><div class="metric"><div class="metric-lbl">📌 Cần thanh toán</div><div class="metric-val green" style="font-size:17px">${moneyShort(total)}</div><div class="metric-sub">${moneyShort(total)}</div></div>`;
   const empty=$('due7Empty'),wrap=$('due7Wrap'),body=$('due7Body');
   if(!rows.length){
     empty.style.display='block';wrap.style.display='none';
@@ -2485,7 +2494,7 @@ function renderDue7(){
     $('due7Footer').textContent='';return;
   }
   empty.style.display='none';wrap.style.display='block';
-  body.innerHTML=rows.map((x,i)=>`<tr class="${x.minDays!==null&&x.minDays<=7?(x.minDays<0?'row-over':'row-soon'):''}"><td class="center"><input class="paid-check" type="checkbox" onchange="setPaid('loan','${jsq(x.key)}',this.checked)"></td><td class="center">${i+1}</td><td class="mono">${html(x.maKH||'—')}</td><td style="font-weight:700">${html(x.name||'—')}</td><td class="mono" title="${attr((x.contracts||[]).join(', '))}">${(x.contracts||[]).length?(x.contracts||[]).slice(0,2).map(c=>html(c)).join('<br>'):'—'}${x.contractCount>2?`<div class="small">${x.contractCount} HĐ cùng ngày</div>`:''}</td><td>${html(x.loanType||'—')}</td><td>${html(x.cbtd||'—')}</td><td><span class="badge ${x.kind==='Lãi'?'badge-blue':(x.kind==='Gốc'?'badge-amber':'badge-red')}">${html(x.kind)}</span></td><td>${fmtDate(x.dueDate)}</td><td>${x.minDays!==null&&x.minDays<=7?`<span class="due-red-text">${loanDueStatusText(x)}</span>`:loanDueStatusText(x)}</td><td class="num">${money(x.principal)}</td><td class="num">${money(x.interest)}</td><td class="num" style="font-weight:700"><div style="display:flex;align-items:center;justify-content:flex-end;gap:5px"><span>${money(x.need)}</span><button class="btn" type="button" title="Copy số tiền cần thanh toán" aria-label="Copy số tiền cần thanh toán" onclick="copyAmount(${Math.round(Number(x.need||0))},'Cần thanh toán')">📋</button></div></td></tr>`).join('');
+  body.innerHTML=rows.map((x,i)=>`<tr class="${(x.components||[]).some(c=>c.overdueUnknown)?'row-over':(x.minDays!==null&&x.minDays<=7?(x.minDays<0?'row-over':'row-soon'):'')}"><td class="center"><input class="paid-check" type="checkbox" onchange="setPaid('loan','${jsq(x.key)}',this.checked)" ${isLoanPaid(x.key,x.raw)?'checked':''} title="${isLoanPaid(x.key,x.raw)?'Đã tick thanh toán. Bỏ tích để khôi phục':'Tích sau khi xác nhận đã thanh toán'}"></td><td class="center">${i+1}</td><td class="mono">${html(x.maKH||'—')}</td><td style="font-weight:700">${html(x.name||'—')}${due7RowFromExcelOverdue(x)&&(x.components||[]).some(c=>isLoanPaid(c.key)||isOverdueTrackerPaidKey(c.key))?'<div class="small" style="color:#b91c1c">⚠ Excel còn QH · đã từng tick Đã TT</div>':(isLoanPaid(x.key,x.raw)?'<div class="small" style="color:#475569">Đã tick Đã TT · bấm bỏ tích để khôi phục</div>':'')}</td><td class="mono" title="${attr((x.contracts||[]).join(', '))}">${(x.contracts||[]).length?(x.contracts||[]).slice(0,2).map(c=>html(c)).join('<br>'):'—'}${x.contractCount>2?`<div class="small">${x.contractCount} HĐ cùng ngày</div>`:''}</td><td>${html(x.loanType||'—')}</td><td>${html(x.cbtd||'—')}</td><td><span class="badge ${x.kind==='Lãi'?'badge-blue':(x.kind==='Gốc'?'badge-amber':'badge-red')}">${html(x.kind)}</span></td><td>${(x.components||[]).some(c=>c.overdueUnknown)&&!x.dueDate?'Kỳ cũ cần đối chiếu':fmtDate(x.dueDate)}</td><td>${(x.components||[]).some(c=>c.overdueUnknown)||(x.minDays!==null&&x.minDays<=7)?`<span class="due-red-text">${loanDueStatusText(x)}</span>`:loanDueStatusText(x)}</td><td class="num">${money(x.principal)}</td><td class="num">${money(x.interest)}</td><td class="num" style="font-weight:700"><div style="display:flex;align-items:center;justify-content:flex-end;gap:5px"><span>${money(x.need)}</span><button class="btn" type="button" title="Copy số tiền cần thanh toán" aria-label="Copy số tiền cần thanh toán" onclick="copyAmount(${Math.round(Number(x.need||0))},'Cần thanh toán')">📋</button></div></td></tr>`).join('');
   $('due7Footer').textContent=`Hiển thị ${rows.length} dòng khách/ngày · Các hợp đồng cùng khách hàng và cùng ngày đến hạn đã được cộng gộp; khác ngày vẫn tách riêng để không sai lịch thanh toán.`;
 }
 
