@@ -2630,13 +2630,49 @@ function due7BaseRows(rangeDays,includePaid=false){
 function due7SortScore(r){return (r.components||[]).some(c=>c.overdueUnknown)?-99999:(r.minDays??99999)}
 function applyDue7(){const rangeDays=due7RangeDays(); let rows=due7BaseRows(rangeDays).filter(x=>!isLoanPaid(x.key,x.raw)); const q=norm($('due7Search')?.value||''),cb=officerFilterValue('due7CBTD'),kind=$('due7Kind')?.value||'all',sort=$('due7Sort')?.value||'date_asc'; if(q)rows=rows.filter(x=>norm(`${x.maKH} ${x.name} ${x.contract} ${x.cbtd}`).includes(q)); if(cb)rows=rows.filter(x=>sameOfficerName(x.cbtd,cb)); if(kind!=='all')rows=rows.filter(x=>x.kind===kind); let cmp; if(sort==='amount_desc')cmp=(a,b)=>((b.need||0)-(a.need||0))||cmpNameAsc(a,b); else if(sort==='name_asc')cmp=cmpNameAsc; else cmp=(a,b)=>(due7SortScore(a)-due7SortScore(b))||cmpNameAsc(a,b); return sortKeepCustomerTogether(rows,cmp)}
 function loanDueStatusText(x){return (x.components||[]).some(c=>c.overdueUnknown)?'Quá hạn (chưa xác định số ngày)':dayText(x.minDays)}
-function due7ShowProcessedSearchResult(query){
-  const q=norm(query||'');if(!q)return '';
+function due7SearchDiagnostics(query){
+  const q=norm(String(query||'').trim());
+  if(!q)return '';
+  const scope=(state.loans||[]).filter(r=>norm([r.maKH,r.name,r.contract].join(' ')).includes(q));
   const paid=paidLogRawRows().filter(e=>e.scope==='loan'&&norm([e.maKH,e.name,e.contract].join(' ')).includes(q));
-  if(paid.length)return '<div class="small" style="padding:10px 0">Không có khoản chưa thanh toán khớp tìm kiếm. Có '+paid.length+' khoản đã tích Đã TT trong <b>Đã xử lý</b>. <button type="button" class="btn" onclick="openDue7PaidLog()">Mở Đã xử lý để kiểm tra/khôi phục</button></div>';
-  const source=(state.loans||[]).some(r=>norm([r.maKH,r.name,r.contract].join(' ')).includes(q));
-  return source?'Khách hàng có trong dữ liệu nhưng không có khoản chưa thanh toán phù hợp phạm vi/bộ lọc hiện tại.':'Không tìm thấy khách hàng khớp mã/tên trong dữ liệu đang tải.';
+  const ledger=Object.values(overdueTrackerStore()).filter(e=>e&&norm([e.maKH,e.name,e.contract].join(' ')).includes(q));
+  const file=String(meta().fileName||'');
+  const fileLine='<div class="small" style="margin-bottom:8px">Bộ dữ liệu đang nạp: <b>'+html(file||'Chưa có tên file')+'</b></div>';
+  let output='<div style="padding:12px;text-align:left;line-height:1.6">';
+  output+='<b>🔎 Đối chiếu mã khách hàng: '+html(String(query).trim())+'</b>'+fileLine;
+  if(!scope.length){
+    output+='<div>Không tìm thấy mã/tên/hợp đồng này trong các dòng vay của bộ dữ liệu đang nạp.</div>';
+    if(ledger.length)output+='<div>Sổ theo dõi lưu trước đây có '+ledger.length+' khoản liên quan; trạng thái: '+html([...new Set(ledger.map(e=>e.status||'không rõ'))].join(', '))+'.</div>';
+    if(!ledger.length)output+='<div>Hãy kiểm tra lại file tổng hợp đang được tải hoặc dữ liệu nhận từ Firebase. Em không tự tạo món vay khi chưa có dòng nguồn.</div>';
+  }else{
+    const cb=officerFilterValue('due7CBTD'),range=due7RangeDays(),kindFilter=$('due7Kind')?.value||'all';
+    output+='<div>Đã tìm thấy <b>'+scope.length+' dòng vay</b> trong nguồn. Bộ lọc hiện tại: '+(Number.isFinite(range)?range+' ngày':'Tất cả')+(cb?' · CBTD '+html(cb):'')+'.</div>';
+    scope.slice(0,8).forEach(r=>{
+      const d=loanDueParts(r,range),components=loanDueComponents(r,d);
+      const unpaid=components.filter(c=>!isLoanPaid(c.key,r)&&!isOverdueTrackerPaidKey(c.key));
+      const paidComponents=components.filter(c=>isLoanPaid(c.key,r)||isOverdueTrackerPaidKey(c.key));
+      const officerFiltered=cb&&!sameOfficerName(r.cbtd,cb);
+      const type=!unpaid.length?'':(unpaid.some(c=>c.principal>0)&&unpaid.some(c=>c.interest>0)?'Gốc + Lãi':(unpaid.some(c=>c.principal>0)?'Gốc':'Lãi'));
+      const kindFiltered=!!(type&&kindFilter!=='all'&&kindFilter!==type);
+      const status=components.length===0?'Không thuộc kỳ hạn đang lọc hoặc số tiền đến hạn bằng 0'
+        :unpaid.length===0?'Các nghĩa vụ trong kỳ đều có trạng thái Đã TT'
+        :officerFiltered?'Không khớp bộ lọc CBTD'
+        :kindFiltered?'Không khớp bộ lọc gốc/lãi'
+        :'Có nghĩa vụ chưa TT trong kỳ; cần kiểm tra trạng thái dữ liệu/bộ lọc';
+      output+='<div style="padding:7px 0;border-top:1px solid #dbeafe"><b>'+html(r.maKH||'—')+' · '+html(r.name||'—')+'</b> · HĐ '+html(r.contract||'—')
+        +'<div class="small">Gốc '+html(fmtDate(r.vonDate))+' ('+money(Number(r.vonAmount||0))+') · Lãi '+html(fmtDate(r.laiDate))+' ('+money(Number(r.laiAmount||0))+')</div>'
+        +'<div class="small">Nghĩa vụ trong phạm vi: '+components.length+' · Đã TT: '+paidComponents.length+' · Chưa TT: '+unpaid.length+'</div>'
+        +'<div><b>Kết quả: '+html(status)+'</b></div></div>';
+    });
+    if(scope.length>8)output+='<div class="small">Chỉ hiển thị 8 dòng đầu; hãy tìm bằng mã KH hoặc số HĐ để thu hẹp.</div>';
+  }
+  if(paid.length)output+='<div style="margin-top:8px"><b>Đã xử lý:</b> '+paid.length+' khoản phù hợp tìm kiếm. <button type="button" class="btn" onclick="openDue7PaidLog()">Mở Đã xử lý để xem/khôi phục</button></div>';
+  else if(ledger.some(e=>e.status==='paid'))output+='<div>Trong Sổ quá hạn có dòng trạng thái Đã TT. Nếu đó là thao tác nhầm, cần đối chiếu Sổ đã xử lý trước khi khôi phục.</div>';
+  output+='</div>';
+  return output;
 }
+function due7ShowProcessedSearchResult(query){return due7SearchDiagnostics(query)}
+
 function openDue7PaidLog(){
   const query=$('due7Search')?.value||'';switchTab('paidlog');
   if($('paidLogSearch'))$('paidLogSearch').value=query;
