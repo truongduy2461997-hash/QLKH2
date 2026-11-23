@@ -1483,6 +1483,46 @@ function syncOverdueTrackerFromLoans(cloudDirty=false){
   if(changed)saveOverdueTrackerStore(next,'đồng bộ sổ quá hạn từ Excel',cloudDirty);
   return changed;
 }
+// Giữ kỳ phải trả cũ khi báo cáo LN80 chuyển ngày sang tháng sau nhưng chưa có xác nhận thanh toán.
+// Những số dư này cần đối chiếu với thực thu; không coi việc đổi ngày là đã thu nợ.
+function captureRolledScheduledObligations(previousLoans,nextLoans){
+  if(!Array.isArray(previousLoans)||!previousLoans.length||!Array.isArray(nextLoans)||!nextLoans.length)return 0;
+  const freshByContract=new Map();
+  nextLoans.forEach(r=>{const k=[String(r.contract||'').trim(),String(r.maKH||'').trim()].join('|');if(r.contract)freshByContract.set(k,r)});
+  const store={...overdueTrackerStore()},today=todayDate(),todayKey=dkey(today),todayOrd=dateOrdinal(today),now=new Date().toISOString();
+  let count=0;
+  previousLoans.forEach(old=>{
+    if(!old.contract)return;
+    const fresh=freshByContract.get([String(old.contract||'').trim(),String(old.maKH||'').trim()].join('|'));
+    if(!fresh)return; // HĐ biến mất khỏi nguồn: không tự kết luận còn nợ.
+    [['principal','vonDate','vonAmount','vonQH','Gốc'],['interest','laiDate','laiAmount','laiQH','Lãi']].forEach(([kind,dateField,amountField,overField,label])=>{
+      const oldDate=old[dateField],newDate=fresh[dateField],oldOrd=dateOrdinal(oldDate),newOrd=dateOrdinal(newDate);
+      // Chỉ bắt kỳ mới dịch ít nhất 14 ngày; bỏ qua dời lịch trong vài ngày.
+      if(oldOrd===null||newOrd===null||oldOrd>todayOrd||newOrd-oldOrd<14)return;
+      const amount=Math.max(0,Number(old[amountField]||0));
+      if(amount<=0||isLoanPaid(loanObligationKey(old,label,oldDate,amount),old))return;
+      const key=overdueTrackerKey(old,kind),prior=store[key];
+      if(prior&&['paid','paid_waiting_clear','closed'].includes(prior.status))return;
+      if(prior&&dkey(prior.lastRolloverDate)===dkey(oldDate))return;
+      const reportedOverdue=kind==='principal'?Math.max(0,Number(fresh.vonQH||0)):Math.max(0,Number(fresh.laiQH||0))+Math.max(0,Number(fresh.laiPhat||0));
+      const previousDays=prior&&prior.baseDays!==null&&prior.baseDays!==undefined?Math.max(0,Number(prior.baseDays)||0)+Math.max(0,todayOrd-(dateOrdinal(prior.baseAsOfDate||prior.firstSeenDate)||todayOrd)):0;
+      const days=Math.max(1,todayOrd-oldOrd,previousDays);
+      const previousAmount=Math.max(0,Number(prior&&prior.amount||0));
+      const carriedAmount=reportedOverdue>0?reportedOverdue:previousAmount+amount;
+      store[key]={...(prior||{}),key,kind,kindLabel:kind==='principal'?'Gốc':(Number(fresh.laiPhat||0)>0?'Lãi + Lãi phạt':'Lãi'),
+        maKH:old.maKH||'',name:old.name||'',contract:old.contract||'',cbtd:old.cbtd||'',
+        amount:carriedAmount,interestOverdueAmount:kind==='interest'?Math.max(0,Number(fresh.laiQH||0))||carriedAmount:0,
+        penaltyAmount:kind==='interest'?Math.max(0,Number(fresh.laiPhat||0)):0,
+        source:'schedule_rollover',firstDueDate:(prior&&prior.firstDueDate)||dkey(oldDate),
+        firstSeenDate:(prior&&prior.firstSeenDate)||todayKey,baseAsOfDate:todayKey,baseDays:days,
+        nextScheduledDate:dkey(newDate),lastRolloverDate:dkey(oldDate),lastSeenDate:todayKey,
+        present:reportedOverdue>0,status:'open',workflowStatus:(prior&&prior.workflowStatus)||'unreported',updatedAt:now};
+      count++;
+    });
+  });
+  if(count)saveOverdueTrackerStore(store,'ghi nhớ khoản đến hạn đã chuyển kỳ từ Excel');
+  return count;
+}
 function overdueLedgerRows(){
   return Object.values(overdueTrackerStore()).filter(e=>e&&e.status!=='closed').map(e=>({...e,status:e.status==='paid_waiting_clear'?'paid':e.status,currentDays:(e.baseDays===null||e.baseDays===undefined||e.baseDays==='')?null:Math.max(0,Math.round(Number(e.baseDays)||0)+Math.max(0,(dateOrdinal(todayDate())??0)-(dateOrdinal(e.baseAsOfDate||e.firstSeenDate||todayDate())??0)))})).sort((a,b)=>((b.currentDays??-1)-(a.currentDays??-1))||(Number(b.amount||0)-Number(a.amount||0))||String(a.name||'').localeCompare(String(b.name||''),'vi'));
 }
@@ -1760,7 +1800,7 @@ function insuranceAssetCustomerCandidate(v){const s=String(v||'').trim(),m=s.mat
 function parseInsurancePNT(rows){return (rows||[]).map(r=>{const assetId=String(get(r,['Mã TSBĐ','Ma TSBD','Mã tài sản bảo đảm','Ma tai san bao dam'])||'').trim();return {type:'BHPNT',contract:String(get(r,['Số HĐBH','So HDBH','HĐBH'])||'').trim(),application:String(get(r,['Số Giao dịch','So Giao dich'])||'').trim(),maKH:'',assetId,assetCustomerCandidate:insuranceAssetCustomerCandidate(assetId),name:String(get(r,['BMBH','Bên mua bảo hiểm','Ben mua bao hiem'])||'').trim(),status:String(get(r,['Trạng thái','Trang thai'])||'').trim(),recordDate:stableDateString(get(r,['Ngày thanh toán','Ngay thanh toan','Ngày hiệu lực HĐ','Ngay hieu luc HD'])),effectiveDate:stableDateString(get(r,['Ngày hiệu lực HĐ','Ngay hieu luc HD'])),expiryDate:stableDateString(get(r,['Ngày hết hiệu lực','Ngay het hieu luc'])),amount:num(get(r,['Doanh số phí bảo hiểm','Doanh so phi bao hiem'])),amountNoVat:num(get(r,['Doanh số phí bảo hiểm (không VAT)','Doanh so phi bao hiem khong VAT'])),faceAmount:0,product:String(get(r,['Tên Sản phẩm','Ten San pham','Sản phẩm','San pham'])||'').trim(),productGroup:String(get(r,['Tên CTBH','Ten CTBH'])||'').trim(),cbtd:canonicalOfficerName(get(r,['Tên NV nhập liệu CT.QLBH','Ten NV nhap lieu CT.QLBH'])),advisor:String(get(r,['Tên NV Bảo hiểm','Ten NV Bao hiem'])||'').trim(),income:num(get(r,['Thu nhập phân bổ CN/PGD','Thu nhap phan bo CN/PGD'])),source:'bảo hiểm PNT'}}).filter(x=>x.contract||x.name||x.amount||x.recordDate)}
 
 function uniqueCustomersFromData(source){const src=source||state,map=new Map(); [...(src.loans||[]),...(src.deposits||[])].forEach(x=>{const k=x.maKH||norm(x.name); if(!k||map.has(k))return; map.set(k,{maKH:x.maKH||'',name:x.name||'',phone:x.phone||'',note:'',address:'',birthday:'',cbtd:x.cbtd||x.daoName||x.sellId||''})}); return [...map.values()]}
-function loadWorkbook(wb){const saved=storageGet(DATA_KEY,null)||{};const keepDebtOverrides=normalizeDebtOverrides(state.debtOverrides&&Object.keys(state.debtOverrides).length?state.debtOverrides:saved.debtOverrides);if(saved.customerNotes)storageSet(NOTE_KEY,mergeByUpdatedAt(notesStore(),saved.customerNotes));const out={loans:[],customers:[],deposits:[],creditCards:[],renewals:[],insurances:[],map:[],debtOverrides:keepDebtOverrides,customerNotes:notesStore()};(wb.SheetNames||[]).forEach((sn,idx)=>{const ws=wb.Sheets[sn],type=detectSheet(ws,sn,idx);out.map.push(sn+' → '+(type||'bỏ qua'));if(!type)return;const rows=tableRows(ws,type);if(type==='loan')out.loans.push(...parseLoans(rows));if(type==='customer')out.customers.push(...parseCustomers(rows));if(type==='deposit')out.deposits.push(...parseDeposits(rows));if(type==='credit')out.creditCards.push(...parseCreditCards(rows));if(type==='renewal')out.renewals.push(...parseRenewals(rows));if(type==='insurance_nt')out.insurances.push(...parseInsuranceNT(rows));if(type==='insurance_pnt')out.insurances.push(...parseInsurancePNT(rows))});if(!out.customers.length)out.customers=uniqueCustomersFromData(out);const cloudBaseData=cloudBaseDataFrom(out);setState(out);paidStore();saveData({immediate:true,reason:'upload Excel'});out.cloudBaseData=cloudBaseData;return out}
+function loadWorkbook(wb){const saved=storageGet(DATA_KEY,null)||{};const keepDebtOverrides=normalizeDebtOverrides(state.debtOverrides&&Object.keys(state.debtOverrides).length?state.debtOverrides:saved.debtOverrides);if(saved.customerNotes)storageSet(NOTE_KEY,mergeByUpdatedAt(notesStore(),saved.customerNotes));const out={loans:[],customers:[],deposits:[],creditCards:[],renewals:[],insurances:[],map:[],debtOverrides:keepDebtOverrides,customerNotes:notesStore()};(wb.SheetNames||[]).forEach((sn,idx)=>{const ws=wb.Sheets[sn],type=detectSheet(ws,sn,idx);out.map.push(sn+' → '+(type||'bỏ qua'));if(!type)return;const rows=tableRows(ws,type);if(type==='loan')out.loans.push(...parseLoans(rows));if(type==='customer')out.customers.push(...parseCustomers(rows));if(type==='deposit')out.deposits.push(...parseDeposits(rows));if(type==='credit')out.creditCards.push(...parseCreditCards(rows));if(type==='renewal')out.renewals.push(...parseRenewals(rows));if(type==='insurance_nt')out.insurances.push(...parseInsuranceNT(rows));if(type==='insurance_pnt')out.insurances.push(...parseInsurancePNT(rows))});if(!out.customers.length)out.customers=uniqueCustomersFromData(out);const cloudBaseData=cloudBaseDataFrom(out);captureRolledScheduledObligations(state.loans,out.loans);setState(out);paidStore();saveData({immediate:true,reason:'upload Excel'});out.cloudBaseData=cloudBaseData;return out}
 
 function customerInfo(maKH,name){return runtimeCustomerInfo(maKH,name)}
 function phoneFor(x){const c=runtimeCustomerInfo(x&&x.maKH,x&&x.name);return (x&&x.phone)||c.phone||''}
@@ -1972,23 +2012,34 @@ function loanOverdueInterestAmount(r){return Math.max(0,Number(r&&r.laiQH||0))+M
 function loanInterestDueAmount(r,includeScheduled=true){const scheduled=includeScheduled?Math.max(0,Number(r&&r.laiAmount||0)):0;return scheduled+loanOverdueInterestAmount(r)}
 function businessPayPrincipalInTab13(r){return loanPrincipalDueAmount(r)>0}
 function loanDueParts(r,rangeDays){
-  const principalDate=loanEffectiveDueDate(r,'principal'), interestDate=loanEffectiveDueDate(r,'interest');
+  rangeDays=Number(rangeDays);
+  if(!Number.isFinite(rangeDays)&&rangeDays!==Infinity)rangeDays=7;
+  const principalDate=loanEffectiveDueDate(r,'principal'),interestDate=loanEffectiveDueDate(r,'interest');
   const dvRaw=daysDiff(r.vonDate),dlRaw=daysDiff(r.laiDate);
   const dv=loanEffectiveDays(r,'principal'),dl=loanEffectiveDays(r,'interest');
-  const principalDue=(dv!==null&&dv<=rangeDays)||hasPrincipalOverdue(r);
+  // Tách gốc QH của kỳ cũ và gốc đến hạn kỳ mới: hệ thống LN80 thường đã đẩy ngày trả sang tháng kế.
+  const overduePrincipal=Math.max(0,Number(r.vonQH||0));
+  const scheduledPrincipalDue=dvRaw!==null&&dvRaw<=rangeDays;
+  const consumer=isConsumerLoan(r),business=isBusinessLoan(r)||!consumer;
+  const reportedPrincipal=Math.max(0,Number(r.vonAmount||0));
+  const manualPrincipal=(!consumer&&r.manualOutstanding)?Math.max(0,Number(r.principalOverride!==undefined?r.principalOverride:r.outstanding||0)):null;
+  const scheduledPrincipal=scheduledPrincipalDue
+    ?(manualPrincipal!==null?Math.max(0,manualPrincipal-overduePrincipal):(reportedPrincipal||(isMaturityPrincipalRow(r)?Math.max(0,Number(r.outstanding||0)):0)))
+    :0;
+  const principalDue=overduePrincipal>0||scheduledPrincipalDue;
   const scheduledInterestDue=dlRaw!==null&&dlRaw<=rangeDays;
-  const interestDue=scheduledInterestDue||hasInterestOverdue(r);
-  const consumer=isConsumerLoan(r); const business=isBusinessLoan(r)||!consumer;
-  let rawPrincipal=loanPrincipalDueAmount(r);
-  const overdueInterest=loanOverdueInterestAmount(r),scheduledInterest=scheduledInterestDue?Math.max(0,Number(r.laiAmount||0)):0,rawInterest=overdueInterest+scheduledInterest;
-  const includePrincipal=principalDue&&rawPrincipal>0&&(consumer||businessPayPrincipalInTab13(r));
+  const overdueInterest=loanOverdueInterestAmount(r);
+  const scheduledInterest=scheduledInterestDue?Math.max(0,Number(r.laiAmount||0)):0;
+  const interestDue=overdueInterest>0||scheduledInterestDue;
+  const rawPrincipal=overduePrincipal+scheduledPrincipal,rawInterest=overdueInterest+scheduledInterest;
+  const includePrincipal=principalDue&&rawPrincipal>0&&(consumer||businessPayPrincipalInTab13(r)||overduePrincipal>0);
   const includeInterest=interestDue&&rawInterest>0;
-  const principal=includePrincipal?rawPrincipal:0; const interest=includeInterest?rawInterest:0;
+  const principal=includePrincipal?rawPrincipal:0,interest=includeInterest?rawInterest:0;
   const days=[includePrincipal?dv:null,includeInterest?dl:null].filter(x=>x!==null);
   const minDays=days.length?Math.min(...days):null;
   const dueDate=(minDays!==null?(minDays===dv?principalDate:interestDate):(includePrincipal?principalDate:(includeInterest?interestDate:null)));
-  let kind=''; if(includePrincipal&&includeInterest)kind='Gốc + Lãi'; else if(includePrincipal)kind='Gốc'; else if(includeInterest)kind='Lãi';
-  return {principalDue,interestDue,scheduledInterestDue,includePrincipal,includeInterest,principal,interest,overdueInterest,scheduledInterest,need:principal+interest,minDays,dueDate,principalDate,interestDate,kind,consumer,business,rawPrincipal,rawInterest,dv,dl,dvRaw,dlRaw,hasPrincipalOverdue:hasPrincipalOverdue(r),hasInterestOverdue:hasInterestOverdue(r)}
+  let kind='';if(includePrincipal&&includeInterest)kind='Gốc + Lãi';else if(includePrincipal)kind='Gốc';else if(includeInterest)kind='Lãi';
+  return {principalDue,interestDue,scheduledPrincipalDue,scheduledInterestDue,includePrincipal,includeInterest,principal,interest,overduePrincipal,scheduledPrincipal,overdueInterest,scheduledInterest,need:principal+interest,minDays,dueDate,principalDate,interestDate,kind,consumer,business,rawPrincipal,rawInterest,dv,dl,dvRaw,dlRaw,hasPrincipalOverdue:hasPrincipalOverdue(r),hasInterestOverdue:hasInterestOverdue(r)}
 }
 function loanDisplayObligationKey(r,kindLabel,due,amount){
   const kind=kindLabel==='Lãi'?'interest':'principal';
@@ -1997,10 +2048,26 @@ function loanDisplayObligationKey(r,kindLabel,due,amount){
   return e&&e.status!=='closed'?e.key:loanObligationKey(r,kindLabel,due,amount);
 }
 function loanDueComponents(r,d){
-  d=d||loanDueParts(r,30); const out=[];
-  if(d.includePrincipal&&d.principal>0){const due=d.principalDate||loanEffectiveDueDate(r,'principal')||d.dueDate,e=hasPrincipalOverdue(r)?overdueEntryForLoan(r,'principal'):null; out.push({raw:r,key:loanDisplayObligationKey(r,'Gốc',due,d.principal),trackerKey:e&&e.status!=='closed'?e.key:'',overdueUnknown:!!(e&&overdueTrackedDays(r,'principal')===null),legacyKey:loanObligationLegacyAmountKey(r,'Gốc',due,d.principal),kind:'Gốc',dueDate:due,days:d.dv,amount:d.principal,principal:d.principal,interest:0})}
-  if(d.includeInterest&&d.overdueInterest>0){const due=d.interestDate||loanEffectiveDueDate(r,'interest')||d.dueDate,e=overdueEntryForLoan(r,'interest'),amount=d.overdueInterest;out.push({raw:r,key:e&&e.status!=='closed'?e.key:loanObligationKey(r,'Lãi QH',due,amount),trackerKey:e&&e.status!=='closed'?e.key:'',overdueUnknown:!!(e&&overdueTrackedDays(r,'interest')===null),legacyKey:loanObligationLegacyAmountKey(r,'Lãi QH',due,amount),kind:'Lãi',dueDate:due,days:d.dl,amount,principal:0,interest:amount,interestPart:'overdue'})}
-  if(d.includeInterest&&d.scheduledInterestDue&&d.scheduledInterest>0){const due=r.laiDate||d.dueDate,days=d.dlRaw,amount=d.scheduledInterest,key=loanObligationKey(r,'Lãi',due,amount);out.push({raw:r,key,trackerKey:'',overdueUnknown:false,legacyKey:loanObligationLegacyAmountKey(r,'Lãi',due,amount),kind:'Lãi',dueDate:due,days,amount,principal:0,interest:amount,interestPart:'scheduled'})}
+  d=d||loanDueParts(r,30);const out=[];
+  if(d.includePrincipal&&d.overduePrincipal>0){
+    const due=d.principalDate||loanEffectiveDueDate(r,'principal')||null;
+    const e=overdueEntryForLoan(r,'principal'),amount=d.overduePrincipal;
+    const key=e&&e.status!=='closed'?e.key:loanObligationKey(r,'Gốc QH',due,amount);
+    out.push({raw:r,key,trackerKey:e&&e.status!=='closed'?e.key:'',overdueUnknown:!!(e&&overdueTrackedDays(r,'principal')===null),legacyKey:loanObligationLegacyAmountKey(r,'Gốc QH',due,amount),kind:'Gốc',dueDate:due,days:d.dv,amount,principal:amount,interest:0,principalPart:'overdue'});
+  }
+  if(d.includePrincipal&&d.scheduledPrincipalDue&&d.scheduledPrincipal>0){
+    const due=r.vonDate||r.maturityDate||d.dueDate,amount=d.scheduledPrincipal;
+    const key=loanObligationKey(r,'Gốc',due,amount);
+    out.push({raw:r,key,trackerKey:'',overdueUnknown:false,legacyKey:loanObligationLegacyAmountKey(r,'Gốc',due,amount),kind:'Gốc',dueDate:due,days:d.dvRaw,amount,principal:amount,interest:0,principalPart:'scheduled'});
+  }
+  if(d.includeInterest&&d.overdueInterest>0){
+    const due=d.interestDate||loanEffectiveDueDate(r,'interest')||null,e=overdueEntryForLoan(r,'interest'),amount=d.overdueInterest;
+    out.push({raw:r,key:e&&e.status!=='closed'?e.key:loanObligationKey(r,'Lãi QH',due,amount),trackerKey:e&&e.status!=='closed'?e.key:'',overdueUnknown:!!(e&&overdueTrackedDays(r,'interest')===null),legacyKey:loanObligationLegacyAmountKey(r,'Lãi QH',due,amount),kind:'Lãi',dueDate:due,days:d.dl,amount,principal:0,interest:amount,interestPart:'overdue'});
+  }
+  if(d.includeInterest&&d.scheduledInterestDue&&d.scheduledInterest>0){
+    const due=r.laiDate||d.dueDate,days=d.dlRaw,amount=d.scheduledInterest,key=loanObligationKey(r,'Lãi',due,amount);
+    out.push({raw:r,key,trackerKey:'',overdueUnknown:false,legacyKey:loanObligationLegacyAmountKey(r,'Lãi',due,amount),kind:'Lãi',dueDate:due,days,amount,principal:0,interest:amount,interestPart:'scheduled'});
+  }
   return out
 }
 function groupLoanComponentsByDueDate(components){const map=new Map(); (components||[]).forEach(c=>{const k=dkey(c&&c.dueDate)||'NO_DATE'; if(!map.has(k))map.set(k,[]); map.get(k).push(c)}); return [...map.values()]}
@@ -2232,7 +2299,7 @@ function todayBaseRows(){
     });
   });
   // Nếu file mới đã chuyển kỳ/không còn dòng QH, lấy chính Sổ quá hạn làm nguồn cho Vay cần thu.
-  overdueLedgerRows().filter(e=>e.status==='open'&&!seenTrackerKeys.has(e.key)).forEach(e=>{
+  overdueLedgerRows().filter(e=>e.status==='open'&&!seenTrackerKeys.has(e.key)&&!isLoanPaid(e.key)).forEach(e=>{
     const raw=(state.loans||[]).find(r=>overdueTrackerKey(r,e.kind)===e.key)||{maKH:e.maKH||'',name:e.name||'',contract:e.contract||'',cbtd:e.cbtd||'',loanType:e.loanType||'Kinh doanh'};
     const due=e.currentDays===null?null:addDays(todayDate(),-e.currentDays);
     const comp={raw,key:e.key,trackerKey:e.key,overdueUnknown:e.currentDays===null,kind:e.kindLabel,dueDate:due,days:e.currentDays===null?null:-e.currentDays,amount:Number(e.amount||0),principal:e.kind==='principal'?Number(e.amount||0):0,interest:e.kind==='interest'?Number(e.amount||0):0};
@@ -2348,6 +2415,27 @@ function due7BaseRows(rangeDays){
       if(!g.dueDate&&row.dueDate)g.dueDate=row.dueDate;
     });
   });
+  // Bổ sung khoản quá hạn còn mở trong Sổ, kể cả khi file LN80 đã chuyển kỳ / bỏ dòng cũ.
+  const alreadyIncluded=new Set();
+  map.forEach(g=>(g.componentKeys||[]).forEach(k=>alreadyIncluded.add(k)));
+  overdueLedgerRows().filter(e=>e.status==='open'&&!alreadyIncluded.has(e.key)&&!isLoanPaid(e.key)).forEach((e,overdueIndex)=>{
+    const raw=(state.loans||[]).find(r=>overdueTrackerKey(r,e.kind)===e.key)||{maKH:e.maKH||'',name:e.name||'',contract:e.contract||'',cbtd:e.cbtd||'',loanType:'Kinh doanh'};
+    const due=e.currentDays===null?null:addDays(todayDate(),-e.currentDays),amount=Math.max(0,Number(e.amount||0));
+    if(amount<=0)return;
+    const comp={raw,key:e.key,trackerKey:e.key,overdueUnknown:e.currentDays===null,kind:e.kindLabel||'Quá hạn',dueDate:due,days:e.currentDays===null?null:-e.currentDays,amount,principal:e.kind==='principal'?amount:0,interest:e.kind==='interest'?amount:0};
+    const row=makeDueRowFromComponents(raw,[comp],{consumer:isConsumerLoan(raw),business:!isConsumerLoan(raw)});
+    const customerKey=String(row.maKH||'').trim()||norm(row.name||'')||('OVERDUE_'+overdueIndex),dueKey=dkey(row.dueDate);
+    const groupKey=customerKey+'|OVERDUE|'+(dueKey||'NO_DATE');
+    if(!map.has(groupKey))map.set(groupKey,{raw:row.raw,maKH:row.maKH,name:row.name,contracts:[],loanTypes:new Set(),cbtds:new Set(),componentKeys:[],components:[],minDays:row.minDays,dueDate:row.dueDate||null,principal:0,interest:0,consumer:false,business:false});
+    const g=map.get(groupKey);
+    if(row.contract)g.contracts.push(row.contract);
+    if(row.loanType)g.loanTypes.add(row.loanType);
+    if(row.cbtd)g.cbtds.add(row.cbtd);
+    g.componentKeys.push(e.key);g.components.push(comp);g.principal+=Number(row.principal||0);g.interest+=Number(row.interest||0);
+    g.consumer=g.consumer||!!row.consumer;g.business=g.business||!!row.business;
+    if(g.minDays===null||g.minDays===undefined||(row.minDays!==null&&row.minDays!==undefined&&row.minDays<g.minDays))g.minDays=row.minDays;
+    if(!g.dueDate&&row.dueDate)g.dueDate=row.dueDate;
+  });
   return [...map.values()].map(g=>{
     const contracts=[...new Set(g.contracts.filter(Boolean))];
     const componentKeys=[...new Set(g.componentKeys.filter(Boolean))];
@@ -2381,10 +2469,11 @@ function due7BaseRows(rangeDays){
   }).filter(x=>x.need>0&&x.kind);
 }
 function applyDue7(){const rangeDays=due7RangeDays(); let rows=due7BaseRows(rangeDays).filter(x=>!isLoanPaid(x.key,x.raw)); const q=norm($('due7Search')?.value||''),cb=officerFilterValue('due7CBTD'),kind=$('due7Kind')?.value||'all',sort=$('due7Sort')?.value||'date_asc'; if(q)rows=rows.filter(x=>norm(`${x.maKH} ${x.name} ${x.contract} ${x.cbtd}`).includes(q)); if(cb)rows=rows.filter(x=>sameOfficerName(x.cbtd,cb)); if(kind!=='all')rows=rows.filter(x=>x.kind===kind); let cmp; if(sort==='amount_desc')cmp=(a,b)=>((b.need||0)-(a.need||0))||cmpNameAsc(a,b); else if(sort==='name_asc')cmp=cmpNameAsc; else cmp=(a,b)=>((a.minDays??99999)-(b.minDays??99999))||cmpNameAsc(a,b); return sortKeepCustomerTogether(rows,cmp)}
+function loanDueStatusText(x){return (x.components||[]).some(c=>c.overdueUnknown)?'Quá hạn (chưa xác định số ngày)':dayText(x.minDays)}
 function renderDue7(){
   const rangeDays=due7RangeDays();
   const rows=applyDue7();
-  const over=rows.filter(x=>x.minDays<0).length,
+  const over=rows.filter(x=>x.minDays<0||(x.components||[]).some(c=>c.overdueUnknown)).length,
         total=rows.reduce((sum,x)=>sum+x.need,0),
         goc=rows.filter(x=>x.kind==='Gốc'||x.kind==='Gốc + Lãi').length,
         lai=rows.filter(x=>x.kind==='Lãi'||x.kind==='Gốc + Lãi').length;
@@ -2396,7 +2485,7 @@ function renderDue7(){
     $('due7Footer').textContent='';return;
   }
   empty.style.display='none';wrap.style.display='block';
-  body.innerHTML=rows.map((x,i)=>`<tr class="${x.minDays!==null&&x.minDays<=7?(x.minDays<0?'row-over':'row-soon'):''}"><td class="center"><input class="paid-check" type="checkbox" onchange="setPaid('loan','${jsq(x.key)}',this.checked)"></td><td class="center">${i+1}</td><td class="mono">${html(x.maKH||'—')}</td><td style="font-weight:700">${html(x.name||'—')}</td><td class="mono" title="${attr((x.contracts||[]).join(', '))}">${(x.contracts||[]).length?(x.contracts||[]).slice(0,2).map(c=>html(c)).join('<br>'):'—'}${x.contractCount>2?`<div class="small">${x.contractCount} HĐ cùng ngày</div>`:''}</td><td>${html(x.loanType||'—')}</td><td>${html(x.cbtd||'—')}</td><td><span class="badge ${x.kind==='Lãi'?'badge-blue':(x.kind==='Gốc'?'badge-amber':'badge-red')}">${html(x.kind)}</span></td><td>${fmtDate(x.dueDate)}</td><td>${x.minDays!==null&&x.minDays<=7?`<span class="due-red-text">${dayText(x.minDays)}</span>`:dayText(x.minDays)}</td><td class="num">${money(x.principal)}</td><td class="num">${money(x.interest)}</td><td class="num" style="font-weight:700"><div style="display:flex;align-items:center;justify-content:flex-end;gap:5px"><span>${money(x.need)}</span><button class="btn" type="button" title="Copy số tiền cần thanh toán" aria-label="Copy số tiền cần thanh toán" onclick="copyAmount(${Math.round(Number(x.need||0))},'Cần thanh toán')">📋</button></div></td></tr>`).join('');
+  body.innerHTML=rows.map((x,i)=>`<tr class="${x.minDays!==null&&x.minDays<=7?(x.minDays<0?'row-over':'row-soon'):''}"><td class="center"><input class="paid-check" type="checkbox" onchange="setPaid('loan','${jsq(x.key)}',this.checked)"></td><td class="center">${i+1}</td><td class="mono">${html(x.maKH||'—')}</td><td style="font-weight:700">${html(x.name||'—')}</td><td class="mono" title="${attr((x.contracts||[]).join(', '))}">${(x.contracts||[]).length?(x.contracts||[]).slice(0,2).map(c=>html(c)).join('<br>'):'—'}${x.contractCount>2?`<div class="small">${x.contractCount} HĐ cùng ngày</div>`:''}</td><td>${html(x.loanType||'—')}</td><td>${html(x.cbtd||'—')}</td><td><span class="badge ${x.kind==='Lãi'?'badge-blue':(x.kind==='Gốc'?'badge-amber':'badge-red')}">${html(x.kind)}</span></td><td>${fmtDate(x.dueDate)}</td><td>${x.minDays!==null&&x.minDays<=7?`<span class="due-red-text">${loanDueStatusText(x)}</span>`:loanDueStatusText(x)}</td><td class="num">${money(x.principal)}</td><td class="num">${money(x.interest)}</td><td class="num" style="font-weight:700"><div style="display:flex;align-items:center;justify-content:flex-end;gap:5px"><span>${money(x.need)}</span><button class="btn" type="button" title="Copy số tiền cần thanh toán" aria-label="Copy số tiền cần thanh toán" onclick="copyAmount(${Math.round(Number(x.need||0))},'Cần thanh toán')">📋</button></div></td></tr>`).join('');
   $('due7Footer').textContent=`Hiển thị ${rows.length} dòng khách/ngày · Các hợp đồng cùng khách hàng và cùng ngày đến hạn đã được cộng gộp; khác ngày vẫn tách riêng để không sai lịch thanh toán.`;
 }
 
