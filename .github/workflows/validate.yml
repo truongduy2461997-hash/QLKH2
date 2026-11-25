@@ -58,6 +58,8 @@ jobs:
           node --check telegram-report/index.cjs
           node --check telegram-report/report.cjs
           node --test telegram-report/report.test.cjs
+          node --check < telegram-report/spark/Code.gs
+          node --test telegram-report/spark/report.test.cjs
       - name: Report known Chi tieu packaging drift (non-blocking)
         run: |
           python build_modules.py --check --module chitieu || echo "::warning::Chi tieu module differs from src/chitieu.html. Do not rebuild the production module until separately tested."
