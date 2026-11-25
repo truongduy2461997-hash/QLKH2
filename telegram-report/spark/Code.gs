@@ -147,6 +147,27 @@ function sendQlkhDaily() {
     cfg.properties.setProperty('QLKH_LAST_SENT_DAY',day);
   } finally {lock.releaseLock();}
 }
+/**
+ * One-time setup helper: sends no data and does not expose token in logs.
+ * Start a private conversation with the bot first. Existing webhook may
+ * prevent getUpdates; do not remove legacy webhook automatically.
+ */
+function findTelegramChatId() {
+  const token=PropertiesService.getScriptProperties().getProperty('TELEGRAM_BOT_TOKEN');
+  if(!token||!/^\d+:[A-Za-z0-9_-]+$/.test(token))throw new Error('Hãy thêm TELEGRAM_BOT_TOKEN vào Script Properties trước');
+  const resp=UrlFetchApp.fetch('https://api.telegram.org/bot'+token+'/getUpdates',{
+    method:'get',muteHttpExceptions:true
+  });
+  if(resp.getResponseCode()!==200)
+    throw new Error('Không lấy được Chat ID (HTTP '+resp.getResponseCode()+'). Bot có thể đang gắn webhook của dịch vụ cũ; không tự xóa webhook.');
+  const updates=JSON.parse(resp.getContentText());
+  const chats=(updates.result||[]).map(u=>u.message&&u.message.chat).filter(c=>c&&c.type==='private'&&Number(c.id)>0);
+  if(!chats.length)throw new Error('Chưa thấy cuộc trò chuyện riêng. Hãy /start cho bot và gửi thêm 1 tin nhắn, sau đó chạy lại.');
+  const id=String(chats[chats.length-1].id);
+  Logger.log('Private Chat ID gần nhất: '+id+' (chỉ lưu vào Script Properties, không gửi công khai)');
+  return id;
+}
+
 function sendQlkhTest() {
   const cfg=qlkhProps_();
   qlkhSendMessage_(cfg.token,cfg.chatId,'✅ @QLKHSTB_bot đã kết nối Google Apps Script. Đây là tin kiểm tra, chưa có dữ liệu khách hàng.');
