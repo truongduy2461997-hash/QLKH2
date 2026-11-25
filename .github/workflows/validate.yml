@@ -53,6 +53,11 @@ jobs:
           PY
       - name: Unit regression - no Firebase/customer access
         run: node tests/qlkh_obligations.test.cjs
+      - name: Check Telegram Cloud Function and aggregate-only tests
+        run: |
+          node --check telegram-report/index.cjs
+          node --check telegram-report/report.cjs
+          node --test telegram-report/report.test.cjs
       - name: Report known Chi tieu packaging drift (non-blocking)
         run: |
           python build_modules.py --check --module chitieu || echo "::warning::Chi tieu module differs from src/chitieu.html. Do not rebuild the production module until separately tested."
