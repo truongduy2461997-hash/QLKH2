@@ -42,4 +42,10 @@ const result = vm.runInNewContext(script, {}, { timeout: 12000 });
 assert.equal(result.test, 'PASS');
 assert.equal(result.initialAmount, 21234567);
 assert.equal(result.daysAtSecondCheck, 12);
-console.log('PASS: due -> paid -> restored -> Excel rollover -> manually edited overdue days -> paid');
+
+const multiScenario = "\nconst a={maKH:'MULTI01',name:'TEST LOANS',contract:'LD-A',cbtd:'RM SAMPLE',loanType:'Cho vay tieu dung',vonDate:'2026-11-25',laiDate:'2026-11-25',vonAmount:5000000,laiAmount:500000,vonQH:0,laiQH:0,laiPhat:0};\nconst b={...a,contract:'LD-B',vonDate:'2026-11-29',laiDate:'2026-11-29',vonAmount:7000000,laiAmount:700000};\nstate.loans=[a,b];\ncaptureScheduledDueLedger(state.loans,true);\nlet rs=due7BaseRows(30,false);\nif(rs.length!==2)throw new Error('Two different due dates should form distinct rows: '+rs.length);\nconst first=rs.find(r=>r.contract.includes('LD-A'));\nif(!first)throw new Error('Missing contract A');\nsetLoanKeysPaid(first.key,true,'tab3');\nrs=due7BaseRows(30,false);\nif(rs.length!==1||!rs[0].contract.includes('LD-B'))throw new Error('Payment of A hid B');\nreturn {result:'PASS',remaining:rs[0].contract};\n";
+const multiScript = '(function(){\n' + mocks + '\n' + FUNCTIONS.map(extractFunction).join('\n') + '\n' + multiScenario + '\n})()';
+const multiResult = vm.runInNewContext(multiScript, {}, { timeout: 12000 });
+assert.equal(multiResult.result, 'PASS');
+assert.equal(multiResult.remaining, 'LD-B');
+console.log('PASS: due -> paid -> restored -> Excel rollover -> manually edited overdue days -> paid; and multi-contract isolation');
