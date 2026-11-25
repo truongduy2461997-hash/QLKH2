@@ -36,20 +36,23 @@ OAuth của tài khoản có quyền truy cập dự án và gửi báo cáo t�
 2. Sao chép toàn bộ nội dung [Code.gs](./Code.gs) vào file `Code.gs`.
 3. Trong **Project Settings**, bật "Show appsscript.json manifest file in editor",
    mở file `appsscript.json`, thay bằng nội dung [manifest](./appsscript.json).
-4. Vào **Project Settings → Script Properties**, thêm ba khóa:
-   - `TELEGRAM_BOT_TOKEN`: token mới sau khi đã Revoke;
-   - `TELEGRAM_CHAT_ID`: ID của cuộc trò chuyện riêng;
+4. Vào **Project Settings → Script Properties**, thêm `TELEGRAM_BOT_TOKEN`
+   bằng token mới sau khi đã Revoke. Bấm Save. Sau khi nhắn `/start` với bot,
+   chọn hàm `findTelegramChatId` → Run; xem Chat ID riêng trong **Execution log**.
+   Nếu bot đang gắn webhook cũ, hàm có thể báo HTTP 409; không tự xóa webhook.
+5. Quay lại **Script Properties**, thêm:
+   - `TELEGRAM_CHAT_ID`: Chat ID vừa tìm thấy;
    - `QLKH_SYNC_DOC_ID`: ID document Firestore ở `qlkhShared`.
    **Không** chia sẻ dự án Apps Script cho người khác; người có quyền chỉnh
    sửa code có thể lấy secrets từ Script Properties.
-5. Bấm Save. Chọn hàm `sendQlkhTest` → Run → cấp quyền OAuth.
+6. Bấm Save. Chọn hàm `sendQlkhTest` → Run → cấp quyền OAuth.
    Bot cần nhắn thử thành công trước khi dùng báo cáo thực tế.
-6. Chọn hàm `previewQlkhTotals` → Run. Mở **Execution log** để xem chỉ
+7. Chọn hàm `previewQlkhTotals` → Run. Mở **Execution log** để xem chỉ
    số lượng tổng hợp. Nếu báo HTTP 403, kiểm tra đúng tài khoản Google,
    quyền IAM dự án và `datastore` OAuth scope. Không mở Firestore Rules public.
-7. Khi các tổng hợp khớp QLKH2 và được phép gửi nội bộ, chọn
+8. Khi các tổng hợp khớp QLKH2 và được phép gửi nội bộ, chọn
    `setupQlkhDailyTrigger` → Run **một lần** để tạo lịch hằng ngày.
-8. Mở tab **Triggers** xác nhận handler `sendQlkhDaily`, kiểm tra **Executions**
+9. Mở tab **Triggers** xác nhận handler `sendQlkhDaily`, kiểm tra **Executions**
    sau ngày chạy đầu tiên. Có thể chạy `sendQlkhDaily` thủ công để gửi báo cáo
    trong ngày, nhưng hàm sẽ không gửi lại nếu đã thành công hôm đó.
 
