@@ -1508,6 +1508,14 @@
 (function () {
   "use strict";
 
+  // Refactor: backend Firestore/Auth trong QLKH là nguồn trạng thái chính.
+  // RTDB V1 đối chiếu checkbox theo mã KH/tên và tự .click(); điều này
+  // có nguy cơ gắn sai trạng thái thanh toán khi khách có nhiều hợp đồng.
+  // Tạm vô hiệu hóa cơ chế cũ trong nhánh refactor, không xóa mã hoặc dữ liệu.
+  // Chỉ mở lại sau khi có adapter dùng khóa nghĩa vụ duy nhất và kiểm thử.
+  const ENABLE_LEGACY_RTD_CHECKBOX_SYNC = false;
+  if (!ENABLE_LEGACY_RTD_CHECKBOX_SYNC) return;
+
   const FIREBASE_ROOT_URL = "https://qlkh-c3298-default-rtdb.asia-southeast1.firebasedatabase.app/qlkh";
   const FIREBASE_DB_URL = FIREBASE_ROOT_URL + ".json";
   const SYNC_INTERVAL_MS = 5000; // Tự động kiểm tra mỗi 5 giây
