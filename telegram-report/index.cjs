@@ -25,7 +25,7 @@ function localDateKey(now = new Date()) {
 }
 
 async function telegramSend(token, chatId, message) {
-  const response = await fetch('https://api.telegram.org/bot' + encodeURIComponent(token) + '/sendMessage', {
+  const response = await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({chat_id: chatId, text: message, disable_web_page_preview:true}),
@@ -73,6 +73,9 @@ async function buildText(db, docId, day) {
     return raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
   };
   const ledger = parseObject(d.overdueTrackerJSON || d.overdueTracker);
+  if (!Object.keys(ledger).length) {
+    return '⚠ QLKH: Sổ nghĩa vụ chưa có dữ liệu, không gửi số liệu 0 gây hiểu nhầm. Hãy đồng bộ lại Excel.';
+  }
   const paid = parseObject(d.paidJSON || d.paid);
   const result = buildSummary({overdueTracker:ledger,paid,businessDate:day,lookAhead:7});
   return formatReport(result, {sourceUpdatedAt:updatedAt});
@@ -89,7 +92,7 @@ exports.qlkhTelegramDailyReport = onSchedule({
   const token = TELEGRAM_BOT_TOKEN.value();
   const chat = TELEGRAM_CHAT_ID.value();
   const docId = QLKH_SYNC_DOC_ID.value();
-  if (!token || !chat || !docId || !/^[A-Za-z0-9_-]{3,200}$/.test(docId)) {
+  if (!token || !chat || !docId || !/^\d+:[A-Za-z0-9_-]+$/.test(token) || !/^[A-Za-z0-9_-]{3,200}$/.test(docId)) {
     throw new Error('Telegram or Firestore configuration is missing/invalid');
   }
   const day = localDateKey(), db = getFirestore();
