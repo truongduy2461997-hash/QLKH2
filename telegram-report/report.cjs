@@ -71,7 +71,7 @@ function buildSummary({ overdueTracker, paid, businessDate, lookAhead = 7 } = {}
   return {businessDate, lookAhead, pending, late, unknown};
 }
 
-function formatReport(summary, { sourceUpdatedAt, sourceFile, now = new Date() } = {}) {
+function formatReport(summary, { sourceUpdatedAt, now = new Date() } = {}) {
   const formatter = new Intl.NumberFormat('vi-VN');
   const amount = n => formatter.format(n) + ' đ';
   const date = String(summary.businessDate).split('-').reverse().join('/');
@@ -87,7 +87,7 @@ function formatReport(summary, { sourceUpdatedAt, sourceFile, now = new Date() }
     '🔴 Quá hạn chưa xử lý: ' + summary.late.count + ' nghĩa vụ · ' + amount(summary.late.amount),
     ...(summary.unknown.count ? ['⚠ Chưa xác định ngày: ' + summary.unknown.count + ' nghĩa vụ · ' + amount(summary.unknown.amount)] : []),
     '☁ Đồng bộ QLKH: ' + sourceTime,
-    '📄 Nguồn: ' + String(sourceFile || 'Excel tổng hợp gần nhất').replace(/[\r\n]/g,' ').slice(0,80),
+    '📄 Nguồn: Sổ nghĩa vụ từ QLKH (đã đồng bộ)',
     warning,
     'Lưu ý: Theo trạng thái ghi nhận trên QLKH; đối chiếu Core Banking trước khi kết luận đã thu/chưa thu.'
   ].filter(Boolean).join('\n');
