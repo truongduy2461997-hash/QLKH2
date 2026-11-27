@@ -1329,6 +1329,89 @@
         }
 
         frameDocument.documentElement.style.overscrollBehavior = "contain";
+        // Motion is deliberately presentation-only: use the actual QLKH inner tab selectors.
+        if(frame.id === "qlkhFrame" && !frameDocument.getElementById("qlkh-inner-motion-v2")){
+          const win=frame.contentWindow, doc=frameDocument;
+          const style=doc.createElement("style");
+          style.id="qlkh-inner-motion-v2";
+          style.textContent=`
+            @keyframes qlkhInnerMetric{from{opacity:.65;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+            @keyframes qlkhInnerDetail{from{opacity:.55;transform:translateY(-3px)}to{opacity:1;transform:translateY(0)}}
+            @keyframes qlkhInnerUnderline{from{transform:scaleX(.25);opacity:.4}to{transform:scaleX(1);opacity:1}}
+            @keyframes qlkhInnerCheck{0%{transform:scale(.85)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+            #tabs .tab{position:relative;transition:background-color .16s ease,color .16s ease,border-color .16s ease,box-shadow .16s ease}
+            #tabs .tab.active:after{content:"";position:absolute;left:10px;right:10px;bottom:2px;height:2px;border-radius:2px;background:rgba(255,255,255,.85);pointer-events:none;animation:qlkhInnerUnderline .2s ease-out both}
+            .panel.active .toolbar{animation:qlkhInnerMetric .18s ease-out both}
+            .panel.active .empty-state{animation:qlkhInnerMetric .2s ease-out both}
+            .customer-contract-box,.deposit-detail-box,#summaryDetail:not(:empty){animation:qlkhInnerDetail .18s ease-out both}
+            .cloud-auth-modal:not([hidden]){animation:qlkhInnerDetail .2s ease-out both}
+            .metric[role=button],.today-mini-filter,.btn,.paid-check,.customer-contract-toggle{transition:background-color .15s ease,border-color .15s ease,box-shadow .15s ease,color .15s ease,transform .12s ease}
+            .btn:active,.metric[role=button]:active,.today-mini-filter:active{transform:scale(.985)}
+            .paid-check:checked{animation:qlkhInnerCheck .17s ease-out both}
+            .panel.active tr.row-over>td:first-child{box-shadow:inset 3px 0 #dc2626}
+            .panel.active tr.row-soon>td:first-child{box-shadow:inset 3px 0 #d97706}
+            .panel.active tr.row-today>td:first-child{box-shadow:inset 3px 0 #0E78C7}
+            @media(hover:hover) and (pointer:fine){
+              #tabs .tab:not(.active):hover{box-shadow:inset 0 -2px #8BBCE5}
+              .metric[role=button]:hover,.today-mini-filter:hover{box-shadow:0 2px 8px rgba(7,91,154,.14)}
+              .panel.active tbody tr:not(.row-over):not(.row-soon):not(.row-today):not(.customer-contract-row):not(.deposit-detail-row):hover>td{background-color:#F0F7FD}
+            }
+            @media(prefers-reduced-motion:reduce){
+              #tabs .tab,.metric[role=button],.today-mini-filter,.btn,.paid-check,.customer-contract-toggle{transition:none!important}
+              #tabs .tab.active:after,.panel.active .toolbar,.panel.active .empty-state,.customer-contract-box,.deposit-detail-box,#summaryDetail:not(:empty),.cloud-auth-modal:not([hidden]),.paid-check:checked{animation:none!important}
+              .btn:active,.metric[role=button]:active,.today-mini-filter:active{transform:none}
+            }
+          `;
+          (doc.head||doc.documentElement).appendChild(style);
+          const reduced=()=>win.matchMedia&&win.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          const animate=(el,frames,opts)=>{
+            if(!el||reduced()||typeof el.animate!=="function")return;
+            try{el.animate(frames,opts)}catch(_){}
+          };
+          const activePanel=()=>doc.querySelector(".panel.active");
+          // Animate only small metric groups, never thousands of table rows.
+          const metricMotion=()=>{
+            const panel=activePanel(); if(!panel)return;
+            const group=panel.querySelector(".metrics");
+            if(group)animate(group,[{opacity:.65},{opacity:1}],{duration:180,easing:"ease-out"});
+          };
+          let lastPanel=activePanel();
+          const tabObserver=new win.MutationObserver(()=>{
+            const now=activePanel();
+            if(now&&now!==lastPanel){
+              lastPanel=now;
+              win.requestAnimationFrame(metricMotion);
+            }
+          });
+          doc.querySelectorAll(".panel").forEach(p=>tabObserver.observe(p,{attributes:true,attributeFilter:["class"]}));
+          // Capture the visual position only. Do not delay or replace existing paid handlers.
+          let checkedRow=null;
+          doc.addEventListener("click",e=>{
+            const input=e.target.closest&&e.target.closest("input.paid-check[type=checkbox]");
+            if(!input||!input.checked||reduced())return;
+            const row=input.closest("tr"); if(!row)return;
+            checkedRow={row,rect:row.getBoundingClientRect()};
+            const snapshot=checkedRow;
+            win.requestAnimationFrame(()=>{
+              if(checkedRow===snapshot)checkedRow=null;
+              if(snapshot.row.isConnected)return;
+              const rect=snapshot.rect;
+              if(rect.width<=0||rect.height<=0)return;
+              const pulse=doc.createElement("div");
+              pulse.setAttribute("aria-hidden","true");
+              pulse.style.cssText="position:fixed;pointer-events:none;z-index:999;left:"+Math.max(0,rect.left)+"px;top:"+Math.max(0,rect.top)+"px;width:"+Math.max(0,Math.min(rect.width,win.innerWidth-Math.max(0,rect.left)))+"px;height:"+Math.min(rect.height,48)+"px;background:rgba(22,163,74,.18);border-left:3px solid #16a34a;border-radius:4px";
+              doc.body.appendChild(pulse);
+              animate(pulse,[{opacity:1,transform:"translateX(0)"},{opacity:0,transform:"translateX(12px)"}],{duration:210,easing:"ease-out"});
+              win.setTimeout(()=>pulse.remove(),240);
+            });
+          },true);
+          doc.addEventListener("change",e=>{
+            const t=e.target;
+            if(t.matches&&t.matches(".toolbar select,.quick-cbtd-select,.toolbar input[type=date]")){
+              win.requestAnimationFrame(metricMotion);
+            }
+          },true);
+        }
         // RATE only: align its original brown palette with the QLKH blue theme.
         if (frame.id === "rateFrame" && !frameDocument.getElementById("qlkh-rate-palette")) {
           const theme = frameDocument.createElement("style");
