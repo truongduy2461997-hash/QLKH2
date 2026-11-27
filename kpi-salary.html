@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>KPI & Lương | QLKH2</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#19334d;background:#f0f5fa;font-size:15px}*{box-sizing:border-box}body{margin:0;padding:14px}main{max-width:1320px;margin:auto}h1{font-size:24px;margin:0}h2{font-size:18px;margin:0 0 12px}p{line-height:1.5;margin:8px 0}.panel{background:white;border:1px solid #dce6ef;border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 3px 12px #17314d08}.hero{background:#07539a;color:white}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.metric{border:1px solid #dce6ef;border-radius:10px;padding:12px}.metric b{font-size:24px;display:block;margin:8px 0}.muted,small{color:#5b7086}.hero small{color:#deedfa}.row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.row>*{min-width:0}label{display:flex;flex-direction:column;gap:5px;font-size:13px;color:#41586e}input,select,button{font:inherit;border:1px solid #b9cbdc;border-radius:8px;padding:9px;min-width:0;background:white;color:#17314d}input[type=number],input[type=date],select{width:100%}input[type=file]{max-width:100%}button{background:#07539a;color:white;border:none;cursor:pointer;font-weight:600;min-height:40px}button.secondary{background:#e7eff7;color:#07539a}button:disabled{opacity:.5;cursor:not-allowed}.scroll{overflow:auto;-webkit-overflow-scrolling:touch}table{border-collapse:collapse;width:100%;white-space:nowrap;font-size:13px}th,td{padding:10px;border-bottom:1px solid #e0e8ef;text-align:right}th:first-child,td:first-child{text-align:left}th{background:#eaf1f8}.good{color:#08784b}.bad{color:#ae3030}.warn{background:#fff5db;border:1px solid #f0d68f;border-radius:8px;padding:10px;color:#77551a}.nav{display:flex;gap:6px;overflow:auto;padding:4px 0}.nav button{white-space:nowrap;background:#e5edf6;color:#174775}.nav button.active{background:#07539a;color:white}[hidden]{display:none!important}details summary{cursor:pointer;font-weight:650}#msg{white-space:pre-wrap;overflow-wrap:anywhere} @media(max-width:550px){body{padding:7px}.panel{padding:12px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.metric b{font-size:19px}input,select{font-size:16px}.wide{grid-column:1/-1}}
+</style><script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script></head>
+<body><main>
+<section class="panel hero"><h1>💰 KPI & LƯƠNG KHOÁN</h1><p>QLKH2 · Chuyên viên khách hàng · 6117/2026</p><small>Excel xử lý tại trình duyệt. Không gửi dữ liệu báo cáo, thu nhập hay nhật ký lên Firebase.</small></section>
+<section class="panel"><h2>01 · Nguồn dữ liệu</h2><div class="grid">
+<label>Mã NV (lưu riêng tại máy)<input id="emp" inputmode="numeric" maxlength="6" placeholder="Nhập mã 6 số"></label>
+<label>Tiến độ thực hiện KPIs (.xlsx)<input id="kfile" type="file" accept=".xlsx,.xls"></label>
+<label>BC lương kinh doanh (tùy chọn)<input id="sfile" type="file" accept=".xlsx,.xls"></label>
+</div><p id="msg" role="status" aria-live="polite"></p><p id="source" class="muted"></p><div class="row"><button id="clear" class="secondary">Xóa dữ liệu tại máy</button><button id="export">Xuất Excel kết quả</button></div></section>
+<div class="nav" id="nav"><button data-view="overview" class="active">Tổng quan</button><button data-view="simulation">Giả lập</button><button data-view="salary">Chi tiết lương</button><button data-view="target">Mục tiêu</button><button data-view="history">Lịch sử</button><button data-view="settings">Cài đặt</button></div>
+<section class="panel view" id="overview"><h2>02 · KPI hiện tại & dự kiến</h2><div id="metrics" class="grid"></div><p id="knotes" class="warn"></p><div class="scroll"><table id="ktable"></table></div></section>
+<section class="panel view" id="simulation" hidden><h2>03 · Nhật ký giao dịch</h2><p class="muted">Nhập số có dấu: tăng (+), giảm (−). Giá trị tiền dùng triệu đồng. Chỉ giao dịch dự kiến hoặc chưa ghi nhận được cộng vào dự báo; giao dịch đã ghi nhận không cộng lại.</p><div class="grid"><label>Ngày giao dịch<input id="txdate" type="date"></label><label>Loại giao dịch<select id="kind"></select></label><label>Số tiền (triệu) / số KH<input id="amount" type="number" step="any" value="0"></label><label>Trạng thái<select id="txstate"><option value="planned">Dự kiến</option><option value="done">Đã thực hiện, chưa vào báo cáo</option><option value="posted">Đã ghi nhận</option><option value="cancel">Hủy</option></select></label><label>Thu phí/thẻ đủ điều kiện hưởng lương<select id="qual"><option value="yes">Có</option><option value="no">Không / chưa xác minh</option></select></label></div><p><button id="add">Thêm giao dịch</button></p><p id="txnote" class="warn"></p><div class="scroll"><table id="txtable"></table></div></section>
+<section class="panel view" id="salary" hidden><h2>04 · Bộ tính thu nhập khoán</h2><p id="salarynote" class="warn"></p><div class="grid" id="salaryinputs"></div><p class="muted">Đơn vị triệu đồng, ngoại trừ các ô ghi tỷ. Các ô lấy từ báo cáo lương hoặc nhập tay; không tự suy ra từ quy mô KPI. Phần thẻ/BH được cộng riêng sau chặn sàn/trần.</p><div class="scroll"><table id="stable"></table></div></section>
+<section class="panel view" id="target" hidden><h2>05 · Tính ngược mục tiêu</h2><div class="grid"><label>KPI lai mục tiêu (%)<input id="goalK" type="number" value="120" min="0" step=".1"></label><label>Thu nhập khoán mục tiêu (triệu)<input id="goalS" type="number" value="30" min="0" step=".1"></label></div><div id="targetout"></div><p class="muted">Ước lượng từng phương án độc lập, giữ nguyên các yếu tố khác. Chỉ tính giao dịch hợp lệ, không đề xuất giao dịch giả hoặc trì hoãn nghĩa vụ khách hàng.</p></section>
+<section class="panel view" id="history" hidden><h2>06 · Lịch sử báo cáo trên thiết bị</h2><p class="muted">Giữ tối đa 60 bản ghi KPI, bỏ bản trùng số liệu. Khi nạp bản mới, kiểm tra nhật ký để tránh cộng trùng.</p><div class="scroll"><table id="htable"></table></div></section>
+<section class="panel view" id="settings" hidden><h2>07 · Cài đặt & kiểm chứng</h2><div class="grid"><label>Trọng số hiệu dụng tăng trưởng CN (%)<input id="growthWeight" type="number" min="0" max="100" step=".1" value="12"></label><label>Ngày đầu tiên số dư giảm/tăng có hiệu lực<select id="daymode"><option value="same">Ngày giao dịch</option><option value="next">Ngày kế tiếp</option></select></label><label>KPI lai DN (%) nếu cần hiệu chỉnh<input id="dnWeight" type="number" min="0" max="100" placeholder="Theo báo cáo"></label></div><p class="warn">Trọng số tăng trưởng 12 là giả định suy ra từ điểm trần 24/200%. Báo cáo hiển thị tỷ trọng 20 nhưng điểm trần khác; cần kiểm chứng với văn bản KPI. Không sử dụng mô phỏng để xác nhận lương chính thức.</p><p>Firebase chỉ đồng bộ cấu hình công thức chung (trọng số giả lập và quy ước ngày), không đồng bộ mã NV, lương, báo cáo, mục tiêu hoặc giao dịch. Dùng nút chủ động; nếu Firebase từ chối quyền, vẫn lưu tại máy.</p><div class="row"><button id="pull" class="secondary">Tải cấu hình Firebase</button><button id="push" class="secondary">Lưu cấu hình Firebase</button></div><p id="syncmsg" role="status"></p></section>
+</main><script>
+'use strict';
+const $=id=>document.getElementById(id), KEY='qlkh2.kpi.salary.v1', CFG='qlkh2.kpi.config.v1';
+const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))||fallback}catch(e){return fallback}};
+let st=read(KEY,{emp:'',kpi:null,salary:null,inputs:{},tx:[],history:[]}),cfg=read(CFG,{growthWeight:12,daymode:'same',dnWeight:''});
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(st));localStorage.setItem(CFG,JSON.stringify(cfg))}catch(e){$('msg').textContent='Không lưu được tại máy: '+e.message}};
+const num=v=>typeof v==='number'&&Number.isFinite(v)?v:(v===null||v===undefined||v===''?null:Number.isFinite(Number(v))?Number(v):null);
+const n=v=>num(v)??0, f=(v,d=2)=>v===null||v===undefined||!Number.isFinite(v)?'—':v.toLocaleString('vi-VN',{maximumFractionDigits:d,minimumFractionDigits:d}), money=v=>f(v,2)+' tr';
+const norm=v=>String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').trim().toLowerCase();
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const idnorm=v=>String(v??'').trim().replace(/^0+/,'');
+const dateISO=v=>{if(typeof v==='number'&&window.XLSX){const d=XLSX.SSF.parse_date_code(v);if(d)return [d.y,String(d.m).padStart(2,'0'),String(d.d).padStart(2,'0')].join('-')}let m=String(v??'').match(/(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/);if(m)return m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');m=String(v??'').match(/^\d{4}-\d{2}-\d{2}/);return m?m[0]:''};
+const month=d=>String(d||'').slice(0,7), days=d=>{const [y,m]=d.split('-').map(Number);return new Date(y,m,0).getDate()};
+const periodFactor=(d,p)=>month(d)===month(p)?Math.max(0,days(p)-Number(d.slice(8,10))+(cfg.daymode==='same'?1:0))/days(p):0;
+const col=c=>[...c].reduce((a,b)=>a*26+b.charCodeAt(0)-64,0)-1;
+const cell=(r,c)=>r[col(c)];
+const rows=(w,s)=>XLSX.utils.sheet_to_json(w.Sheets[s],{header:1,raw:true,defval:null,blankrows:true});
+function identify(a){return a.findIndex(r=>norm(r[5])==='ma nv')}
+function parseK(w){
+ let out={date:'',parts:{},warnings:[],reported:[]};
+ for(const side of ['CN','DN']){
+  const name=w.SheetNames.find(s=>norm(s)===side.toLowerCase());if(!name)throw Error('Thiếu sheet '+side);
+  const a=rows(w,name), hi=identify(a);if(hi<0||!a[hi+1])throw Error('Không nhận diện được tiêu đề '+side);
+  const date=dateISO(a[hi-1]?.[5]);if(!date)throw Error('Không nhận diện ngày báo cáo '+side);if(out.date&&out.date!==date)throw Error('Ngày CN/DN không khớp');out.date=date;
+  const h=a[hi], sub=a[hi+1], groups=[];for(let i=10;i<h.length;i++)if(norm(sub[i])==='ke hoach'&&norm(sub[i+8])==='diem')groups.push({i,name:String(h[i]||'Chỉ tiêu '+(i+1))});
+  const matched=a.slice(hi+2).filter(r=>idnorm(r[5])===idnorm(st.emp));if(!matched.length)throw Error('Không tìm thấy mã NV trong '+side);
+  const candidates=matched.map(r=>({r,items:groups.filter(g=>num(r[g.i+4])!==null||num(r[g.i+8])!==null).map(g=>({key:side+':'+g.i,name:g.name,plan:num(r[g.i]),actual:num(r[g.i+4]),pct:num(r[g.i+5]),weight:num(r[g.i+6]),cap:num(r[g.i+7]),point:num(r[g.i+8])}))})).filter(x=>x.items.length);
+  if(!candidates.length)throw Error('Không có dòng chỉ tiêu chi tiết '+side);
+  candidates.sort((a,b)=>b.items.length-a.items.length);const best=candidates[0];if(candidates.some(x=>JSON.stringify(x.items)!==JSON.stringify(best.items)))out.warnings.push(side+': nhiều dòng chi tiết khác nhau; đang lấy dòng đầy đủ nhất, cần kiểm tra.');
+  const ti=h.findIndex(x=>norm(x)==='tong diem'), wi=h.findIndex(x=>norm(x).includes(side==='CN'?'ty le kpi ca nhan':'ty le kpi doanh nghiep'));
+  const extras=h.map((x,i)=>({x,i})).filter(g=>norm(g.x).startsWith('diem')&&norm(sub[g.i])==='diem'&&num(best.r[g.i])!==null).map(g=>({key:side+':extra:'+g.i,name:String(g.x),plan:null,actual:null,pct:null,weight:null,cap:null,point:n(best.r[g.i])}));
+  const items=best.items.concat(extras), score=items.reduce((s,g)=>s+n(g.point),0), weight=num(best.r[wi]);
+  if(weight===null)throw Error('Thiếu tỷ trọng '+side);out.parts[side]={items,score,weight};out.reported.push(...matched.map(r=>num(r[ti])).filter(v=>v!==null));
+ }
+ out.reported=[...new Set(out.reported)];if(out.reported.length>1)out.warnings.push('Cột tổng điểm chứa nhiều giá trị: '+out.reported.map(x=>f(x)).join(' / ')+'. Tính lại từ điểm chi tiết từng mảng.');
+ if(Math.abs(out.parts.CN.weight+out.parts.DN.weight-100)>.01)out.warnings.push('Tổng tỷ trọng khác 100%; cần kiểm tra.');
+ return out;
+}
+const fields=[
+ ['q','Quy mô quy đổi CN (tỷ)','AG',1e9],['netHD','Tăng net CKH CN (tỷ)','AV',1e9],['netCA','Tăng net CASA CN (tỷ)','BA',1e9],
+ ['fee','Thu ngoài lãi đủ điều kiện CN (triệu)','BG',1e6],['classic','Thẻ Classic/Gold CN','BO',1],['platinum','Thẻ Platinum… CN','BQ',1],['infinite','Thẻ Infinite CN','BS',1],
+ ['bh','Thu nhập BH CN (triệu)','BN',1e6],['pay','Thu nhập Pay CN (triệu)','BW',1e6],['wealth','Thu nhập QLTS CN (triệu)','BZ',1e6],['dn','Thu nhập DN gồm thẻ (triệu)','CA',1e6],['dnCards','Thu nhập thẻ DN (triệu)',null,1],
+ ['base','Thu nhập BQ 6T loại trừ thẻ/BH (triệu)','CG',1e6],['factor','Hệ số KPI (1 = 100%)','CD',100]
+];
+function parseSalary(w){
+ const name=w.SheetNames.find(s=>/^13\.1/.test(s))||w.SheetNames.find(s=>norm(s).includes('cv khcn')&&!norm(s).includes('lai'));if(!name)throw Error('Không tìm thấy sheet lương CVKHCN');
+ const a=rows(w,name),hi=identify(a),r=a.slice(hi+2).find(r=>idnorm(r[5])===idnorm(st.emp)&&num(cell(r,'AG'))!==null);if(hi<0||!r)throw Error('Báo cáo lương không có dữ liệu mã NV');
+ const date=dateISO(a[hi-1]?.[2]);if(!date)throw Error('Không đọc được kỳ lương');const values={};fields.forEach(([k,l,c,div])=>{const v=c?num(cell(r,c)):null;values[k]=v===null?'':v/div});
+ const dnSheet=w.SheetNames.find(s=>/^13\.3/.test(s));if(dnSheet){const d=rows(w,dnSheet),rr=d.find(r=>idnorm(r[5])===idnorm(st.emp)&&num(cell(r,'AM'))!==null);if(rr)values.dnCards=n(cell(rr,'AM'))/1e6}
+ return {date,values,reported:num(cell(r,'CL'))===null?null:n(cell(r,'CL'))/1e6,source:name};
+}
+const kinds={cvCN:'Cho vay CN',hdCN:'Huy động CKH CN',caCN:'CASA CN',cvDN:'Cho vay DN',hdDN:'Huy động CKH DN',caDN:'CASA DN',feeCN:'Thu phí CN',feeDN:'Thu phí DN',cardClassic:'Thẻ Classic/Gold CN',cardPlatinum:'Thẻ Platinum… CN',cardInfinite:'Thẻ Infinite CN',payCN:'Sacombank Pay CN'};
+const statusNames={planned:'Dự kiến',done:'Chưa ghi nhận',posted:'Đã ghi nhận',cancel:'Hủy'};
+function delta(){const d={};if(!st.kpi)return d;for(const t of st.tx){if(!['planned','done'].includes(t.state)||month(t.date)!==month(st.kpi.date))continue;let a=n(t.amount);if(/^(cv|hd|ca)/.test(t.kind))a*=periodFactor(t.date,st.kpi.date);d[t.kind]=(d[t.kind]||0)+a;if(t.qual==='yes')d[t.kind+'Q']=(d[t.kind+'Q']||0)+a}return d}
+const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
+function changes(side,items,d){
+ const totalCN=n(d.cvCN)+n(d.hdCN)+n(d.caCN),cards=n(d.cardClassic)+n(d.cardPlatinum)+n(d.cardInfinite);
+ return items.map(g=>{
+ let diff=0,unit=1e6, k=norm(g.name), effective=null;
+ if(side==='CN'){
+ if(k==='so du binh quan quy mo'||k==='tang truong binh quan quy mo')diff=totalCN;
+ else if(k.includes('binh quan cho vay'))diff=n(d.cvCN);
+ else if(k.includes('binh quan huy dong'))diff=n(d.hdCN)+n(d.caCN);
+ else if(k.includes('binh quan casa'))diff=n(d.caCN);
+ else if(k.includes('tong thu dv ca nhan'))diff=n(d.feeCN);
+ else if(k.includes('the tin dung')){diff=cards;unit=1}
+ else if(k.includes('sacombank pay')){diff=n(d.payCN);unit=1}
+ if(k==='tang truong binh quan quy mo'||k==='tang truong binh quan casa')effective=n(cfg.growthWeight);
+ }else{
+ if(k==='so du binh quan cho vay'||k==='so du tang truong cho vay')diff=n(d.cvDN);
+ else if(k==='so du binh quan huy dong'||k==='so du tang truong huy dong')diff=n(d.hdDN)+n(d.caDN);
+ else if(k==='so du binh quan casa'||k==='so du tang truong casa')diff=n(d.caDN);
+ else if(k.includes('thu thuan dich vu va kinh doanh'))diff=n(d.feeDN);
+ }
+ if(!diff||g.actual===null)return {...g,next:g.actual,nextPct:g.pct,nextPoint:g.point};
+ let actual=g.actual+diff*unit,pct=g.plan>0?actual/g.plan*100:null,point=g.point;
+ if(pct!==null&&g.point!==null&&g.weight!==null&&g.cap!==null){
+ let oldC=clamp(n(g.pct),0,g.cap),newC=clamp(pct,0,g.cap);
+ let w=effective!==null?effective:(oldC>0?g.point*100/oldC:g.weight);
+ if(oldC===newC)point=g.point;else point=newC*w/100;
+ }
+ return {...g,next:actual,nextPct:pct,nextPoint:point};
+ })
+}
+function predict(d=delta()){
+ if(!st.kpi)return null;const cn=changes('CN',st.kpi.parts.CN.items,d),dn=changes('DN',st.kpi.parts.DN.items,d);
+ const sum=a=>a.reduce((s,g)=>s+n(g.nextPoint),0),w=cfg.dnWeight===''?st.kpi.parts.DN.weight:clamp(n(cfg.dnWeight),0,100),a=sum(cn),b=sum(dn);
+ return {cn,dn,a,b,w,k:a*(100-w)/100+b*w/100,base:st.kpi.parts.CN.score*(100-w)/100+st.kpi.parts.DN.score*w/100};
+}
+function sal(d=delta()){
+ const v=st.inputs||{},missing=fields.filter(([k])=>num(v[k])===null).map(x=>x[1]);if(missing.length)return {missing};
+ const q=n(v.q)+(n(d.cvCN)+n(d.hdCN)+2*n(d.caCN))/1000;
+ const round6=x=>Math.round(x*1e6)/1e6,step=(x,w,p,cap)=>Math.min(cap,Math.max(0,Math.floor(round6(x/w)))*p);
+ const scale=q<60?11:Math.min(20,11+(Math.floor(round6((q-60)/5))+1)*.15);
+ const h=step(n(v.netHD)+n(d.hdCN)/1000,.25,.25,20),c=step(n(v.netCA)+n(d.caCN)/1000,.05,.1,20);
+ const fee=(n(v.fee)+n(d.feeCNQ))*.04,card=(n(v.classic)+n(d.cardClassicQ))*.3+(n(v.platinum)+n(d.cardPlatinumQ))*.6+(n(v.infinite)+n(d.cardInfiniteQ)),pay=n(v.pay)+n(d.payCNQ)*.05;
+ const factor=n(v.factor),base=n(v.base),floor=Math.max(11,base*.85),cap=Math.max(20,base*1.5),core=(scale+h+c+fee+pay+n(v.wealth)+n(v.dn)-n(v.dnCards))*factor,extra=(card+n(v.bh)+n(v.dnCards))*factor;
+ const total=Math.max(floor,Math.min(core,cap))+extra;
+ return {total,core,extra,scale,h,c,fee,card,pay,floor,cap,q,missing:[]};
+}
+function table(id,headers,data){$(id).innerHTML='<thead><tr>'+headers.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr></thead><tbody>'+data.map(r=>'<tr>'+r.map(x=>'<td>'+esc(x)+'</td>').join('')+'</tr>').join('')+'</tbody>'}
+function metric(label,value,note=''){return '<div class="metric"><small>'+esc(label)+'</small><b>'+esc(value)+'</b><small>'+esc(note)+'</small></div>'}
+function render(){
+ const p=predict(),s=sal(),old=st.salary&&st.kpi&&month(st.salary.date)!==month(st.kpi.date);
+ $('source').textContent='KPI: '+(st.kpi?.date||'chưa nạp')+' | Lương tham chiếu: '+(st.salary?.date||'chưa nạp')+' | Mã NV: '+(st.emp||'chưa nhập');
+ $('metrics').innerHTML=metric('KPI CN hiện tại',p?f(st.kpi.parts.CN.score)+'%':'—')+metric('KPI DN hiện tại',p?f(st.kpi.parts.DN.score)+'%':'—')+metric('KPI lai tính lại',p?f(p.base)+'%':'—',p?'CN '+f(100-p.w,0)+'% · DN '+f(p.w,0)+'%':'')+metric('KPI lai mô phỏng',p?f(p.k)+'%':'—')+metric(old?'Lương mô phỏng nền kỳ cũ':'Lương khoán ước tính',s.missing.length?'Chưa đủ dữ liệu':money(s.total),'Trước khấu trừ');
+ $('knotes').textContent=p?[...st.kpi.warnings,'Mô phỏng dùng số bình quân giảm/tăng theo ngày, giả định nền giữ nguyên đến cuối tháng. Trọng số hiệu dụng và điểm dự báo cần kiểm chứng.'].join(' '):'Nạp file KPI để bắt đầu.';
+ table('ktable',['Chỉ tiêu','Kế hoạch','Thực hiện','Dự kiến','% TH dự kiến','Điểm gốc','Điểm dự kiến'],p?[...p.cn,...p.dn].map(g=>[g.key.split(':')[0]+' · '+g.name,f(g.plan,0),f(g.actual,0),f(g.next,0),f(g.nextPct),f(g.point),f(g.nextPoint)]):[]);
+ $('salarynote').textContent=s.missing.length?'Chưa đủ căn cứ tính lương. Nhập hoặc nạp báo cáo lương: '+s.missing.join(', '): (old?'Nguồn lương khác tháng KPI: chỉ là mô phỏng trên nền tháng cũ, không phải dự báo lương tháng hiện tại. ':'Dự báo có điều kiện, chưa phải lương chính thức. ')+'Phần tăng/giảm DN chưa quy đổi tự động vào lương DN; cập nhật cấu phần DN ở ô nhập tay. Kiểm tra phí đủ điều kiện và nhóm nợ.';
+ table('stable',['Cấu phần','Triệu đồng'],s.missing.length?[]:[['Lương quy mô CN',f(s.scale)],['Tăng net CKH CN',f(s.h)],['Tăng net CASA CN',f(s.c)],['Thu ngoài lãi CN',f(s.fee)],['Thẻ CN',f(s.card)],['Pay CN',f(s.pay)],['Cốt lõi trước chặn',f(s.core)],['Sàn / Trần cốt lõi',f(s.floor)+' / '+f(s.cap)],['Thẻ/BH sau hệ số',f(s.extra)],['Tổng khoán',f(s.total)]]);
+ $('txnote').textContent='Chỉ tính giao dịch cùng tháng với KPI. Khi tải báo cáo mới, hãy chuyển các giao dịch đã vào số liệu sang “Đã ghi nhận”. Không tự khớp theo chênh lệch tổng vì có thể trùng hoặc thiếu giao dịch.';
+ const tbody=st.tx.map((t,i)=>'<tr><td>'+esc(t.date)+'</td><td>'+esc(kinds[t.kind]||t.kind)+'</td><td>'+esc(f(t.amount))+'</td><td><select data-status="'+i+'">'+Object.entries(statusNames).map(([v,l])=>'<option value="'+v+'"'+(t.state===v?' selected':'')+'>'+l+'</option>').join('')+'</select></td><td>'+esc(t.qual==='yes'?'Có':'Không')+'</td><td><button class="secondary" data-del="'+i+'">Xóa</button></td></tr>').join('');
+ $('txtable').innerHTML='<thead><tr><th>Ngày</th><th>Giao dịch</th><th>Giá trị</th><th>Trạng thái</th><th>Hưởng lương</th><th></th></tr></thead><tbody>'+tbody+'</tbody>';
+ table('htable',['Ngày báo cáo','Lúc nạp','KPI CN','KPI DN','KPI lai','Δ KPI lai'],st.history.map((h,i)=>[h.date,h.loaded,f(h.cn),f(h.dn),f(h.k),i?f(h.k-st.history[i-1].k):'—']));
+ target(p,s);
+}
+function target(p,s){
+ const goal=n($('goalK').value),gs=n($('goalS').value),d=delta(),out=[];
+ function need(test,limit){if(test(0))return 0;if(!test(limit))return null;let l=0,h=limit;for(let i=0;i<45;i++){let m=(l+h)/2;if(test(m))h=m;else l=m}return h}
+ if(p){const fee=need(x=>predict({...d,feeCN:n(d.feeCN)+x}).k>=goal,1e6),cards=need(x=>predict({...d,cardPlatinum:n(d.cardPlatinum)+Math.ceil(x)}).k>=goal,10000);out.push('Phí CN bổ sung để đạt KPI: '+(fee===null?'Không đạt chỉ bằng phí (trần điểm)':money(Math.ceil(fee*100)/100)),'Thẻ CN bổ sung: '+(cards===null?'Không đạt chỉ bằng thẻ':Math.ceil(cards)+' KH'))}
+ if(!s.missing.length){const fee=need(x=>sal({...d,feeCNQ:n(d.feeCNQ)+x}).total>=gs,1e6);out.push('Phí đủ điều kiện bổ sung để đạt lương: '+(fee===null?'Không đạt do trần cốt lõi':money(Math.ceil(fee*100)/100)))}
+ $('targetout').innerHTML=out.length?out.map(x=>'<p>'+esc(x)+'</p>').join(''):'<p>Chưa đủ dữ liệu.</p>';
+}
+function buildInputs(){ $('salaryinputs').innerHTML=fields.map(([k,l])=>'<label>'+esc(l)+'<input type="number" step="any" data-salary="'+k+'" value="'+esc(st.inputs?.[k]??'')+'"></label>').join('') }
+function showMessage(t){$('msg').textContent=t}
+async function upload(e,type){const file=e.target.files[0];if(!file)return;try{if(!/^\d{6}$/.test(st.emp))throw Error('Nhập mã NV 6 số trước khi nạp file.');if(!window.XLSX)throw Error('Không tải được thư viện Excel. Kiểm tra kết nối.');const w=XLSX.read(await file.arrayBuffer(),{type:'array'});if(type==='kpi'){const k=parseK(w),signature=JSON.stringify(k);st.kpi=k;const p=predict();if(!st.history.some(h=>h.signature===signature)){st.history.push({date:k.date,loaded:new Date().toLocaleString('vi-VN'),cn:k.parts.CN.score,dn:k.parts.DN.score,k:p.base,signature});st.history=st.history.slice(-60)}if(!$('txdate').value||month($('txdate').value)!==month(k.date))$('txdate').value=k.date;showMessage('Đã đọc KPI. Kiểm tra giao dịch đã ghi nhận trước khi sử dụng kết quả.')}else{const s=parseSalary(w);st.salary=s;st.inputs={...s.values};buildInputs();showMessage('Đã đọc báo cáo lương kỳ '+s.date+'. Đối chiếu kỳ KPI và các ô còn thiếu.')}save();render()}catch(err){showMessage('Lỗi: '+err.message)}finally{e.target.value=''}}
+$('emp').value=st.emp||'';$('emp').addEventListener('change',()=>{const v=$('emp').value.trim();if(!/^\d{6}$/.test(v)){showMessage('Mã NV phải gồm 6 chữ số.');$('emp').value=st.emp;return}if(st.emp&&st.emp!==v){showMessage('Module khóa theo mã đã chọn; xóa dữ liệu tại máy trước khi đổi mã.');$('emp').value=st.emp;return}st.emp=v;save();render()});
+$('kfile').onchange=e=>upload(e,'kpi');$('sfile').onchange=e=>upload(e,'salary');
+$('kind').innerHTML=Object.entries(kinds).map(([k,v])=>'<option value="'+k+'">'+esc(v)+'</option>').join('');
+$('txdate').value=st.kpi?.date||'';
+$('add').onclick=()=>{if(!st.kpi||!$('txdate').value||month($('txdate').value)!==month(st.kpi.date)||num($('amount').value)===null){showMessage('Cần nạp KPI, nhập giá trị và ngày cùng kỳ.');return}const a=n($('amount').value);if(!a){showMessage('Giá trị giao dịch phải khác 0.');return}if(/^(card|pay)/.test($('kind').value)&&!Number.isInteger(a)){showMessage('Số KH phải là số nguyên.');return}st.tx.push({date:$('txdate').value,kind:$('kind').value,amount:a,state:$('txstate').value,qual:$('qual').value});save();render()};
+$('txtable').onchange=e=>{if(e.target.dataset.status!==undefined){st.tx[Number(e.target.dataset.status)].state=e.target.value;save();render()}};
+$('txtable').onclick=e=>{if(e.target.dataset.del!==undefined){st.tx.splice(Number(e.target.dataset.del),1);save();render()}};
+$('salaryinputs').oninput=e=>{if(e.target.dataset.salary){st.inputs[e.target.dataset.salary]=e.target.value;save();render()}};
+for(const k of ['growthWeight','daymode','dnWeight']){$(k).value=cfg[k];$(k).onchange=()=>{cfg[k]=k==='growthWeight'?clamp(n($(k).value),0,100):k==='dnWeight'&&$(k).value!==''?clamp(n($(k).value),0,100):$(k).value;$(k).value=cfg[k];save();render()}}
+for(const k of ['goalK','goalS'])$(k).oninput=()=>target(predict(),sal());
+$('nav').onclick=e=>{const v=e.target.dataset.view;if(!v)return;document.querySelectorAll('.view').forEach(x=>x.hidden=x.id!==v);document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('active',x.dataset.view===v))};
+$('clear').onclick=()=>{if(!confirm('Xóa báo cáo, nhật ký, lịch sử và mã NV đã lưu trên thiết bị này?'))return;st={emp:'',kpi:null,salary:null,inputs:{},tx:[],history:[]};$('emp').value='';$('txdate').value='';save();buildInputs();render();showMessage('Đã xóa dữ liệu tại máy.')};
+$('export').onclick=()=>{try{if(!st.kpi)throw Error('Chưa nạp KPI');if(!window.XLSX)throw Error('Thiếu thư viện Excel');const p=predict(),s=sal(),w=XLSX.utils.book_new(),add=(name,data)=>XLSX.utils.book_append_sheet(w,XLSX.utils.aoa_to_sheet(data),name);
+ add('Tong quan',[['Mã NV',st.emp],['Kỳ KPI',st.kpi.date],['Kỳ lương tham chiếu',st.salary?.date||'Chưa có'],['KPI CN hiện tại',st.kpi.parts.CN.score],['KPI DN hiện tại',st.kpi.parts.DN.score],['KPI lai hiện tại',p.base],['KPI lai dự kiến',p.k],['Lương ước tính triệu',s.total??'Chưa đủ'],['Ghi chú','Kịch bản có điều kiện; không phải kết quả chính thức. Nguồn lương có thể khác kỳ KPI.']]);
+ add('Chi tieu',[['Mảng','Chỉ tiêu','KH','TH','Dự kiến','% TH dự kiến','Điểm cũ','Điểm mới'],...[...p.cn,...p.dn].map(g=>[g.key.split(':')[0],g.name,g.plan,g.actual,g.next,g.nextPct,g.point,g.nextPoint])]);
+ add('Giao dich',[['Ngày','Loại','Giá trị triệu/KH','Trạng thái','Hưởng lương'],...st.tx.map(t=>[t.date,kinds[t.kind],t.amount,statusNames[t.state],t.qual])]);
+ add('Luong',[['Cấu phần đầu vào','Giá trị'],...fields.map(([k,l])=>[l,num(st.inputs[k])]),['Tổng khoán triệu',s.total??null]]);
+ add('Lich su',[['Ngày','Lúc nạp','CN','DN','Lai'],...st.history.map(h=>[h.date,h.loaded,h.cn,h.dn,h.k])]);XLSX.writeFile(w,'KPI-Luong-'+st.kpi.date+'.xlsx')}catch(e){showMessage(e.message)}};
+const endpoint='https://qlkh-c3298-default-rtdb.asia-southeast1.firebasedatabase.app/qlkh_kpi_formula_preferences_v1.json';
+async function sync(method){try{const opts={method};if(method==='PUT'){opts.headers={'Content-Type':'application/json'};opts.body=JSON.stringify({growthWeight:clamp(n(cfg.growthWeight),0,100),daymode:cfg.daymode==='next'?'next':'same'})}const r=await fetch(endpoint,opts);if(!r.ok)throw Error('HTTP '+r.status);const v=await r.json();if(method==='GET'){if(!v||typeof v.growthWeight!=='number'||!['same','next'].includes(v.daymode))throw Error('Chưa có cấu hình hợp lệ');cfg.growthWeight=clamp(v.growthWeight,0,100);cfg.daymode=v.daymode;$('growthWeight').value=cfg.growthWeight;$('daymode').value=cfg.daymode;save();render()}$('syncmsg').textContent='Đã '+(method==='GET'?'tải':'lưu')+' cấu hình công thức.'}catch(e){$('syncmsg').textContent='Firebase chưa đồng bộ: '+e.message+'. Dữ liệu vẫn ở máy.'}}
+$('pull').onclick=()=>sync('GET');$('push').onclick=()=>sync('PUT');
+buildInputs();render();
+</script></body></html>
