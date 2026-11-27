@@ -1329,6 +1329,55 @@
         }
 
         frameDocument.documentElement.style.overscrollBehavior = "contain";
+        // RATE only: align its original brown palette with the QLKH blue theme.
+        if (frame.id === "rateFrame" && !frameDocument.getElementById("qlkh-rate-palette")) {
+          const theme = frameDocument.createElement("style");
+          theme.id = "qlkh-rate-palette";
+          theme.textContent = `
+            :root {
+              --bg:#EAF4FF; --card:#FFFFFF; --border:#C7DDF2;
+              --pri:#075B9A; --acc:#0E78C7; --gold:#8DD5FF; --mud:#536779;
+              --t1:#102A43; --t2:#41586E; --t3:#536779;
+              --grn:#1D6B45; --red:#8B1A1A; --blu:#075B9A; --amb:#7A5200;
+              --row:#F3F9FF;
+            }
+            .header{background:linear-gradient(135deg,#075B9A,#0E78C7);border-bottom-color:#1F75BC}
+            .sub-hdr,.tab-btn:not(.active){color:#D9F0FF}
+            .tag-badge{color:#D9F0FF}
+            .kpi.hi .lbl,.kpi.hi .unt,.kpi.hi .sub{color:#D9F0FF}
+            .tbl th{background:#E7F1FA;color:#102A43}
+            .card{box-shadow:0 3px 12px rgba(7,91,154,.06)}
+            .tab-btn.active{border-bottom-color:#1F75BC}
+            .fld select:focus,.fld input:focus{border-color:#0E78C7}
+            @keyframes ratePanelIn{from{opacity:.65;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+            .tab-panel.active{animation:ratePanelIn .2s ease-out both}
+            @media(prefers-reduced-motion:reduce){.tab-panel.active{animation:none}.mbf{transition:none}}
+          `;
+          (frameDocument.head || frameDocument.documentElement).appendChild(theme);
+          // Replace exact legacy decorative colors in inline styles, not semantic red/green/amber.
+          const palette = {"#5c3317":"#075B9A","#9b4e1a":"#0E78C7","#b8792a":"#1F75BC","#8b6545":"#536779","#f7f3ee":"#EAF4FF","#e2d5c8":"#C7DDF2","#2a160a":"#102A43","#6b4c34":"#41586E","#9e7a5a":"#536779","#faf7f4":"#F3F9FF","#c4a07a":"#D9F0FF","#d4b896":"#D9F0FF","#d4a870":"#D9F0FF"};
+          const recolor = node => {
+            if (node.nodeType !== 1) return;
+            const apply = el => {
+              const before = el.getAttribute("style");
+              if (!before) return;
+              const after = before.replace(/#[0-9a-f]{6}(?![0-9a-f])/gi, c => palette[c.toLowerCase()] || c);
+              if (after !== before) el.setAttribute("style",after);
+            };
+            apply(node);
+            node.querySelectorAll("[style]").forEach(apply);
+          };
+          if(frameDocument.body){
+            recolor(frameDocument.body);
+            const observer = new frame.contentWindow.MutationObserver(records => {
+              for (const record of records) {
+                if(record.type === "attributes") recolor(record.target);
+                else record.addedNodes.forEach(recolor);
+              }
+            });
+            observer.observe(frameDocument.body,{childList:true,subtree:true,attributes:true,attributeFilter:["style"]});
+          }
+        }
         // Isolated visual enhancement for the existing compressed modules.
         if (!frameDocument.getElementById("qlkh-motion-style")) {
           const motion = frameDocument.createElement("style");
