@@ -807,6 +807,26 @@
 @media(hover:hover) and (pointer:fine){.tab:not(.active):hover,.u-tab:not(.active):hover,.sheet-filter-btn:not(.active):hover{box-shadow:inset 0 -2px 0 #86b5de}.google-sheet-table tbody tr:hover td{background-color:#f0f7fd}}
 .tab:focus-visible,.u-tab:focus-visible,button:focus-visible{outline:2px solid #60a5fa;outline-offset:2px}
 @media(prefers-reduced-motion:reduce){.panel.active,.u-panel.active{animation:none}.tab,.u-tab,.sheet-filter-btn,.btn-sheet-refresh,.btn-sheet-app,.btn-sheet-copy,.btn-sheet-link{transition:none}.tab:active,.u-tab:active,.sheet-filter-btn:active{transform:none}}
+
+/* QLKH professional visual system — layout and business behavior unchanged. */
+:root{--cream:#f3f6fa;--line:#dce5ef;--shadow:0 2px 8px rgba(16,42,67,.06);--text:#142b43;--muted:#52677c}
+body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+.app-top{background:linear-gradient(110deg,#064477,#075b9a 70%,#0969ac);border-bottom:1px solid #186a9e;box-shadow:0 2px 8px #102a4320}
+.logo{border:1px solid #ffffff32;box-shadow:none}
+.brand h1{font-weight:750;letter-spacing:.025em}
+.subline{color:#dcecf9;opacity:1}
+.tabs{gap:5px}
+.tab{font-weight:650;border-radius:8px 8px 0 0;position:relative}
+.tab.active{background:#fff;color:#075b9a;border-bottom-color:#0e78c7}
+.card,.utility-shell{border-radius:12px;border:1px solid var(--line);box-shadow:var(--shadow)}
+.card-head,.utility-head,.u-frame-head{background:#fff;border-bottom:1px solid var(--line)}
+.card-title,.u-frame-title{font-weight:750}
+.u-tab{border-radius:8px;font-weight:650}
+.u-tab:not(.active){background:#f5f8fc;color:#41586e}
+.google-sheet-table{font-variant-numeric:tabular-nums}
+.google-sheet-table th{letter-spacing:.01em}
+@media(hover:hover) and (pointer:fine){.tab:not(.active):hover{background:#ffffff14}.u-tab:not(.active):hover{background:#eaf4ff}}
+@media(max-width:850px){.tabs{gap:2px}.tab{font-weight:650}.card,.utility-shell{border-radius:10px}}
 </style>
 </head>
 
@@ -1329,6 +1349,38 @@
         }
 
         frameDocument.documentElement.style.overscrollBehavior = "contain";
+        if (!frameDocument.getElementById("qlkh-professional-theme")) {
+          const visual = frameDocument.createElement("style");
+          visual.id="qlkh-professional-theme";
+          visual.textContent=`
+            body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+            table{font-variant-numeric:tabular-nums}
+            input,select,textarea,button{font-family:inherit}
+            input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #60a5fa;outline-offset:1px}
+            .card,.metric,.toolbar,.table-wrap,.upload-card,.cbtd-card{border-radius:10px}
+            .metric,.cbtd-card{box-shadow:0 1px 4px rgba(16,42,67,.055)}
+            .metric-val,.kpi .val{font-variant-numeric:tabular-nums;letter-spacing:-.025em}
+            .btn,.tab,.tab-btn{letter-spacing:0}
+            @media(hover:hover) and (pointer:fine){.cbtd-card:hover{border-color:#8bbce5}.btn:not(:disabled):hover{box-shadow:0 1px 4px #102a4314}}
+          `+(frame.id==="qlkhFrame"?`
+            :root{--page:#f3f6fa;--bg2:#f1f6fc;--border:#dce5ef}
+            .header{background:linear-gradient(110deg,#064477,#075b9a)!important;box-shadow:0 2px 8px #102a4314!important;border-radius:12px!important}
+            .header h1{font-weight:750!important;letter-spacing:.015em!important}
+            #tabs .tab:not(.active){background:#fff!important;color:#41586e!important;border-color:#dce5ef!important}
+            #tabs .tab.active{background:#075b9a!important;color:#fff!important}
+            #tabs .tab{border-radius:8px!important;font-weight:650}
+            .metric,.toolbar,.table-wrap,.cbtd-card{border:1px solid #dce5ef!important;box-shadow:0 1px 4px #102a4309!important}
+            .metric-lbl{letter-spacing:.025em!important;color:#52677c!important}
+            .metric-val{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif!important;font-variant-numeric:tabular-nums}
+            .num,.mono{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;font-variant-numeric:tabular-nums}
+            .table-wrap th{background:#edf3fa;color:#41586e;letter-spacing:.025em}
+            .table-wrap td{border-bottom-color:#e8eef5}
+            .row-over td,.row-soon td,.row-today td{font-variant-numeric:tabular-nums}
+            .toolbar input,.toolbar select{border-color:#dce5ef}
+            .header-actions .btn,.header-cloud-actions .btn{backdrop-filter:none}
+          `:"");
+          (frameDocument.head||frameDocument.documentElement).appendChild(visual);
+        }
         // Motion is deliberately presentation-only: use the actual QLKH inner tab selectors.
         if(frame.id === "qlkhFrame" && !frameDocument.getElementById("qlkh-inner-motion-v2")){
           const win=frame.contentWindow, doc=frameDocument;
@@ -1598,7 +1650,7 @@
         }
       } else if (tab === "kpisalary") {
         const frame = document.getElementById("kpiSalaryFrame");
-        if (frame && !frame.getAttribute("src")) frame.setAttribute("src", "./kpi-salary.html?v=motion-20261127");
+        if (frame && !frame.getAttribute("src")) frame.setAttribute("src", "./kpi-salary.html?v=professional-ui-20261127");
       } else if (tab === "qlkh") {
         loadModule("qlkh");
       } else if (tab === "chitieu") {
