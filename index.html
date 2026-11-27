@@ -1590,28 +1590,31 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
             observer.observe(frameDocument.body,{childList:true,subtree:true,attributes:true,attributeFilter:["style"]});
           }
         }
-        // Utility headers scroll naturally on phones, including scaled iframe viewports.
+        // Use the parent viewport, not the scaled iframe media query.
         if ((frame.id === "rateFrame" || frame.id === "ltvFrame") && !frameDocument.getElementById("utility-mobile-scroll")) {
-          const mobile = frameDocument.createElement("style");
-          mobile.id = "utility-mobile-scroll";
-          mobile.textContent = `
-            @media(max-width:850px) and (pointer:coarse){
-              .header,.sub-hdr,.hero,.tabbar,.tabs,.sticky-header,.sticky-top,header{position:relative!important;top:auto!important;bottom:auto!important;z-index:auto!important}
-              [data-utility-unpin]{position:relative!important;top:auto!important;bottom:auto!important;z-index:auto!important}
-            }
+          const mobile=frameDocument.createElement("style");
+          mobile.id="utility-mobile-scroll";
+          mobile.textContent=`
+            html.utility-phone .header,html.utility-phone header,html.utility-phone .sub-hdr,html.utility-phone .hero,html.utility-phone [data-utility-unpin]{position:static!important;top:auto!important;bottom:auto!important;z-index:auto!important}
           `;
           (frameDocument.head||frameDocument.documentElement).appendChild(mobile);
           const win=frame.contentWindow;
           const unpin=()=>{
-            if(!window.matchMedia("(max-width:700px) and (pointer:coarse)").matches)return;
+            const phone=window.innerWidth<700;
+            frameDocument.documentElement.classList.remove("utility-phone");
+            frameDocument.querySelectorAll("[data-utility-unpin]").forEach(el=>el.removeAttribute("data-utility-unpin"));
+            if(!phone)return;
             for(const el of frameDocument.querySelectorAll("body *")){
+              if(el.closest("table"))continue;
               const c=win.getComputedStyle(el);
-              if(c.position==="sticky" && c.top!=="auto" && parseFloat(c.top)<=80 && !el.closest("table"))el.setAttribute("data-utility-unpin","");
-              if(c.position==="fixed" && c.top!=="auto" && parseFloat(c.top)<=80 && el.matches("header,.header,.sub-hdr,.hero,.tabs,.tabbar,.sticky-header,.sticky-top"))el.setAttribute("data-utility-unpin","");
+              if((c.position==="sticky"||c.position==="fixed")&&c.top!=="auto"&&parseFloat(c.top)<=100&&!el.closest('[role="dialog"],dialog,.modal'))el.setAttribute("data-utility-unpin","");
             }
+            frameDocument.documentElement.classList.add("utility-phone");
           };
           unpin();
           win.addEventListener("resize",unpin,{passive:true});
+          setTimeout(unpin,500);
+          setTimeout(unpin,1500);
         }
         // Isolated visual enhancement for the existing compressed modules.
         if (!frameDocument.getElementById("qlkh-motion-style")) {
