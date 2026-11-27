@@ -872,6 +872,15 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
 @keyframes syncTextIn{from{opacity:0;transform:translateX(-7px)}to{opacity:1;transform:translateX(0)}}
 @keyframes syncFillOut{from{opacity:1;clip-path:inset(0 0 0 0 round 12px)}to{opacity:0;clip-path:inset(0 88% 86% 0 round 20px)}}
 @media(prefers-reduced-motion:reduce){#firebaseSyncDetails.sync-opening,#firebaseSyncDetails.sync-closing,#firebaseSyncDetails.sync-opening>*{animation:none!important}}
+
+/* Compact two-line sync tooltip, not a dashboard card. */
+#firebaseSyncDetails{width:max-content;max-width:min(340px,calc(100vw - 24px));padding:7px 10px;border-radius:9px;box-shadow:0 3px 12px #102a4320;line-height:1.3}
+#firebaseSyncDetails .firebase-detail-status{font-size:12px;font-weight:650;gap:6px;line-height:1.4}
+#firebaseSyncDetails .firebase-detail-second{display:flex;align-items:center;gap:7px;padding-left:14px}
+#firebaseSyncDetails .firebase-detail-note{flex:1;min-width:0;margin:0;font-size:11px;line-height:1.35}
+#firebaseSyncDetails .firebase-sync-now{width:22px;height:22px;min-height:0;flex:0 0 22px;margin:0;padding:0;background:transparent;border:0;border-radius:50%;font-size:16px;line-height:1;color:#075b9a}
+#firebaseSyncDetails.sync-opening .firebase-detail-second{animation:syncTextIn 200ms ease-out 75ms both}
+@media(prefers-reduced-motion:reduce){#firebaseSyncDetails.sync-opening .firebase-detail-second{animation:none}}
 </style>
 </head>
 
@@ -1841,7 +1850,7 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
     const host = document.createElement("div");
     host.id = "firebaseSyncWidget";
     host.dataset.state = "idle";
-    host.innerHTML = '<button id="firebaseSyncStatus" type="button" aria-label="Trạng thái đồng bộ Firebase" aria-expanded="false" aria-controls="firebaseSyncDetails"><span class="firebase-ring" aria-hidden="true"></span><span class="firebase-ring-center" aria-hidden="true"></span></button><div id="firebaseSyncDetails" hidden><div class="firebase-detail-heading">Đồng bộ Firebase</div><div class="firebase-detail-status" role="status" aria-live="polite"><span class="firebase-sync-dot"></span><span class="firebase-sync-text">Firebase: Đang kết nối...</span></div><div class="firebase-detail-note"></div><button type="button" class="firebase-sync-now">↻ Đồng bộ ngay</button></div>';
+    host.innerHTML = '<button id="firebaseSyncStatus" type="button" aria-label="Trạng thái đồng bộ Firebase" aria-expanded="false" aria-controls="firebaseSyncDetails"><span class="firebase-ring" aria-hidden="true"></span><span class="firebase-ring-center" aria-hidden="true"></span></button><div id="firebaseSyncDetails" hidden><div class="firebase-detail-status" role="status" aria-live="polite"><span class="firebase-sync-dot"></span><span class="firebase-sync-text">Firebase: Đang kết nối...</span></div><div class="firebase-detail-second"><span class="firebase-detail-note"></span><button type="button" class="firebase-sync-now" title="Đồng bộ ngay" aria-label="Đồng bộ ngay">↻</button></div></div>';
     badge = host.querySelector("#firebaseSyncStatus");
     const details = host.querySelector("#firebaseSyncDetails");
     let closeTimer;
