@@ -70,7 +70,7 @@ function parseSalary(w){
 }
 const kinds={cvCN:'Cho vay CN',hdCN:'Huy động CKH CN',caCN:'CASA CN',cvDN:'Cho vay DN',hdDN:'Huy động CKH DN',caDN:'CASA DN',feeCN:'Thu phí CN',feeDN:'Thu phí DN',cardClassic:'Thẻ Classic/Gold CN',cardPlatinum:'Thẻ Platinum… CN',cardInfinite:'Thẻ Infinite CN',payCN:'Sacombank Pay CN'};
 const statusNames={planned:'Dự kiến',done:'Chưa ghi nhận',posted:'Đã ghi nhận',cancel:'Hủy'};
-function delta(){const d={};if(!st.kpi)return d;for(const t of st.tx){if(!['planned','done'].includes(t.state)||month(t.date)!==month(st.kpi.date))continue;let a=n(t.amount);if(/^(cv|hd|ca)/.test(t.kind))a*=periodFactor(t.date,st.kpi.date);d[t.kind]=(d[t.kind]||0)+a;if(t.qual==='yes')d[t.kind+'Q']=(d[t.kind+'Q']||0)+a}return d}
+function delta(){const d={};if(!st.kpi)return d;for(const t of st.tx){if(!['planned','done'].includes(t.state)||month(t.date)!==month(st.kpi.date))continue;let a=n(t.amount);if(['cvCN','hdCN','caCN','cvDN','hdDN','caDN'].includes(t.kind))a*=periodFactor(t.date,st.kpi.date);d[t.kind]=(d[t.kind]||0)+a;if(t.qual==='yes')d[t.kind+'Q']=(d[t.kind+'Q']||0)+a}return d}
 const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
 function changes(side,items,d){
  const totalCN=n(d.cvCN)+n(d.hdCN)+n(d.caCN),cards=n(d.cardClassic)+n(d.cardPlatinum)+n(d.cardInfinite);
@@ -137,6 +137,7 @@ function target(p,s){
  const goal=n($('goalK').value),gs=n($('goalS').value),d=delta(),out=[];
  function need(test,limit){if(test(0))return 0;if(!test(limit))return null;let l=0,h=limit;for(let i=0;i<45;i++){let m=(l+h)/2;if(test(m))h=m;else l=m}return h}
  if(p){const fee=need(x=>predict({...d,feeCN:n(d.feeCN)+x}).k>=goal,1e6),cards=need(x=>predict({...d,cardPlatinum:n(d.cardPlatinum)+Math.ceil(x)}).k>=goal,10000);out.push('Phí CN bổ sung để đạt KPI: '+(fee===null?'Không đạt chỉ bằng phí (trần điểm)':money(Math.ceil(fee*100)/100)),'Thẻ CN bổ sung: '+(cards===null?'Không đạt chỉ bằng thẻ':Math.ceil(cards)+' KH'))}
+ if(p&&st.kpi){const date=$('txdate').value||st.kpi.date,k=periodFactor(date,st.kpi.date);if(k>0){const hd=need(x=>predict({...d,hdCN:n(d.hdCN)+x*k}).k>=goal,1e6);out.push('Huy động CKH CN bổ sung tại thời điểm '+date+': '+(hd===null?'Không đạt chỉ bằng CKH':money(Math.ceil(hd*100)/100)));if(p.k>=goal){const threshold=need(x=>predict({...d,cvCN:n(d.cvCN)-x*k}).k<goal,1e6);out.push('Dư địa giảm cho vay CN tại '+date+': '+(threshold===null?'Không tìm thấy ngưỡng trong phạm vi mô phỏng; không phải hạn mức được phép giảm.':money(Math.floor(Math.max(0,threshold-.00001)*100)/100)+' (giữ các chỉ tiêu khác không đổi).'))}else out.push('Dư địa giảm cho vay: KPI đang dưới mục tiêu.')}}
  if(!s.missing.length){const fee=need(x=>sal({...d,feeCNQ:n(d.feeCNQ)+x}).total>=gs,1e6);out.push('Phí đủ điều kiện bổ sung để đạt lương: '+(fee===null?'Không đạt do trần cốt lõi':money(Math.ceil(fee*100)/100)))}
  $('targetout').innerHTML=out.length?out.map(x=>'<p>'+esc(x)+'</p>').join(''):'<p>Chưa đủ dữ liệu.</p>';
 }
