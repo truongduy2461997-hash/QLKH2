@@ -15,7 +15,20 @@
 .segment-body .kpi-pay.pay-open .pay-inner{position:static;width:auto;max-height:1.25em;padding:0 2px}
 .segment-body .kpi-pay .pay-summary td{padding:6px 3px}
 @media(max-width:550px){.segment-body .kpi-pay th,.segment-body .kpi-pay td{padding:5px 1px}.segment-body .kpi-pay thead th{height:28px;font-size:8px}}
-.deposit-note{margin-top:10px;padding:9px 12px;border:1px solid #dce6ef;border-radius:9px;background:#f7fafc;font-size:12px}.deposit-note table{font-size:12px;table-layout:fixed;white-space:normal}.deposit-note th,.deposit-note td{padding:5px 3px;overflow-wrap:anywhere}.deposit-note p{font-size:11px;margin:5px 0}.deposit-note th:first-child{width:31%} </style><script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script></head>
+.deposit-note{margin-top:10px;padding:9px 12px;border:1px solid #dce6ef;border-radius:9px;background:#f7fafc;font-size:12px}.deposit-note table{font-size:12px;table-layout:fixed;white-space:normal}.deposit-note th,.deposit-note td{padding:5px 3px;overflow-wrap:anywhere}.deposit-note p{font-size:11px;margin:5px 0}.deposit-note th:first-child{width:31%} 
+/* Motion for KPI module; retain existing animated salary column. */
+@keyframes kpiViewIn{from{opacity:.6;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes kpiMetricIn{from{opacity:.6;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+@keyframes kpiNoteIn{from{opacity:.5}to{opacity:1}}
+.view:not([hidden]){animation:kpiViewIn .2s ease-out both}
+.view:not([hidden])>.grid>.metric,.view:not([hidden]) .segment-body>.grid>.metric{animation:kpiMetricIn .2s ease-out both}
+.nav button,.salary-toggle,button.secondary,input,select{transition:background-color .16s ease,border-color .16s ease,box-shadow .16s ease,color .16s ease}
+.nav button:active,.salary-toggle:active,button.secondary:active{filter:brightness(.94)}
+.salary-toggle[aria-expanded=true]{background:#e5f3ea;border-color:#8abca2}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #60a5fa;outline-offset:2px}
+@media(hover:hover) and (pointer:fine){.nav button:not(.active):hover{background:#d7e7f5}.salary-toggle:hover{box-shadow:0 2px 8px #07539a16}.segment-body tbody tr:hover td:not(.pay-cell){background-color:#f3f7fb}}
+@media(prefers-reduced-motion:reduce){.view:not([hidden]),.view:not([hidden])>.grid>.metric,.view:not([hidden]) .segment-body>.grid>.metric{animation:none!important}.nav button,.salary-toggle,button.secondary,input,select{transition:none!important}}
+</style><script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script></head>
 <body><main>
 <section class="panel hero"><h1>💰 KPI & LƯƠNG KHOÁN</h1><p>QLKH2 · Chuyên viên khách hàng · 6117/2026</p><small>Excel xử lý tại trình duyệt. Không gửi dữ liệu báo cáo, thu nhập hay nhật ký lên Firebase.</small></section>
 <section class="panel"><h2>01 · Nguồn dữ liệu</h2><div class="grid">
