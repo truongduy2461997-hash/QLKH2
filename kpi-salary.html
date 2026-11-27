@@ -58,25 +58,26 @@ button.secondary{background:#edf3fa;color:#075b9a}
 @media(max-width:550px){.hero h1{font-size:18px}h2{font-size:15px}.panel{border-radius:10px}.nav button{min-height:34px;padding:7px 10px}}
 </style><script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script></head>
 <body><main>
-<section class="panel hero"><h1>💰 KPI & LƯƠNG KHOÁN</h1><p>QLKH2 · Chuyên viên khách hàng · 6117/2026</p><small>Excel xử lý tại trình duyệt. Không gửi dữ liệu báo cáo, thu nhập hay nhật ký lên Firebase.</small></section>
+<section class="panel hero"><h1>💰 KPI & LƯƠNG KHOÁN</h1><p>QLKH2 · Chuyên viên khách hàng · 6117/2026</p><small>Excel xử lý tại trình duyệt; số liệu KPI cá nhân và nhật ký đồng bộ qua Firebase đã xác thực.</small></section>
 <section class="panel"><h2>01 · Nguồn dữ liệu</h2><div class="grid">
 <label>Mã NV (lưu riêng tại máy)<input id="emp" inputmode="numeric" maxlength="6" placeholder="Nhập mã 6 số"></label>
 <label>Tiến độ thực hiện KPIs (.xlsx)<input id="kfile" type="file" accept=".xlsx,.xls"></label>
 <label>BC lương kinh doanh (tùy chọn)<input id="sfile" type="file" accept=".xlsx,.xls"></label>
-</div><p id="msg" role="status" aria-live="polite"></p><p id="source" class="muted"></p><div class="row"><button id="clear" class="secondary">Xóa dữ liệu tại máy</button><button id="export">Xuất Excel kết quả</button></div></section>
+</div><p id="msg" role="status" aria-live="polite"></p><p id="source" class="muted"></p><div class="row" style="margin:8px 0"><span id="kpiCloudStatus" role="status" aria-live="polite" class="muted">Đang kiểm tra đồng bộ…</span><button id="kpiCloudNow" class="secondary" type="button">↻ Đồng bộ</button></div><div id="kpiCloudConflict" class="warn" hidden><p>Hai thiết bị có dữ liệu khác nhau. Chọn bản muốn giữ; bản tại máy được sao lưu trước khi thay thế.</p><div class="row"><button id="kpiUseRemote" type="button">Dùng bản Firebase</button><button id="kpiUseLocal" type="button" class="secondary">Giữ bản máy này</button></div></div><div class="row"><button id="clear" class="secondary">Xóa dữ liệu tại máy</button><button id="export">Xuất Excel kết quả</button></div></section>
 <div class="nav" id="nav"><button data-view="overview" class="active">Tổng quan</button><button data-view="changes">Biến động</button><button data-view="simulation">Giả lập</button></div>
 <section class="panel view" id="overview"><h2>02 · KPI hiện tại & dự kiến</h2><p class="muted" style="font-size:12px"><span class="quote-down">Âm / giảm</span> · <span class="quote-up">Dương dưới 100%</span> · <span class="quote-reference">Đúng 100%</span> · <span class="quote-ceiling">Vượt 100%</span></p><div id="metrics" class="grid"></div><p id="knotes" class="warn" hidden aria-hidden="true"></p><p class="muted" style="font-size:11px">Đơn vị tiền: triệu đồng; số lượng và tỷ lệ giữ nguyên đơn vị gốc. KH: kế hoạch · TH: thực hiện · DK: dự kiến.</p><div class="segment-grid"><article class="segment-card cn"><header class="segment-head"><h3>👤 KHÁCH HÀNG CÁ NHÂN</h3><strong id="cnWeight"></strong></header><div class="segment-body"><div class="grid" id="cnMetrics"></div><div class="scroll"><table id="ktableCN"></table></div></div></article><article class="segment-card dn"><header class="segment-head"><h3>🏢 KHÁCH HÀNG DOANH NGHIỆP</h3><strong id="dnWeightLabel"></strong></header><div class="segment-body"><div class="grid" id="dnMetrics"></div><div class="scroll"><table id="ktableDN"></table></div></div></article></div><div id="depositNote" class="deposit-note"></div></section>
 <section class="panel view" id="changes" hidden><h2>Biến động giữa hai báo cáo</h2><p id="compareSource" class="muted"></p><div class="row"><label>File đối chiếu cũ<input id="previousFile" type="file" accept=".xlsx,.xls"></label></div><div id="compareMetrics" class="grid"></div><div class="segment-grid"><article class="segment-card cn"><header class="segment-head"><h3>👤 KHÁCH HÀNG CÁ NHÂN</h3></header><div class="segment-body"><table id="compareCN" class="compare"></table></div></article><article class="segment-card dn"><header class="segment-head"><h3>🏢 KHÁCH HÀNG DOANH NGHIỆP</h3></header><div class="segment-body"><table id="compareDN" class="compare"></table></div></article></div><p class="muted">Tiền: triệu đồng. Chênh lệch = file mới − file trước. Δ điểm là điểm KPI, không phải phần trăm tăng tương đối. Chỉ so sánh dữ liệu gốc, không cộng giao dịch giả lập.</p></section><section class="panel view" id="simulation" hidden><h2>03 · Nhật ký giao dịch</h2><p class="muted">Nhập số có dấu: tăng (+), giảm (−). Giá trị tiền dùng triệu đồng. Chỉ giao dịch dự kiến hoặc chưa ghi nhận được cộng vào dự báo; giao dịch đã ghi nhận không cộng lại.</p><div class="grid"><label>Ngày giao dịch<input id="txdate" type="date"></label><label>Loại giao dịch<select id="kind"></select></label><label>Số tiền (triệu) / số KH<input id="amount" type="number" step="any" value="0"></label><label>Trạng thái<select id="txstate"><option value="planned">Dự kiến</option><option value="done">Đã thực hiện, chưa vào báo cáo</option><option value="posted">Đã ghi nhận</option><option value="cancel">Hủy</option></select></label><label>Thu phí/thẻ đủ điều kiện hưởng lương<select id="qual"><option value="yes">Có</option><option value="no">Không / chưa xác minh</option></select></label></div><p><button id="add">Thêm giao dịch</button></p><p id="txnote" class="warn"></p><div class="scroll"><table id="txtable"></table></div></section>
 <section class="panel view" id="salary" hidden inert aria-hidden="true"><h2>04 · Bộ tính thu nhập khoán</h2><p id="salarynote" class="warn"></p><div class="grid" id="salaryinputs"></div><p class="muted">Đơn vị triệu đồng, ngoại trừ các ô ghi tỷ. Ô trống được tự ước tính từ KPI khi có căn cứ; nhập tay để thay giả định. Báo cáo lương cùng kỳ được ưu tiên. Phần thẻ/BH được cộng riêng sau chặn sàn/trần.</p><div class="scroll"><table id="stable"></table></div></section>
 <section class="panel view" id="target" hidden inert aria-hidden="true"><h2>05 · Tính ngược mục tiêu</h2><div class="grid"><label>KPI lai mục tiêu (%)<input id="goalK" type="number" value="120" min="0" step=".1"></label><label>Thu nhập khoán mục tiêu (triệu)<input id="goalS" type="number" value="30" min="0" step=".1"></label></div><div id="targetout"></div><p class="muted">Ước lượng từng phương án độc lập, giữ nguyên các yếu tố khác. Chỉ tính giao dịch hợp lệ, không đề xuất giao dịch giả hoặc trì hoãn nghĩa vụ khách hàng.</p></section>
 <section class="panel view" id="history" hidden inert aria-hidden="true"><h2>06 · Lịch sử báo cáo trên thiết bị</h2><p class="muted">Giữ tối đa 60 bản ghi KPI, bỏ bản trùng số liệu. Khi nạp bản mới, kiểm tra nhật ký để tránh cộng trùng.</p><div class="scroll"><table id="htable"></table></div></section>
-<section class="panel view" id="settings" hidden inert aria-hidden="true"><h2>07 · Cài đặt & kiểm chứng</h2><div class="grid"><label>Trọng số hiệu dụng tăng trưởng CN (%)<input id="growthWeight" type="number" min="0" max="100" step=".1" value="12"></label><label>Ngày đầu tiên số dư giảm/tăng có hiệu lực<select id="daymode"><option value="same">Ngày giao dịch</option><option value="next">Ngày kế tiếp</option></select></label><label>KPI lai DN (%) nếu cần hiệu chỉnh<input id="dnWeight" type="number" min="0" max="100" placeholder="Theo báo cáo"></label></div><p class="warn">Trọng số tăng trưởng 12 là giả định suy ra từ điểm trần 24/200%. Báo cáo hiển thị tỷ trọng 20 nhưng điểm trần khác; cần kiểm chứng với văn bản KPI. Không sử dụng mô phỏng để xác nhận lương chính thức.</p><p>Firebase chỉ đồng bộ cấu hình công thức chung (trọng số giả lập và quy ước ngày), không đồng bộ mã NV, lương, báo cáo, mục tiêu hoặc giao dịch. Dùng nút chủ động; nếu Firebase từ chối quyền, vẫn lưu tại máy.</p><div class="row"><button id="pull" class="secondary">Tải cấu hình Firebase</button><button id="push" class="secondary">Lưu cấu hình Firebase</button></div><p id="syncmsg" role="status"></p></section>
+<section class="panel view" id="settings" hidden inert aria-hidden="true"><h2>07 · Cài đặt & kiểm chứng</h2><div class="grid"><label>Trọng số hiệu dụng tăng trưởng CN (%)<input id="growthWeight" type="number" min="0" max="100" step=".1" value="12"></label><label>Ngày đầu tiên số dư giảm/tăng có hiệu lực<select id="daymode"><option value="same">Ngày giao dịch</option><option value="next">Ngày kế tiếp</option></select></label><label>KPI lai DN (%) nếu cần hiệu chỉnh<input id="dnWeight" type="number" min="0" max="100" placeholder="Theo báo cáo"></label></div><p class="warn">Trọng số tăng trưởng 12 là giả định suy ra từ điểm trần 24/200%. Báo cáo hiển thị tỷ trọng 20 nhưng điểm trần khác; cần kiểm chứng với văn bản KPI. Không sử dụng mô phỏng để xác nhận lương chính thức.</p><p>Firebase đồng bộ toàn bộ dữ liệu KPI đã xử lý và cấu hình cá nhân. File Excel gốc không được tải lên. Nếu mất kết nối, giữ bản lưu tại máy.</p><div class="row"><button id="pull" class="secondary">Tải cấu hình Firebase</button><button id="push" class="secondary">Lưu cấu hình Firebase</button></div><p id="syncmsg" role="status"></p></section>
 </main><script>
 'use strict';
 const $=id=>document.getElementById(id), KEY='qlkh2.kpi.salary.v1', CFG='qlkh2.kpi.config.v1';
 const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))||fallback}catch(e){return fallback}};
 let st=read(KEY,{emp:'',kpi:null,salary:null,inputs:{},tx:[],history:[]}),cfg=read(CFG,{growthWeight:12,daymode:'same',dnWeight:''});
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(st));localStorage.setItem(CFG,JSON.stringify(cfg))}catch(e){$('msg').textContent='Không lưu được tại máy: '+e.message}};
+const persistLocal=()=>{try{localStorage.setItem(KEY,JSON.stringify(st));localStorage.setItem(CFG,JSON.stringify(cfg));return true}catch(e){$('msg').textContent='Không lưu được tại máy: '+e.message;return false}};
+const save=()=>{persistLocal();markKpiDirty()};
 const num=v=>typeof v==='number'&&Number.isFinite(v)?v:(v===null||v===undefined||v===''?null:Number.isFinite(Number(v))?Number(v):null);
 const n=v=>num(v)??0, f=(v,d=2)=>v===null||v===undefined||!Number.isFinite(v)?'—':v.toLocaleString('vi-VN',{maximumFractionDigits:d,minimumFractionDigits:d}), money=v=>f(v,2)+' tr';
 const norm=v=>String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').trim().toLowerCase();
@@ -364,15 +365,76 @@ $('salaryinputs').oninput=e=>{if(e.target.dataset.salary){st.inputs[e.target.dat
 for(const k of ['growthWeight','daymode','dnWeight']){$(k).value=cfg[k];$(k).onchange=()=>{cfg[k]=k==='growthWeight'?clamp(n($(k).value),0,100):k==='dnWeight'&&$(k).value!==''?clamp(n($(k).value),0,100):$(k).value;$(k).value=cfg[k];save();render()}}
 for(const k of ['goalK','goalS'])$(k).oninput=()=>target(predict(),sal());
 $('nav').onclick=e=>{const v=e.target.dataset.view;if(!v)return;document.querySelectorAll('.view').forEach(x=>x.hidden=x.id!==v);document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('active',x.dataset.view===v))};
-$('clear').onclick=()=>{if(!confirm('Xóa báo cáo, nhật ký, lịch sử và mã NV đã lưu trên thiết bị này?'))return;st={emp:'',kpi:null,salary:null,inputs:{},tx:[],history:[]};$('emp').value='';$('txdate').value='';save();buildInputs();render();showMessage('Đã xóa dữ liệu tại máy.')};
+$('clear').onclick=()=>{if(!confirm('Xóa báo cáo, nhật ký, lịch sử và mã NV đã lưu trên thiết bị này?'))return;st={emp:'',kpi:null,salary:null,inputs:{},tx:[],history:[]};$('emp').value='';$('txdate').value='';persistLocal();cloudMeta={base:null,dirty:false};storeCloudMeta();buildInputs();render();showMessage('Đã xóa dữ liệu tại máy. Bản Firebase vẫn còn.');scheduleKpiSync(1000)};
 $('export').onclick=()=>{try{if(!st.kpi)throw Error('Chưa nạp KPI');if(!window.XLSX)throw Error('Thiếu thư viện Excel');const p=predict(),s=sal(),w=XLSX.utils.book_new(),add=(name,data)=>XLSX.utils.book_append_sheet(w,XLSX.utils.aoa_to_sheet(data),name);
  add('Tong quan',[['Mã NV',st.emp],['Kỳ KPI',st.kpi.date],['Kỳ lương tham chiếu',st.salary?.date||'Chưa có'],['KPI CN hiện tại',st.kpi.parts.CN.score],['KPI DN hiện tại',st.kpi.parts.DN.score],['KPI lai hiện tại',p.base],['KPI lai dự kiến',p.k],['Lương ước tính triệu',s.total??'Chưa đủ'],['Ghi chú','Kịch bản có điều kiện; không phải kết quả chính thức. '+(s.notes||[]).join(' ')]]);
  add('Chi tieu',[['Mảng','Chỉ tiêu','KH','TH','Dự kiến','% TH dự kiến','Điểm cũ','Điểm mới'],...[...p.cn,...p.dn].map(g=>[g.key.split(':')[0],g.name,g.plan,g.actual,g.next,g.nextPct,g.point,g.nextPoint])]);
  add('Giao dich',[['Ngày','Loại','Giá trị triệu/KH','Trạng thái','Hưởng lương'],...st.tx.map(t=>[t.date,kinds[t.kind],t.amount,statusNames[t.state],t.qual])]);
  add('Luong',[['Cấu phần đầu vào','Giá trị'],...fields.map(([k,l])=>[l,num(salaryInputs().v[k])]),['Tổng khoán triệu',s.total??null]]);
  add('Lich su',[['Ngày','Lúc nạp','CN','DN','Lai'],...st.history.map(h=>[h.date,h.loaded,h.cn,h.dn,h.k])]);XLSX.writeFile(w,'KPI-Luong-'+st.kpi.date+'.xlsx')}catch(e){showMessage(e.message)}};
-const endpoint='https://qlkh-c3298-default-rtdb.asia-southeast1.firebasedatabase.app/qlkh_kpi_formula_preferences_v1.json';
-async function sync(method){try{const opts={method};if(method==='PUT'){opts.headers={'Content-Type':'application/json'};opts.body=JSON.stringify({growthWeight:clamp(n(cfg.growthWeight),0,100),daymode:cfg.daymode==='next'?'next':'same'})}const r=await fetch(endpoint,opts);if(!r.ok)throw Error('HTTP '+r.status);const v=await r.json();if(method==='GET'){if(!v||typeof v.growthWeight!=='number'||!['same','next'].includes(v.daymode))throw Error('Chưa có cấu hình hợp lệ');cfg.growthWeight=clamp(v.growthWeight,0,100);cfg.daymode=v.daymode;$('growthWeight').value=cfg.growthWeight;$('daymode').value=cfg.daymode;save();render()}$('syncmsg').textContent='Đã '+(method==='GET'?'tải':'lưu')+' cấu hình công thức.'}catch(e){$('syncmsg').textContent='Firebase chưa đồng bộ: '+e.message+'. Dữ liệu vẫn ở máy.'}}
-$('pull').onclick=()=>sync('GET');$('push').onclick=()=>sync('PUT');
+
+const endpoint='https://qlkh-c3298-default-rtdb.asia-southeast1.firebasedatabase.app/qlkh_kpi_salary_owner_v1.json';
+const META=KEY+'.cloudmeta',BACKUP=KEY+'.cloudbackup';
+let cloudMeta=read(META,{base:null,dirty:false}),cloudBusy=false,cloudTimer,cloudConflict=null,cloudEdit=0;
+function storeCloudMeta(){try{localStorage.setItem(META,JSON.stringify(cloudMeta))}catch(e){}}
+function cloudStatus(t){$('kpiCloudStatus').textContent=t;$('syncmsg').textContent=t}
+function snapshot(){return JSON.parse(JSON.stringify({st,cfg,goals:{k:$('goalK').value,s:$('goalS').value}}))}
+function same(a,b){return JSON.stringify(a)===JSON.stringify(b)}
+function hasData(x){return !!(x?.st?.emp||x?.st?.kpi||x?.st?.salary||x?.st?.tx?.length||x?.st?.history?.length)}
+function validRemote(x){return x&&x.schema===1&&x.payload&&typeof x.payload.st==='object'&&x.payload.st!==null&&Array.isArray(x.payload.st.tx)&&Array.isArray(x.payload.st.history)&&typeof x.payload.cfg==='object'&&x.payload.cfg!==null&&typeof x.rev==='string'}
+function markKpiDirty(){cloudEdit++;cloudMeta.dirty=true;storeCloudMeta();cloudStatus('Đã lưu tại máy · chờ đồng bộ');scheduleKpiSync(1200)}
+function scheduleKpiSync(ms=1000){clearTimeout(cloudTimer);cloudTimer=setTimeout(()=>syncKpi(),ms)}
+async function cloudFetch(options){if(window.parent===window||typeof window.parent.qlkhOwnerFetch!=='function')throw Error('Mở KPI trong QLKH2 và đăng nhập Firebase');return window.parent.qlkhOwnerFetch(endpoint,options)}
+function backupLocal(){try{localStorage.setItem(BACKUP,JSON.stringify({at:new Date().toISOString(),payload:snapshot()}));return true}catch(e){return false}}
+function applyRemote(remote){
+ if(hasData(snapshot())&&!backupLocal())throw Error('Không tạo được bản sao lưu tại máy; chưa thay dữ liệu');
+ st=remote.payload.st;cfg=remote.payload.cfg;
+ $('emp').value=st.emp||'';$('txdate').value=st.kpi?.date||'';
+ for(const k of ['growthWeight','daymode','dnWeight'])$(k).value=cfg[k]??'';
+ if(remote.payload.goals){$('goalK').value=remote.payload.goals.k??'';$('goalS').value=remote.payload.goals.s??''}
+ if(!persistLocal())throw Error('Không lưu được bản Firebase tại máy');
+ cloudMeta={base:remote.rev,dirty:false};storeCloudMeta();buildInputs();render();
+}
+async function syncKpi(choice){
+ if(cloudBusy)return;
+ cloudBusy=true;$('kpiCloudNow').disabled=true;
+ const local=snapshot(),edit=cloudEdit;
+ try{
+  cloudStatus('Đang đồng bộ Firebase…');
+  const res=await cloudFetch({method:'GET',headers:{'X-Firebase-ETag':'true'},cache:'no-store'});
+  if(!res.ok)throw Error('HTTP '+res.status);
+  const remote=await res.json(),etag=res.headers.get('ETag');
+  if(remote!==null&&!validRemote(remote))throw Error('Bản Firebase không hợp lệ; không ghi đè');
+  if(cloudEdit!==edit){scheduleKpiSync(300);return}
+  if(remote&&same(local,remote.payload)){cloudMeta={base:remote.rev,dirty:false};storeCloudMeta()}
+  else if(remote&&(!hasData(local)||(!cloudMeta.dirty&&cloudMeta.base===remote.rev)||(!cloudMeta.dirty&&cloudMeta.base!==null))&&choice!=='local'){applyRemote(remote)}
+  else if(remote&&cloudMeta.base!==remote.rev&&!choice){
+   cloudConflict=remote.rev;$('kpiCloudConflict').hidden=false;cloudStatus('Cần chọn bản dữ liệu để đồng bộ');return;
+  }else if(choice==='remote'&&remote){if(cloudConflict!==remote.rev){cloudConflict=remote.rev;cloudStatus('Firebase vừa thay đổi; kiểm tra lại lựa chọn');return}applyRemote(remote)}
+  else if(hasData(local)&&(cloudMeta.dirty||!remote||choice==='local')){
+   if(choice==='local'&&remote&&cloudConflict!==remote.rev){cloudConflict=remote.rev;cloudStatus('Firebase vừa thay đổi; chọn lại bản muốn giữ');return}
+   if(!etag)throw Error('Thiếu ETag; dừng ghi để bảo vệ dữ liệu');
+   const rev=Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
+   const body={schema:1,rev,updatedAt:new Date().toISOString(),payload:local};
+   const put=await cloudFetch({method:'PUT',headers:{'Content-Type':'application/json','if-match':etag},body:JSON.stringify(body)});
+   if(put.status===412){scheduleKpiSync(300);cloudStatus('Thiết bị khác vừa cập nhật; đang kiểm tra lại');return}
+   if(!put.ok)throw Error('HTTP '+put.status);
+   cloudMeta={base:rev,dirty:cloudEdit!==edit};storeCloudMeta();if(cloudMeta.dirty)scheduleKpiSync(300);
+  }
+  cloudConflict=null;$('kpiCloudConflict').hidden=true;
+  cloudStatus('Đã đồng bộ · '+new Date().toLocaleTimeString('vi-VN'));
+ }catch(e){cloudStatus('Chưa đồng bộ · '+e.message+' · giữ bản tại máy')}
+ finally{cloudBusy=false;$('kpiCloudNow').disabled=false}
+}
+$('kpiCloudNow').onclick=()=>syncKpi();
+$('kpiUseRemote').onclick=()=>syncKpi('remote');
+$('kpiUseLocal').onclick=()=>{if(confirm('Dùng dữ liệu máy này thay cho bản Firebase hiện tại?'))syncKpi('local')};
+$('pull').onclick=()=>syncKpi();$('push').onclick=()=>syncKpi();
+for(const k of ['goalK','goalS'])$(k).addEventListener('change',markKpiDirty);
+window.addEventListener('focus',()=>scheduleKpiSync(150));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)scheduleKpiSync(150)});
+window.addEventListener('online',()=>scheduleKpiSync(150));
+setInterval(()=>{if(!document.hidden&&!cloudBusy)syncKpi()},15000);
+scheduleKpiSync(400);
 buildInputs();render();
 </script></body></html>
