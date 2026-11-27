@@ -56,14 +56,36 @@ button.secondary{background:#edf3fa;color:#075b9a}
 .deposit-note{background:#f7f9fc;border-color:#dce5ef}
 #source,#compareSource{overflow-wrap:anywhere}
 @media(max-width:550px){.hero h1{font-size:18px}h2{font-size:15px}.panel{border-radius:10px}.nav button{min-height:34px;padding:7px 10px}}
+
+.source-upload summary{font-size:12px;color:#075b9a;margin-bottom:8px}
+@media(max-width:600px){
+ :root{font-size:13px}body{padding:6px}main{width:100%;min-width:0}
+ .hero{display:none}.panel{margin:6px 0;padding:10px;border-radius:10px}
+ h2{font-size:14px;margin:0 0 8px}
+ .source-panel .grid{grid-template-columns:minmax(0,1fr);gap:7px}
+ .source-panel label{font-size:12px;gap:3px}.source-panel input{width:100%;max-width:100%;min-width:0;padding:6px;font-size:16px}
+ .source-panel #source,.source-panel #msg{font-size:11px;margin:4px 0;overflow-wrap:anywhere}
+ .source-panel button{font-size:12px;padding:6px 9px;min-height:32px}
+ #kpiCloudStatus{font-size:11px;flex:1;overflow-wrap:anywhere}
+ .nav{position:sticky;top:0;z-index:4;background:#f3f6fa;padding:4px 0;gap:5px}.nav button{flex:1;font-size:12px;white-space:nowrap;min-height:34px}
+ #metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+ .metric{padding:8px}.metric b{font-size:18px}.metric small{font-size:10px}
+ .segment-body .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+ .segment-body table.kpi-pay{min-width:560px;font-size:11px}
+ .segment-body table.kpi-pay th,.segment-body table.kpi-pay td{padding:6px 4px}
+ .segment-body table.compare{font-size:10px}.segment-head h3{font-size:12px}
+ #overview>p{font-size:10px!important}.segment-grid{gap:8px}
+ #simulation .grid{grid-template-columns:1fr 1fr;gap:8px}
+ #simulation select,#simulation input{font-size:16px;width:100%;max-width:100%}
+}
 </style><script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script></head>
 <body><main>
 <section class="panel hero"><h1>💰 KPI & LƯƠNG KHOÁN</h1><p>QLKH2 · Chuyên viên khách hàng · 6117/2026</p><small>Excel xử lý tại trình duyệt; số liệu KPI cá nhân và nhật ký đồng bộ qua Firebase đã xác thực.</small></section>
-<section class="panel"><h2>01 · Nguồn dữ liệu</h2><div class="grid">
-<label>Mã NV (lưu riêng tại máy)<input id="emp" inputmode="numeric" maxlength="6" placeholder="Nhập mã 6 số"></label>
+<section class="panel source-panel"><h2>01 · Nguồn dữ liệu</h2><details class="source-upload" open><summary>Nhập báo cáo Excel</summary><div class="grid">
+<label>Mã nhân viên<input id="emp" inputmode="numeric" maxlength="6" placeholder="Nhập mã 6 số"></label>
 <label>Tiến độ thực hiện KPIs (.xlsx)<input id="kfile" type="file" accept=".xlsx,.xls"></label>
 <label>BC lương kinh doanh (tùy chọn)<input id="sfile" type="file" accept=".xlsx,.xls"></label>
-</div><p id="msg" role="status" aria-live="polite"></p><p id="source" class="muted"></p><div class="row" style="margin:8px 0"><span id="kpiCloudStatus" role="status" aria-live="polite" class="muted">Đang kiểm tra đồng bộ…</span><button id="kpiCloudNow" class="secondary" type="button">↻ Đồng bộ</button></div><div id="kpiCloudConflict" class="warn" hidden><p>Hai thiết bị có dữ liệu khác nhau. Chọn bản muốn giữ; bản tại máy được sao lưu trước khi thay thế.</p><div class="row"><button id="kpiUseRemote" type="button">Dùng bản Firebase</button><button id="kpiUseLocal" type="button" class="secondary">Giữ bản máy này</button></div></div><div class="row"><button id="clear" class="secondary">Xóa dữ liệu tại máy</button><button id="export">Xuất Excel kết quả</button></div></section>
+</div></details><p id="msg" role="status" aria-live="polite"></p><p id="source" class="muted"></p><div class="row" style="margin:8px 0"><span id="kpiCloudStatus" role="status" aria-live="polite" class="muted">Đang kiểm tra đồng bộ…</span><button id="kpiCloudNow" class="secondary" type="button">↻ Đồng bộ</button></div><div id="kpiCloudConflict" class="warn" hidden><p>Hai thiết bị có dữ liệu khác nhau. Chọn bản muốn giữ; bản tại máy được sao lưu trước khi thay thế.</p><div class="row"><button id="kpiUseRemote" type="button">Dùng bản Firebase</button><button id="kpiUseLocal" type="button" class="secondary">Giữ bản máy này</button></div></div><div class="row"><button id="clear" class="secondary">Xóa dữ liệu tại máy</button><button id="export">Xuất Excel kết quả</button></div></section>
 <div class="nav" id="nav"><button data-view="overview" class="active">Tổng quan</button><button data-view="changes">Biến động</button><button data-view="simulation">Giả lập</button></div>
 <section class="panel view" id="overview"><h2>02 · KPI hiện tại & dự kiến</h2><p class="muted" style="font-size:12px"><span class="quote-down">Âm / giảm</span> · <span class="quote-up">Dương dưới 100%</span> · <span class="quote-reference">Đúng 100%</span> · <span class="quote-ceiling">Vượt 100%</span></p><div id="metrics" class="grid"></div><p id="knotes" class="warn" hidden aria-hidden="true"></p><p class="muted" style="font-size:11px">Đơn vị tiền: triệu đồng; số lượng và tỷ lệ giữ nguyên đơn vị gốc. KH: kế hoạch · TH: thực hiện · DK: dự kiến.</p><div class="segment-grid"><article class="segment-card cn"><header class="segment-head"><h3>👤 KHÁCH HÀNG CÁ NHÂN</h3><strong id="cnWeight"></strong></header><div class="segment-body"><div class="grid" id="cnMetrics"></div><div class="scroll"><table id="ktableCN"></table></div></div></article><article class="segment-card dn"><header class="segment-head"><h3>🏢 KHÁCH HÀNG DOANH NGHIỆP</h3><strong id="dnWeightLabel"></strong></header><div class="segment-body"><div class="grid" id="dnMetrics"></div><div class="scroll"><table id="ktableDN"></table></div></div></article></div><div id="depositNote" class="deposit-note"></div></section>
 <section class="panel view" id="changes" hidden><h2>Biến động giữa hai báo cáo</h2><p id="compareSource" class="muted"></p><div class="row"><label>File đối chiếu cũ<input id="previousFile" type="file" accept=".xlsx,.xls"></label></div><div id="compareMetrics" class="grid"></div><div class="segment-grid"><article class="segment-card cn"><header class="segment-head"><h3>👤 KHÁCH HÀNG CÁ NHÂN</h3></header><div class="segment-body"><table id="compareCN" class="compare"></table></div></article><article class="segment-card dn"><header class="segment-head"><h3>🏢 KHÁCH HÀNG DOANH NGHIỆP</h3></header><div class="segment-body"><table id="compareDN" class="compare"></table></div></article></div><p class="muted">Tiền: triệu đồng. Chênh lệch = file mới − file trước. Δ điểm là điểm KPI, không phải phần trăm tăng tương đối. Chỉ so sánh dữ liệu gốc, không cộng giao dịch giả lập.</p></section><section class="panel view" id="simulation" hidden><h2>03 · Nhật ký giao dịch</h2><p class="muted">Nhập số có dấu: tăng (+), giảm (−). Giá trị tiền dùng triệu đồng. Chỉ giao dịch dự kiến hoặc chưa ghi nhận được cộng vào dự báo; giao dịch đã ghi nhận không cộng lại.</p><div class="grid"><label>Ngày giao dịch<input id="txdate" type="date"></label><label>Loại giao dịch<select id="kind"></select></label><label>Số tiền (triệu) / số KH<input id="amount" type="number" step="any" value="0"></label><label>Trạng thái<select id="txstate"><option value="planned">Dự kiến</option><option value="done">Đã thực hiện, chưa vào báo cáo</option><option value="posted">Đã ghi nhận</option><option value="cancel">Hủy</option></select></label><label>Thu phí/thẻ đủ điều kiện hưởng lương<select id="qual"><option value="yes">Có</option><option value="no">Không / chưa xác minh</option></select></label></div><p><button id="add">Thêm giao dịch</button></p><p id="txnote" class="warn"></p><div class="scroll"><table id="txtable"></table></div></section>
@@ -380,8 +402,14 @@ function storeCloudMeta(){try{localStorage.setItem(META,JSON.stringify(cloudMeta
 function cloudStatus(t){$('kpiCloudStatus').textContent=t;$('syncmsg').textContent=t}
 function snapshot(){return JSON.parse(JSON.stringify({st,cfg,goals:{k:$('goalK').value,s:$('goalS').value}}))}
 function same(a,b){return JSON.stringify(a)===JSON.stringify(b)}
-function hasData(x){return !!(x?.st?.emp||x?.st?.kpi||x?.st?.salary||x?.st?.tx?.length||x?.st?.history?.length)}
-function validRemote(x){return x&&x.schema===1&&x.payload&&typeof x.payload.st==='object'&&x.payload.st!==null&&Array.isArray(x.payload.st.tx)&&Array.isArray(x.payload.st.history)&&typeof x.payload.cfg==='object'&&x.payload.cfg!==null&&typeof x.rev==='string'}
+function hasData(x){return !!(x?.st?.kpi||x?.st?.salary||x?.st?.tx?.length||x?.st?.history?.length||x?.st?.reports?.length)}
+function normalizeRemote(x){
+ if(!x)return null;
+ if(x.schema===2&&typeof x.payloadJSON==='string')return {...x,payload:JSON.parse(x.payloadJSON)};
+ if(x.schema===1&&x.payload?.st){const p=x.payload;p.st.tx=Array.isArray(p.st.tx)?p.st.tx:[];p.st.history=Array.isArray(p.st.history)?p.st.history:[];p.st.inputs=p.st.inputs||{};p.st.kpi=p.st.kpi||null;p.st.salary=p.st.salary||null;return x}
+ throw Error('Bản Firebase không hợp lệ');
+}
+function validRemote(x){return x&&[1,2].includes(x.schema)&&x.payload&&x.payload.st&&Array.isArray(x.payload.st.tx)&&Array.isArray(x.payload.st.history)&&x.payload.cfg&&typeof x.rev==='string'}
 function markKpiDirty(){cloudEdit++;cloudMeta.dirty=true;storeCloudMeta();cloudStatus('Đã lưu tại máy · chờ đồng bộ');scheduleKpiSync(1200)}
 function scheduleKpiSync(ms=1000){clearTimeout(cloudTimer);cloudTimer=setTimeout(()=>syncKpi(),ms)}
 async function cloudFetch(options){if(window.parent===window||typeof window.parent.qlkhOwnerFetch!=='function')throw Error('Mở KPI trong QLKH2 và đăng nhập Firebase');return window.parent.qlkhOwnerFetch(endpoint,options)}
@@ -393,7 +421,7 @@ function applyRemote(remote){
  for(const k of ['growthWeight','daymode','dnWeight'])$(k).value=cfg[k]??'';
  if(remote.payload.goals){$('goalK').value=remote.payload.goals.k??'';$('goalS').value=remote.payload.goals.s??''}
  if(!persistLocal())throw Error('Không lưu được bản Firebase tại máy');
- cloudMeta={base:remote.rev,dirty:false};storeCloudMeta();buildInputs();render();
+ cloudMeta={base:remote.rev,dirty:false};storeCloudMeta();buildInputs();render();if(st.kpi&&matchMedia('(max-width:600px)').matches)document.querySelector('.source-upload').open=false;
 }
 async function syncKpi(choice){
  if(cloudBusy)return;
@@ -403,19 +431,19 @@ async function syncKpi(choice){
   cloudStatus('Đang đồng bộ Firebase…');
   const res=await cloudFetch({method:'GET',headers:{'X-Firebase-ETag':'true'},cache:'no-store'});
   if(!res.ok)throw Error('HTTP '+res.status);
-  const remote=await res.json(),etag=res.headers.get('ETag');
+  const remote=normalizeRemote(await res.json()),etag=res.headers.get('ETag');
   if(remote!==null&&!validRemote(remote))throw Error('Bản Firebase không hợp lệ; không ghi đè');
   if(cloudEdit!==edit){scheduleKpiSync(300);return}
   if(remote&&same(local,remote.payload)){cloudMeta={base:remote.rev,dirty:false};storeCloudMeta()}
-  else if(remote&&(!hasData(local)||(!cloudMeta.dirty&&cloudMeta.base===remote.rev)||(!cloudMeta.dirty&&cloudMeta.base!==null))&&choice!=='local'){applyRemote(remote)}
-  else if(remote&&cloudMeta.base!==remote.rev&&!choice){
+  else if(remote&&hasData(remote.payload)&&(!hasData(local)||(!cloudMeta.dirty&&cloudMeta.base!==null))&&choice!=='local'){applyRemote(remote)}
+  else if(remote&&hasData(remote.payload)&&cloudMeta.base!==remote.rev&&!choice){
    cloudConflict=remote.rev;$('kpiCloudConflict').hidden=false;cloudStatus('Cần chọn bản dữ liệu để đồng bộ');return;
   }else if(choice==='remote'&&remote){if(cloudConflict!==remote.rev){cloudConflict=remote.rev;cloudStatus('Firebase vừa thay đổi; kiểm tra lại lựa chọn');return}applyRemote(remote)}
-  else if(hasData(local)&&(cloudMeta.dirty||!remote||choice==='local')){
-   if(choice==='local'&&remote&&cloudConflict!==remote.rev){cloudConflict=remote.rev;cloudStatus('Firebase vừa thay đổi; chọn lại bản muốn giữ');return}
+  else if(hasData(local)&&(cloudMeta.dirty||!remote||!hasData(remote.payload)||choice==='local')){
+   if(choice==='local'&&remote&&hasData(remote.payload)&&cloudConflict!==remote.rev){cloudConflict=remote.rev;cloudStatus('Firebase vừa thay đổi; chọn lại bản muốn giữ');return}
    if(!etag)throw Error('Thiếu ETag; dừng ghi để bảo vệ dữ liệu');
    const rev=Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
-   const body={schema:1,rev,updatedAt:new Date().toISOString(),payload:local};
+   const body={schema:2,rev,updatedAt:new Date().toISOString(),payloadJSON:JSON.stringify(local)};
    const put=await cloudFetch({method:'PUT',headers:{'Content-Type':'application/json','if-match':etag},body:JSON.stringify(body)});
    if(put.status===412){scheduleKpiSync(300);cloudStatus('Thiết bị khác vừa cập nhật; đang kiểm tra lại');return}
    if(!put.ok)throw Error('HTTP '+put.status);
@@ -437,4 +465,5 @@ window.addEventListener('online',()=>scheduleKpiSync(150));
 setInterval(()=>{if(!document.hidden&&!cloudBusy)syncKpi()},15000);
 scheduleKpiSync(400);
 buildInputs();render();
+if(matchMedia('(max-width:600px)').matches)document.querySelector('.source-upload').open=!st.kpi;
 </script></body></html>
