@@ -818,6 +818,7 @@
         <button type="button" class="tab" data-tab="chitieu">💸 CHI TIÊU</button>
         <button type="button" class="tab" data-tab="tienich">🧰 TIỆN ÍCH</button>
         <button type="button" class="tab" data-tab="radar">📊 BẢNG LEAD TƯƠI <span class="radar-badge-pill" id="radarHeaderCount">5</span></button>
+        <button type="button" class="tab" data-tab="kpisalary">💰 KPI &amp; LƯƠNG</button>
       </nav>
     </div>
   </header>
@@ -1097,6 +1098,12 @@
             </tbody>
           </table>
         </div>
+      </div>
+    </section>
+    <section id="panel-kpisalary" class="panel" data-panel="kpisalary">
+      <div class="card">
+        <div class="card-head"><div class="card-title">💰 KPI &amp; Lương khoán</div></div>
+        <iframe id="kpiSalaryFrame" title="KPI và lương khoán" style="display:block;width:100%;height:calc(100dvh - 110px);min-height:640px;border:0;" loading="lazy"></iframe>
       </div>
     </section>
   </main>
@@ -1422,6 +1429,9 @@
         if (typeof window.initRadar === "function") {
           window.initRadar();
         }
+      } else if (tab === "kpisalary") {
+        const frame = document.getElementById("kpiSalaryFrame");
+        if (frame && !frame.getAttribute("src")) frame.setAttribute("src", "./kpi-salary.html?v=1");
       } else if (tab === "qlkh") {
         loadModule("qlkh");
       } else if (tab === "chitieu") {
@@ -1481,7 +1491,7 @@
       }
       if (SHARE_MODE) targetTab = "chitieu";
 
-      if (targetTab && targetTab !== "qlkh" && ["radar", "chitieu", "tienich"].includes(targetTab)) {
+      if (targetTab && targetTab !== "qlkh" && ["radar", "chitieu", "tienich", "kpisalary"].includes(targetTab)) {
         showMain(targetTab);
       } else {
         requestAnimationFrame(() => loadModule(SHARE_MODE ? "chitieu" : "qlkh"));
