@@ -797,7 +797,17 @@
       transform: translateX(-50%) translateY(0);
     }
 
-  </style>
+  
+/* QLKH motion: bounded, interaction-only; no layout or data changes. */
+@keyframes qlkhEnter{from{opacity:.55;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes qlkhStatusIn{from{opacity:.5}to{opacity:1}}
+.panel.active,.u-panel.active{animation:qlkhEnter 200ms ease-out both}
+.tab,.u-tab,.sheet-filter-btn,.btn-sheet-refresh,.btn-sheet-app,.btn-sheet-copy,.btn-sheet-link{transition:background-color 160ms ease,color 160ms ease,border-color 160ms ease,box-shadow 160ms ease,transform 120ms ease}
+.tab:active,.u-tab:active,.sheet-filter-btn:active,.btn-sheet-refresh:active,.btn-sheet-app:active,.btn-sheet-copy:active,.btn-sheet-link:active{transform:scale(.98)}
+@media(hover:hover) and (pointer:fine){.tab:not(.active):hover,.u-tab:not(.active):hover,.sheet-filter-btn:not(.active):hover{box-shadow:inset 0 -2px 0 #86b5de}.google-sheet-table tbody tr:hover td{background-color:#f0f7fd}}
+.tab:focus-visible,.u-tab:focus-visible,button:focus-visible{outline:2px solid #60a5fa;outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.panel.active,.u-panel.active{animation:none}.tab,.u-tab,.sheet-filter-btn,.btn-sheet-refresh,.btn-sheet-app,.btn-sheet-copy,.btn-sheet-link{transition:none}.tab:active,.u-tab:active,.sheet-filter-btn:active{transform:none}}
+</style>
 </head>
 
 <body>
@@ -1319,6 +1329,31 @@
         }
 
         frameDocument.documentElement.style.overscrollBehavior = "contain";
+        // Isolated visual enhancement for the existing compressed modules.
+        if (!frameDocument.getElementById("qlkh-motion-style")) {
+          const motion = frameDocument.createElement("style");
+          motion.id = "qlkh-motion-style";
+          motion.textContent = `
+            button:not(:disabled), input:not([type=file]), select, textarea, summary,
+            [role=button], .tab, .nav-tab, .chip {
+              transition: background-color 150ms ease, border-color 150ms ease,
+                box-shadow 150ms ease, color 150ms ease;
+            }
+            button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible {
+              outline: 2px solid #60a5fa; outline-offset: 2px;
+            }
+            @media(hover:hover) and (pointer:fine){
+              button:not(:disabled):hover, summary:hover { filter: brightness(.97); }
+            }
+            @keyframes qlkhInnerReveal{from{opacity:.65}to{opacity:1}}
+            details[open]>summary+* { animation:qlkhInnerReveal 180ms ease-out both; }
+            @media(prefers-reduced-motion:reduce){
+              button, input, select, textarea, summary, [role=button], .tab, .nav-tab, .chip {transition:none!important}
+              details[open]>summary+*{animation:none!important}
+            }
+          `;
+          (frameDocument.head || frameDocument.documentElement).appendChild(motion);
+        }
 
         if (frameDocument.body) {
           frameDocument.body.style.overscrollBehavior = "contain";
@@ -1431,7 +1466,7 @@
         }
       } else if (tab === "kpisalary") {
         const frame = document.getElementById("kpiSalaryFrame");
-        if (frame && !frame.getAttribute("src")) frame.setAttribute("src", "./kpi-salary.html?v=deposit-peak-20261127");
+        if (frame && !frame.getAttribute("src")) frame.setAttribute("src", "./kpi-salary.html?v=motion-20261127");
       } else if (tab === "qlkh") {
         loadModule("qlkh");
       } else if (tab === "chitieu") {
