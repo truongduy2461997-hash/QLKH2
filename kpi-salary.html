@@ -28,6 +28,34 @@
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #60a5fa;outline-offset:2px}
 @media(hover:hover) and (pointer:fine){.nav button:not(.active):hover{background:#d7e7f5}.salary-toggle:hover{box-shadow:0 2px 8px #07539a16}.segment-body tbody tr:hover td:not(.pay-cell){background-color:#f3f7fb}}
 @media(prefers-reduced-motion:reduce){.view:not([hidden]),.view:not([hidden])>.grid>.metric,.view:not([hidden]) .segment-body>.grid>.metric{animation:none!important}.nav button,.salary-toggle,button.secondary,input,select{transition:none!important}}
+
+/* Unified professional dashboard palette and density. */
+:root{background:#f3f6fa;color:#142b43;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+.panel{border-color:#dce5ef;border-radius:12px;box-shadow:0 1px 5px #102a4309}
+.hero{background:linear-gradient(110deg,#064477,#075b9a);border-color:#075b9a;color:#fff}
+.hero h1{font-weight:750;font-size:21px;letter-spacing:.01em}
+.hero p,.hero small{color:#e0eefb}
+h2{font-size:16px;font-weight:750;color:#142b43}
+.nav{gap:5px}
+.nav button{min-height:36px;border:1px solid #dce5ef;border-radius:8px;color:#41586e;background:#fff}
+.nav button.active{background:#075b9a;color:#fff;border-color:#075b9a}
+.metric{border-color:#dce5ef;background:#fff;border-radius:9px;box-shadow:0 1px 3px #102a4307}
+.metric b{font-weight:750;letter-spacing:-.02em}
+.segment-card{border-color:#dce5ef;border-radius:10px}
+.segment-head{background:#edf4fc;border-bottom-color:#dce5ef}
+.segment-card.dn .segment-head{background:#eaf5f0}
+.segment-head h3{font-weight:750}
+th{background:#edf3fa;color:#41586e;font-weight:650}
+.segment-body table.kpi-pay th{font-size:inherit}
+td{border-bottom-color:#e8eef5}
+input,select{border-color:#cdd9e6}
+button{background:#075b9a}
+button.secondary{background:#edf3fa;color:#075b9a}
+.salary-toggle{background:#f1f7fc;color:#075b9a;border:1px solid #c7ddef}
+.salary-toggle[aria-expanded=true]{background:#eaf5ef;border-color:#a9ceba}
+.deposit-note{background:#f7f9fc;border-color:#dce5ef}
+#source,#compareSource{overflow-wrap:anywhere}
+@media(max-width:550px){.hero h1{font-size:18px}h2{font-size:15px}.panel{border-radius:10px}.nav button{min-height:34px;padding:7px 10px}}
 </style><script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script></head>
 <body><main>
 <section class="panel hero"><h1>💰 KPI & LƯƠNG KHOÁN</h1><p>QLKH2 · Chuyên viên khách hàng · 6117/2026</p><small>Excel xử lý tại trình duyệt. Không gửi dữ liệu báo cáo, thu nhập hay nhật ký lên Firebase.</small></section>
