@@ -120,7 +120,7 @@ function predict(d=delta()){
  return {cn,dn,a,b,w,k:a*(100-w)/100+b*w/100,base:st.kpi.parts.CN.score*(100-w)/100+st.kpi.parts.DN.score*w/100};
 }
 function salaryInputs(){
- const v={...(st.inputs||{})},notes=[],k=st.kpi,old=st.salary&&k&&month(st.salary.date)!==month(k.date);
+ const v={...(st.inputs||{})},notes=[],k=st.kpi;let dnDetail=null;const old=st.salary&&k&&month(st.salary.date)!==month(k.date);
  if(!k)return {v,notes};
  const get=(side,name)=>{const g=k.parts[side]?.items.find(x=>norm(x.name)===name);return num(g?.actual)};
  const total=get('CN','so du binh quan quy mo'),casa=get('CN','so du binh quan casa'),dcv=get('DN','so du binh quan cho vay'),dh=get('DN','so du binh quan huy dong'),dca=get('DN','so du binh quan casa'),fees=get('CN','tong thu dv ca nhan'),cards=get('CN','tang net khach hang the tin dung'),df=get('DN','thu thuan dich vu va kinh doanh ngoai hoi'),active=get('DN','tang net khach hang active');
@@ -136,13 +136,16 @@ function salaryInputs(){
  const ca=Math.max(0,dca)/1e9,caPay=ca<31?Math.floor(ca)*.1:3+Math.floor((ca-31)/100)*.1;
  const dv=Math.max(0,n(df))/1e6,dvPay=dv<202?Math.floor(dv/2)*.1:10+Math.floor((dv-202)/100)*.1;
  const act=Math.max(0,n(active)),actPay=Math.min(20,act)*.2+Math.max(0,act-20)*.1;
- fill('dn',scale+caPay+dvPay+actPay,'DN: ước theo bậc quy mô lai, CASA, DV và KH active; chưa điều chỉnh nhóm nợ, chưa tính tăng net và thẻ DN.',true);
+ const dnEstimate=scale+caPay+dvPay+actPay;
+ const usingEstimate=num(v.dn)===null||(old&&!st.manualSalary?.dn);
+ fill('dn',dnEstimate,'DN: ước theo bậc quy mô lai, CASA, DV và KH active; chưa điều chỉnh nhóm nợ, chưa tính tăng net và thẻ DN.',true);
+ if(usingEstimate)dnDetail={scale,caPay,dvPay,actPay};
  }
  for(const [key,note] of [['netHD','Tăng net CKH'],['netCA','Tăng net CASA'],['bh','Bảo hiểm'],['pay','Pay'],['wealth','QLTS'],['dnCards','Thẻ DN']])fill(key,0,note+': chưa có dữ liệu, tạm chưa tính.',true);
  fill('factor',1,'Hệ số KPI giả định 1 theo TB 6117.');
  if(num(v.base)===null)notes.push('Chưa có thu nhập BQ 6 tháng: chỉ áp sàn chức danh 11 triệu; chưa áp chặn sàn/trần cá nhân.');
  if(old)notes.push('Báo cáo lương khác kỳ; thông số cố định dùng làm tham chiếu, cấu phần biến động lấy từ KPI nếu có.');
- return {v,notes};
+ return {v,notes,dnDetail};
 }
 function sal(d=delta()){
  const {v,notes}=salaryInputs(),missing=fields.filter(([k])=>k!=='base'&&num(v[k])===null).map(x=>x[1]);if(missing.length)return {missing,notes};
@@ -223,9 +226,14 @@ function payMetric(side,value){return '<button type="button" class="metric salar
 function salaryRows(side,items,s,v){
  if(s.missing.length)return items.map(()=>null);
  const factor=n(v.factor),used=new Set();
+ const dn=side==='DN'?salaryInputs().dnDetail:null;
  const values={scale:s.scale,h:s.h,c:s.c,fee:s.fee,card:s.card,pay:s.pay,bh:n(v.bh),wealth:n(v.wealth)};
  const pick=(key)=>{if(used.has(key))return null;used.add(key);return values[key]*factor};
- return items.map(g=>{const k=norm(g.name);if(side==='DN')return null;
+ return items.map(g=>{const k=norm(g.name);if(side==='DN'){
+ if(!dn)return null;
+ const key=k==='so du binh quan cho vay'?'scale':k==='so du binh quan casa'?'caPay':k.includes('thu thuan dich vu')?'dvPay':k.includes('khach hang active')?'actPay':null;
+ if(!key||used.has(key))return null;used.add(key);return dn[key]*factor;
+ }
  if(k==='so du binh quan quy mo')return pick('scale');
  if(k.includes('tang truong')&&k.includes('huy dong'))return pick('h');
  if(k.includes('tang truong')&&k.includes('casa'))return pick('c');
@@ -242,7 +250,7 @@ function drawPayTable(side,items,s,v){
  const total=s.missing.length?null:side==='CN'?(s.scale+s.h+s.c+s.fee+s.card+s.pay+n(v.bh)+n(v.wealth))*n(v.factor):n(v.dn)*n(v.factor);
  const assigned=amounts.reduce((a,b)=>a+n(b),0),remaining=total===null?null:total-assigned;
  t.className='kpi-pay'+(payOpen[side]?' pay-open':'');
- t.innerHTML='<colgroup><col class="name-col">'+Array(7).fill('<col class="data-col">').join('')+'<col class="pay-col"></colgroup><thead><tr>'+headers.map(h=>'<th>'+esc(h)+'</th>').join('')+'<th class="pay-cell"><span class="pay-inner">Lương ƯT (tr)</span></th></tr></thead><tbody>'+raw.map((row,j)=>'<tr>'+row.map((x,i)=>'<td class="'+(i?quoteClass(x,i===4||i===5?'percent':'number'):'')+'">'+esc(x)+'</td>').join('')+'<td class="pay-cell"><span class="pay-inner">'+esc(amounts[j]===null?'—':f(amounts[j]))+'</span></td></tr>').join('')+(total===null?'':'<tr class="pay-summary" '+(payOpen[side]?'':'hidden')+'><td colspan="8">'+(side==='DN'?'Thu nhập DN chưa tách được theo chỉ tiêu':'Cấu phần chưa phân bổ')+'</td><td class="pay-cell"><span class="pay-inner">'+esc(f(remaining))+'</span></td></tr><tr class="pay-summary" '+(payOpen[side]?'':'hidden')+'><td colspan="8"><strong>Tổng trước chặn chung</strong></td><td class="pay-cell"><span class="pay-inner">'+esc(f(total))+'</span></td></tr>')+'</tbody>';
+ t.innerHTML='<colgroup><col class="name-col">'+Array(7).fill('<col class="data-col">').join('')+'<col class="pay-col"></colgroup><thead><tr>'+headers.map(h=>'<th>'+esc(h)+'</th>').join('')+'<th class="pay-cell"><span class="pay-inner">Lương ƯT (tr)</span></th></tr></thead><tbody>'+raw.map((row,j)=>'<tr'+(side==='DN'&&norm(items[j].name)==='so du binh quan cho vay'?' title="Thu nhập quy mô DN gộp: cho vay + huy động sau khi loại trừ CASA"':'')+'>'+row.map((x,i)=>'<td class="'+(i?quoteClass(x,i===4||i===5?'percent':'number'):'')+'">'+esc(x)+'</td>').join('')+'<td class="pay-cell"><span class="pay-inner">'+esc(amounts[j]===null?'—':f(amounts[j]))+'</span></td></tr>').join('')+(total===null?'':'<tr class="pay-summary" '+(payOpen[side]?'':'hidden')+'><td colspan="8">'+(side==='DN'?'Cấu phần DN còn lại / chưa tách':'Cấu phần chưa phân bổ')+'</td><td class="pay-cell"><span class="pay-inner">'+esc(f(remaining))+'</span></td></tr><tr class="pay-summary" '+(payOpen[side]?'':'hidden')+'><td colspan="8"><strong>Tổng trước chặn chung</strong></td><td class="pay-cell"><span class="pay-inner">'+esc(f(total))+'</span></td></tr>')+'</tbody>';
  const btn=$((side==='CN'?'cn':'dn')+'Metrics');
  btn.onclick=e=>{const b=e.target.closest('[data-pay-toggle]');if(!b)return;payOpen[side]=!payOpen[side];t.classList.toggle('pay-open',payOpen[side]);b.setAttribute('aria-expanded',String(payOpen[side]));b.lastElementChild.textContent=payOpen[side]?'◂ Thu gọn cột lương':'Xem cột lương ▸';t.querySelectorAll('.pay-summary').forEach(x=>x.hidden=!payOpen[side])};
 }
