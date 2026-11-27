@@ -881,6 +881,12 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
 #firebaseSyncDetails .firebase-sync-now{width:22px;height:22px;min-height:0;flex:0 0 22px;margin:0;padding:0;background:transparent;border:0;border-radius:50%;font-size:16px;line-height:1;color:#075b9a}
 #firebaseSyncDetails.sync-opening .firebase-detail-second{animation:syncTextIn 200ms ease-out 75ms both}
 @media(prefers-reduced-motion:reduce){#firebaseSyncDetails.sync-opening .firebase-detail-second{animation:none}}
+
+/* Desktop: navigation labels always stay on one line. */
+@media (min-width:851px), (hover:hover) and (pointer:fine){
+  .app-top .tabs,.u-tabs{flex-wrap:nowrap;overflow-x:auto;min-width:0;scrollbar-width:none}
+  .app-top .tabs>.tab,.u-tabs>.u-tab{white-space:nowrap!important;word-break:normal!important;overflow-wrap:normal!important;flex:0 0 auto!important;width:auto!important;min-width:max-content!important;min-height:36px;padding:9px clamp(9px,1.1vw,17px);font-size:12px;line-height:1.2}
+}
 </style>
 </head>
 
@@ -1433,6 +1439,12 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
             .toolbar input,.toolbar select{border-color:#dce5ef}
             .header-actions .btn,.header-cloud-actions .btn{backdrop-filter:none}
           `:"");
+          visual.textContent += `
+            @media (min-width:851px), (hover:hover) and (pointer:fine){
+              .tabs,#tabs,.nav-tabs{flex-wrap:nowrap!important;overflow-x:auto!important;min-width:0;scrollbar-width:none}
+              .tabs>.tab,#tabs>.tab,.tabs>.tab-btn,.nav-tabs>.nav-tab,.tabs>.nav-tab{white-space:nowrap!important;word-break:normal!important;overflow-wrap:normal!important;flex:0 0 auto!important;width:auto!important;min-width:max-content!important;font-size:11.5px!important;padding:7px 10px!important;line-height:1.25!important}
+            }
+          `;
           (frameDocument.head||frameDocument.documentElement).appendChild(visual);
         }
         // Motion is deliberately presentation-only: use the actual QLKH inner tab selectors.
@@ -1704,7 +1716,7 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
         }
       } else if (tab === "kpisalary") {
         const frame = document.getElementById("kpiSalaryFrame");
-        if (frame && !frame.getAttribute("src")) frame.setAttribute("src", "./kpi-salary.html?v=professional-ui-20261127");
+        if (frame && !frame.getAttribute("src")) frame.setAttribute("src", "./kpi-salary.html?v=desktop-tabs-20261127");
       } else if (tab === "qlkh") {
         loadModule("qlkh");
       } else if (tab === "chitieu") {
