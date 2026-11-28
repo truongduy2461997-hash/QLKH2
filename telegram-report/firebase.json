@@ -1,0 +1,10 @@
+{
+  "functions": [
+    {
+      "source": ".",
+      "codebase": "qlkhtelegram",
+      "runtime": "nodejs22",
+      "ignore": ["node_modules", ".git", "*.test.cjs", "README.md"]
+    }
+  ]
+}
