@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>KPI & Lương | QLKH2</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#19334d;background:#f0f5fa;font-size:15px}*{box-sizing:border-box}body{margin:0;padding:14px}main{max-width:1320px;margin:auto}h1{font-size:24px;margin:0}h2{font-size:18px;margin:0 0 12px}p{line-height:1.5;margin:8px 0}.panel{background:white;border:1px solid #dce6ef;border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 3px 12px #17314d08}.hero{background:#07539a;color:white}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.metric{border:1px solid #dce6ef;border-radius:10px;padding:12px}.metric b{font-size:24px;display:block;margin:8px 0}.muted,small{color:#5b7086}.hero small{color:#deedfa}.row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.row>*{min-width:0}label{display:flex;flex-direction:column;gap:5px;font-size:13px;color:#41586e}input,select,button{font:inherit;border:1px solid #b9cbdc;border-radius:8px;padding:9px;min-width:0;background:white;color:#17314d}input[type=number],input[type=date],select{width:100%}input[type=file]{max-width:100%}button{background:#07539a;color:white;border:none;cursor:pointer;font-weight:600;min-height:40px}button.secondary{background:#e7eff7;color:#07539a}button:disabled{opacity:.5;cursor:not-allowed}.scroll{overflow:auto;-webkit-overflow-scrolling:touch}table{border-collapse:collapse;width:100%;white-space:nowrap;font-size:13px}th,td{padding:10px;border-bottom:1px solid #e0e8ef;text-align:right}th:first-child,td:first-child{text-align:left}th{background:#eaf1f8}.good{color:#08784b}.bad{color:#ae3030}.quote-down{color:#d71920!important;font-weight:650}.quote-up{color:#087b38!important;font-weight:650}.quote-ceiling{color:#a000c8!important;font-weight:750}.quote-reference{color:#9a7200!important;font-weight:650}td[class^='quote-'],.metric b{font-variant-numeric:tabular-nums}.warn{background:#fff5db;border:1px solid #f0d68f;border-radius:8px;padding:10px;color:#77551a}.nav{display:flex;gap:6px;overflow:auto;padding:4px 0}.nav button{white-space:nowrap;background:#e5edf6;color:#174775}.nav button.active{background:#07539a;color:white}[hidden]{display:none!important}details summary{cursor:pointer;font-weight:650}#msg{white-space:pre-wrap;overflow-wrap:anywhere} @media(max-width:550px){body{padding:7px}.panel{padding:12px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.metric b{font-size:19px}input,select{font-size:16px}.wide{grid-column:1/-1}}
+.segment-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}.segment-card{min-width:0;border:1px solid #dce6ef;border-radius:12px;background:#fff;overflow:hidden}.segment-head{padding:12px 14px;background:#e8f2fc;border-bottom:1px solid #dce6ef;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}.segment-card.dn .segment-head{background:#e6f5ef}.segment-head h3{margin:0;font-size:16px;color:#174775}.segment-body{padding:12px}.segment-body .grid{grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:12px}.segment-body .metric b{font-size:20px}.segment-body table{min-width:650px}.segment-body th:first-child,.segment-body td:first-child{white-space:normal;min-width:145px;max-width:220px}.segment-body .metric small{overflow-wrap:anywhere}@media(max-width:1100px){.segment-grid{grid-template-columns:1fr}}@media(max-width:550px){.segment-body{padding:8px}.segment-body .metric b{font-size:18px}} .segment-body{padding:7px}.segment-grid{gap:8px}.segment-body .scroll{overflow:visible}.segment-body table{width:100%;min-width:0;table-layout:fixed;white-space:normal;font-size:clamp(9px,.78vw,11px);font-variant-numeric:tabular-nums}.segment-body th,.segment-body td{padding:6px 2px;white-space:normal;overflow-wrap:anywhere;line-height:1.3}.segment-body th:first-child,.segment-body td:first-child{width:22%;min-width:0;max-width:none}.segment-body th:nth-child(2),.segment-body th:nth-child(3),.segment-body th:nth-child(4){width:14%}.segment-body th:nth-child(5),.segment-body th:nth-child(6){width:11%}.segment-body th:nth-child(7),.segment-body th:nth-child(8){width:7%}.segment-body .metric{padding:7px}.segment-body .metric b{font-size:17px}.segment-body .grid{gap:6px;margin-bottom:7px}.segment-head{padding:8px}.segment-head h3{font-size:14px}@media(max-width:1100px){.segment-grid{grid-template-columns:1fr}.segment-body table{font-size:11px}}@media(max-width:550px){.segment-body table{font-size:9px}.segment-body th,.segment-body td{padding:5px 2px}.segment-body th:first-child,.segment-body td:first-child{width:22%}} .segment-body table.compare{font-size:clamp(10px,.85vw,12px)}.segment-body table.compare th:first-child,.segment-body table.compare td:first-child{width:34%}.segment-body table.compare th:not(:first-child),.segment-body table.compare td:not(:first-child){width:16.5%}.compare-source{overflow-wrap:anywhere}@media(max-width:550px){.segment-body table.compare{font-size:10px}} .salary-toggle{display:block;text-align:left;width:100%;background:#f0f7fc;color:#174775;border:1px solid #b9cbdc;cursor:pointer;min-height:0;font-weight:400}.salary-toggle small{display:block}.salary-toggle:hover{background:#e2f0fc}.segment-body table.kpi-pay{table-layout:fixed}.kpi-pay col{transition:width .26s ease}.kpi-pay col.pay-col{width:0}.kpi-pay.pay-open col.pay-col{width:17%}.kpi-pay col.data-col{width:auto}.kpi-pay .pay-cell{padding:0!important;border:0;overflow:hidden;visibility:hidden;white-space:nowrap}.kpi-pay.pay-open .pay-cell{visibility:visible;background:#eaf6ef;border-bottom:1px solid #dce6ef}.kpi-pay .pay-inner{display:block;opacity:0;transform:translateX(18px);transition:transform .26s ease,opacity .2s ease;white-space:normal;overflow-wrap:anywhere;padding:5px 2px;color:#08784b;font-weight:650}.kpi-pay.pay-open .pay-inner{opacity:1;transform:translateX(0)}.kpi-pay.pay-open th:first-child,.kpi-pay.pay-open td:first-child{width:auto}.kpi-pay th,.kpi-pay td{width:auto!important}.kpi-pay col.name-col{width:22%}.kpi-pay.pay-open col.name-col{width:19%}@media(prefers-reduced-motion:reduce){.kpi-pay col,.kpi-pay .pay-inner{transition:none}} /* Compact KPI rows: hidden zero-width salary cells must not wrap vertically. */
+.segment-grid{align-items:start}
+.segment-body table.kpi-pay{height:auto;width:100%;border-collapse:collapse;table-layout:fixed}
+.segment-body .kpi-pay thead tr,.segment-body .kpi-pay tbody tr{height:auto}
+.segment-body .kpi-pay th,.segment-body .kpi-pay td{vertical-align:middle;padding:5px 3px;line-height:1.25}
+.segment-body .kpi-pay thead th{height:30px;padding:5px 2px;white-space:nowrap;font-size:inherit}
+.segment-body .kpi-pay td:first-child{overflow-wrap:normal;word-break:normal}
+.segment-body .kpi-pay .pay-cell{position:relative;overflow:hidden;padding:0!important;line-height:1.25}
+.segment-body .kpi-pay .pay-inner{white-space:nowrap;overflow-wrap:normal;word-break:normal;overflow:hidden;text-overflow:clip;padding:0 2px;line-height:1.25;max-height:1.25em}
+.segment-body .kpi-pay:not(.pay-open) .pay-inner{position:absolute;right:0;top:0;width:0;max-height:0;padding:0}
+.segment-body .kpi-pay.pay-open .pay-inner{position:static;width:auto;max-height:1.25em;padding:0 2px}
+.segment-body .kpi-pay .pay-summary td{padding:6px 3px}
+@media(max-width:550px){.segment-body .kpi-pay th,.segment-body .kpi-pay td{padding:5px 1px}.segment-body .kpi-pay thead th{height:28px;font-size:8px}}
+.deposit-note{margin-top:10px;padding:9px 12px;border:1px solid #dce6ef;border-radius:9px;background:#f7fafc;font-size:12px}.deposit-note table{font-size:12px;table-layout:fixed;white-space:normal}.deposit-note th,.deposit-note td{padding:5px 3px;overflow-wrap:anywhere}.deposit-note p{font-size:11px;margin:5px 0}.deposit-note th:first-child{width:31%} 
+/* Motion for KPI module; retain existing animated salary column. */
+@keyframes kpiViewIn{from{opacity:.6;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes kpiMetricIn{from{opacity:.6;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+@keyframes kpiNoteIn{from{opacity:.5}to{opacity:1}}
+.view:not([hidden]){animation:kpiViewIn .2s ease-out both}
+.view:not([hidden])>.grid>.metric,.view:not([hidden]) .segment-body>.grid>.metric{animation:kpiMetricIn .2s ease-out both}
+.nav button,.salary-toggle,button.secondary,input,select{transition:background-color .16s ease,border-color .16s ease,box-shadow .16s ease,color .16s ease}
+.nav button:active,.salary-toggle:active,button.secondary:active{filter:brightness(.94)}
+.salary-toggle[aria-expanded=true]{background:#e5f3ea;border-color:#8abca2}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #60a5fa;outline-offset:2px}
+@media(hover:hover) and (pointer:fine){.nav button:not(.active):hover{background:#d7e7f5}.salary-toggle:hover{box-shadow:0 2px 8px #07539a16}.segment-body tbody tr:hover td:not(.pay-cell){background-color:#f3f7fb}}
+@media(prefers-reduced-motion:reduce){.view:not([hidden]),.view:not([hidden])>.grid>.metric,.view:not([hidden]) .segment-body>.grid>.metric{animation:none!important}.nav button,.salary-toggle,button.secondary,input,select{transition:none!important}}
+
+/* Unified professional dashboard palette and density. */
+:root{background:#f3f6fa;color:#142b43;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+.panel{border-color:#dce5ef;border-radius:12px;box-shadow:0 1px 5px #102a4309}
+.hero{background:linear-gradient(110deg,#064477,#075b9a);border-color:#075b9a;color:#fff}
+.hero h1{font-weight:750;font-size:21px;letter-spacing:.01em}
+.hero p,.hero small{color:#e0eefb}
+h2{font-size:16px;font-weight:750;color:#142b43}
+.nav{gap:5px}
+.nav button{min-height:36px;border:1px solid #dce5ef;border-radius:8px;color:#41586e;background:#fff}
+.nav button.active{background:#075b9a;color:#fff;border-color:#075b9a}
+.metric{border-color:#dce5ef;background:#fff;border-radius:9px;box-shadow:0 1px 3px #102a4307}
+.metric b{font-weight:750;letter-spacing:-.02em}
+.segment-card{border-color:#dce5ef;border-radius:10px}
+.segment-head{background:#edf4fc;border-bottom-color:#dce5ef}
+.segment-card.dn .segment-head{background:#eaf5f0}
+.segment-head h3{font-weight:750}
+th{background:#edf3fa;color:#41586e;font-weight:650}
+.segment-body table.kpi-pay th{font-size:inherit}
+td{border-bottom-color:#e8eef5}
+input,select{border-color:#cdd9e6}
+button{background:#075b9a}
+button.secondary{background:#edf3fa;color:#075b9a}
+.salary-toggle{background:#f1f7fc;color:#075b9a;border:1px solid #c7ddef}
+.salary-toggle[aria-expanded=true]{background:#eaf5ef;border-color:#a9ceba}
+.deposit-note{background:#f7f9fc;border-color:#dce5ef}
+#source,#compareSource{overflow-wrap:anywhere}
+@media(max-width:550px){.hero h1{font-size:18px}h2{font-size:15px}.panel{border-radius:10px}.nav button{min-height:34px;padding:7px 10px}}
+
+.source-upload summary{font-size:12px;color:#075b9a;margin-bottom:8px}
+@media(max-width:600px){
+ :root{font-size:13px}body{padding:6px}main{width:100%;min-width:0}
+ .hero{display:none}.panel{margin:6px 0;padding:10px;border-radius:10px}
+ h2{font-size:14px;margin:0 0 8px}
+ .source-panel .grid{grid-template-columns:minmax(0,1fr);gap:7px}
+ .source-panel label{font-size:12px;gap:3px}.source-panel input{width:100%;max-width:100%;min-width:0;padding:6px;font-size:16px}
+ .source-panel #source,.source-panel #msg{font-size:11px;margin:4px 0;overflow-wrap:anywhere}
+ .source-panel button{font-size:12px;padding:6px 9px;min-height:32px}
+ #kpiCloudStatus{font-size:11px;flex:1;overflow-wrap:anywhere}
+ .nav{position:sticky;top:0;z-index:4;background:#f3f6fa;padding:4px 0;gap:5px}.nav button{flex:1;font-size:12px;white-space:nowrap;min-height:34px}
+ #metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+ .metric{padding:8px}.metric b{font-size:18px}.metric small{font-size:10px}
+ .segment-body .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+ .segment-body table.kpi-pay{min-width:560px;font-size:11px}
+ .segment-body table.kpi-pay th,.segment-body table.kpi-pay td{padding:6px 4px}
+ .segment-body table.compare{font-size:10px}.segment-head h3{font-size:12px}
+ #overview>p{font-size:10px!important}.segment-grid{gap:8px}
+ #simulation .grid{grid-template-columns:1fr 1fr;gap:8px}
+ #simulation select,#simulation input{font-size:16px;width:100%;max-width:100%}
+}
+</style><script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script></head>
+<body><main>
+<section class="panel hero"><h1>💰 KPI & LƯƠNG KHOÁN</h1><p>QLKH2 · Chuyên viên khách hàng · 6117/2026</p><small>Excel xử lý tại trình duyệt; số liệu KPI cá nhân và nhật ký đồng bộ qua Firebase đã xác thực.</small></section>
+<section class="panel source-panel"><h2>01 · Nguồn dữ liệu</h2><details class="source-upload" open><summary>Nhập báo cáo Excel</summary><div class="grid">
+<label>Mã nhân viên<input id="emp" inputmode="numeric" maxlength="6" placeholder="Nhập mã 6 số"></label>
+<label>Tiến độ thực hiện KPIs (.xlsx)<input id="kfile" type="file" accept=".xlsx,.xls"></label>
+<label>BC lương kinh doanh (tùy chọn)<input id="sfile" type="file" accept=".xlsx,.xls"></label>
+</div></details><p id="msg" role="status" aria-live="polite"></p><p id="source" class="muted"></p><div class="row" style="margin:8px 0"><span id="kpiCloudStatus" role="status" aria-live="polite" class="muted">Đang kiểm tra đồng bộ…</span><button id="kpiCloudNow" class="secondary" type="button">↻ Đồng bộ</button></div><p id="kpiCloudBytes" class="muted" style="font-size:11px;margin:3px 0"></p><div id="kpiCloudConflict" class="warn" hidden><p>Hai thiết bị có dữ liệu khác nhau. Chọn bản muốn giữ; bản tại máy được sao lưu trước khi thay thế.</p><div class="row"><button id="kpiUseRemote" type="button">Dùng bản Firebase</button><button id="kpiUseLocal" type="button" class="secondary">Giữ bản máy này</button></div></div><div class="row"><button id="clear" class="secondary">Xóa dữ liệu tại máy</button><button id="export">Xuất Excel kết quả</button></div></section>
+<div class="nav" id="nav"><button data-view="overview" class="active">Tổng quan</button><button data-view="changes">Biến động</button><button data-view="simulation">Giả lập</button></div>
+<section class="panel view" id="overview"><h2>02 · KPI hiện tại & dự kiến</h2><p class="muted" style="font-size:12px"><span class="quote-down">Âm / giảm</span> · <span class="quote-up">Dương dưới 100%</span> · <span class="quote-reference">Đúng 100%</span> · <span class="quote-ceiling">Vượt 100%</span></p><div id="metrics" class="grid"></div><p id="knotes" class="warn" hidden aria-hidden="true"></p><p class="muted" style="font-size:11px">Đơn vị tiền: triệu đồng; số lượng và tỷ lệ giữ nguyên đơn vị gốc. KH: kế hoạch · TH: thực hiện · DK: dự kiến.</p><div class="segment-grid"><article class="segment-card cn"><header class="segment-head"><h3>👤 KHÁCH HÀNG CÁ NHÂN</h3><strong id="cnWeight"></strong></header><div class="segment-body"><div class="grid" id="cnMetrics"></div><div class="scroll"><table id="ktableCN"></table></div></div></article><article class="segment-card dn"><header class="segment-head"><h3>🏢 KHÁCH HÀNG DOANH NGHIỆP</h3><strong id="dnWeightLabel"></strong></header><div class="segment-body"><div class="grid" id="dnMetrics"></div><div class="scroll"><table id="ktableDN"></table></div></div></article></div><div id="depositNote" class="deposit-note"></div></section>
+<section class="panel view" id="changes" hidden><h2>Biến động giữa hai báo cáo</h2><p id="compareSource" class="muted"></p><div class="row"><label>File đối chiếu cũ<input id="previousFile" type="file" accept=".xlsx,.xls"></label></div><div id="compareMetrics" class="grid"></div><div class="segment-grid"><article class="segment-card cn"><header class="segment-head"><h3>👤 KHÁCH HÀNG CÁ NHÂN</h3></header><div class="segment-body"><table id="compareCN" class="compare"></table></div></article><article class="segment-card dn"><header class="segment-head"><h3>🏢 KHÁCH HÀNG DOANH NGHIỆP</h3></header><div class="segment-body"><table id="compareDN" class="compare"></table></div></article></div><p class="muted">Tiền: triệu đồng. Chênh lệch = file mới − file trước. Δ điểm là điểm KPI, không phải phần trăm tăng tương đối. Chỉ so sánh dữ liệu gốc, không cộng giao dịch giả lập.</p></section><section class="panel view" id="simulation" hidden><h2>03 · Nhật ký giao dịch</h2><p class="muted">Nhập số có dấu: tăng (+), giảm (−). Giá trị tiền dùng triệu đồng. Chỉ giao dịch dự kiến hoặc chưa ghi nhận được cộng vào dự báo; giao dịch đã ghi nhận không cộng lại.</p><div class="grid"><label>Ngày giao dịch<input id="txdate" type="date"></label><label>Loại giao dịch<select id="kind"></select></label><label>Số tiền (triệu) / số KH<input id="amount" type="number" step="any" value="0"></label><label>Trạng thái<select id="txstate"><option value="planned">Dự kiến</option><option value="done">Đã thực hiện, chưa vào báo cáo</option><option value="posted">Đã ghi nhận</option><option value="cancel">Hủy</option></select></label><label>Thu phí/thẻ đủ điều kiện hưởng lương<select id="qual"><option value="yes">Có</option><option value="no">Không / chưa xác minh</option></select></label></div><p><button id="add">Thêm giao dịch</button></p><p id="txnote" class="warn"></p><div class="scroll"><table id="txtable"></table></div></section>
+<section class="panel view" id="salary" hidden inert aria-hidden="true"><h2>04 · Bộ tính thu nhập khoán</h2><p id="salarynote" class="warn"></p><div class="grid" id="salaryinputs"></div><p class="muted">Đơn vị triệu đồng, ngoại trừ các ô ghi tỷ. Ô trống được tự ước tính từ KPI khi có căn cứ; nhập tay để thay giả định. Báo cáo lương cùng kỳ được ưu tiên. Phần thẻ/BH được cộng riêng sau chặn sàn/trần.</p><div class="scroll"><table id="stable"></table></div></section>
+<section class="panel view" id="target" hidden inert aria-hidden="true"><h2>05 · Tính ngược mục tiêu</h2><div class="grid"><label>KPI lai mục tiêu (%)<input id="goalK" type="number" value="120" min="0" step=".1"></label><label>Thu nhập khoán mục tiêu (triệu)<input id="goalS" type="number" value="30" min="0" step=".1"></label></div><div id="targetout"></div><p class="muted">Ước lượng từng phương án độc lập, giữ nguyên các yếu tố khác. Chỉ tính giao dịch hợp lệ, không đề xuất giao dịch giả hoặc trì hoãn nghĩa vụ khách hàng.</p></section>
+<section class="panel view" id="history" hidden inert aria-hidden="true"><h2>06 · Lịch sử báo cáo trên thiết bị</h2><p class="muted">Giữ tối đa 60 bản ghi KPI, bỏ bản trùng số liệu. Khi nạp bản mới, kiểm tra nhật ký để tránh cộng trùng.</p><div class="scroll"><table id="htable"></table></div></section>
+<section class="panel view" id="settings" hidden inert aria-hidden="true"><h2>07 · Cài đặt & kiểm chứng</h2><div class="grid"><label>Trọng số hiệu dụng tăng trưởng CN (%)<input id="growthWeight" type="number" min="0" max="100" step=".1" value="12"></label><label>Ngày đầu tiên số dư giảm/tăng có hiệu lực<select id="daymode"><option value="same">Ngày giao dịch</option><option value="next">Ngày kế tiếp</option></select></label><label>KPI lai DN (%) nếu cần hiệu chỉnh<input id="dnWeight" type="number" min="0" max="100" placeholder="Theo báo cáo"></label></div><p class="warn">Trọng số tăng trưởng 12 là giả định suy ra từ điểm trần 24/200%. Báo cáo hiển thị tỷ trọng 20 nhưng điểm trần khác; cần kiểm chứng với văn bản KPI. Không sử dụng mô phỏng để xác nhận lương chính thức.</p><p>Firebase đồng bộ toàn bộ dữ liệu KPI đã xử lý và cấu hình cá nhân. File Excel gốc không được tải lên. Nếu mất kết nối, giữ bản lưu tại máy.</p><div class="row"><button id="pull" class="secondary">Tải cấu hình Firebase</button><button id="push" class="secondary">Lưu cấu hình Firebase</button></div><p id="syncmsg" role="status"></p></section>
+</main><script>
+'use strict';
+const $=id=>document.getElementById(id), KEY='qlkh2.kpi.salary.v1', CFG='qlkh2.kpi.config.v1';
+const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))||fallback}catch(e){return fallback}};
+let st=read(KEY,{emp:'',kpi:null,salary:null,inputs:{},tx:[],history:[]}),cfg=read(CFG,{growthWeight:12,daymode:'same',dnWeight:''});
+const persistLocal=()=>{try{localStorage.setItem(KEY,JSON.stringify(st));localStorage.setItem(CFG,JSON.stringify(cfg));return true}catch(e){$('msg').textContent='Không lưu được tại máy: '+e.message;return false}};
+const save=()=>{persistLocal();markKpiDirty()};
+const num=v=>typeof v==='number'&&Number.isFinite(v)?v:(v===null||v===undefined||v===''?null:Number.isFinite(Number(v))?Number(v):null);
+const n=v=>num(v)??0, f=(v,d=2)=>v===null||v===undefined||!Number.isFinite(v)?'—':v.toLocaleString('vi-VN',{maximumFractionDigits:d,minimumFractionDigits:d}), money=v=>f(v,2)+' tr';
+const norm=v=>String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').trim().toLowerCase();
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const idnorm=v=>String(v??'').trim().replace(/^0+/,'');
+const dateISO=v=>{if(typeof v==='number'&&window.XLSX){const d=XLSX.SSF.parse_date_code(v);if(d)return [d.y,String(d.m).padStart(2,'0'),String(d.d).padStart(2,'0')].join('-')}let m=String(v??'').match(/(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/);if(m)return m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');m=String(v??'').match(/^\d{4}-\d{2}-\d{2}/);return m?m[0]:''};
+const month=d=>String(d||'').slice(0,7), days=d=>{const [y,m]=d.split('-').map(Number);return new Date(y,m,0).getDate()};
+const periodFactor=(d,p)=>month(d)===month(p)?Math.max(0,days(p)-Number(d.slice(8,10))+(cfg.daymode==='same'?1:0))/days(p):0;
+const col=c=>[...c].reduce((a,b)=>a*26+b.charCodeAt(0)-64,0)-1;
+const cell=(r,c)=>r[col(c)];
+const rows=(w,s)=>XLSX.utils.sheet_to_json(w.Sheets[s],{header:1,raw:true,defval:null,blankrows:true});
+function identify(a){return a.findIndex(r=>norm(r[5])==='ma nv')}
+function parseK(w){
+ let out={date:'',parts:{},warnings:[],reported:[]};
+ for(const side of ['CN','DN']){
+  const name=w.SheetNames.find(s=>norm(s)===side.toLowerCase());if(!name)throw Error('Thiếu sheet '+side);
+  const a=rows(w,name), hi=identify(a);if(hi<0||!a[hi+1])throw Error('Không nhận diện được tiêu đề '+side);
+  const date=dateISO(a[hi-1]?.[5]);if(!date)throw Error('Không nhận diện ngày báo cáo '+side);if(out.date&&out.date!==date)throw Error('Ngày CN/DN không khớp');out.date=date;
+  const h=a[hi], sub=a[hi+1], groups=[];for(let i=10;i<h.length;i++)if(norm(sub[i])==='ke hoach'&&norm(sub[i+8])==='diem')groups.push({i,name:String(h[i]||'Chỉ tiêu '+(i+1))});
+  const matched=a.slice(hi+2).filter(r=>idnorm(r[5])===idnorm(st.emp));if(!matched.length)throw Error('Không tìm thấy mã NV trong '+side);
+  const candidates=matched.map(r=>({r,items:groups.filter(g=>num(r[g.i+4])!==null||num(r[g.i+8])!==null).map(g=>({key:side+':'+g.i,name:g.name,plan:num(r[g.i]),actual:num(r[g.i+4]),pct:num(r[g.i+5]),weight:num(r[g.i+6]),cap:num(r[g.i+7]),point:num(r[g.i+8])}))})).filter(x=>x.items.length);
+  if(!candidates.length)throw Error('Không có dòng chỉ tiêu chi tiết '+side);
+  candidates.sort((a,b)=>b.items.length-a.items.length);const best=candidates[0];if(candidates.some(x=>JSON.stringify(x.items)!==JSON.stringify(best.items)))out.warnings.push(side+': nhiều dòng chi tiết khác nhau; đang lấy dòng đầy đủ nhất, cần kiểm tra.');
+  const ti=h.findIndex(x=>norm(x)==='tong diem'), wi=h.findIndex(x=>norm(x).includes(side==='CN'?'ty le kpi ca nhan':'ty le kpi doanh nghiep'));
+  const extras=h.map((x,i)=>({x,i})).filter(g=>norm(g.x).startsWith('diem')&&norm(sub[g.i])==='diem'&&num(best.r[g.i])!==null).map(g=>({key:side+':extra:'+g.i,name:String(g.x),plan:null,actual:null,pct:null,weight:null,cap:null,point:n(best.r[g.i])}));
+  const items=best.items.concat(extras), score=items.reduce((s,g)=>s+n(g.point),0), weight=num(best.r[wi]);
+  if(weight===null)throw Error('Thiếu tỷ trọng '+side);out.parts[side]={items,score,weight};out.reported.push(...matched.map(r=>num(r[ti])).filter(v=>v!==null));
+ }
+ out.reported=[...new Set(out.reported)];if(out.reported.length>1)out.warnings.push('Cột tổng điểm chứa nhiều giá trị: '+out.reported.map(x=>f(x)).join(' / ')+'. Tính lại từ điểm chi tiết từng mảng.');
+ if(Math.abs(out.parts.CN.weight+out.parts.DN.weight-100)>.01)out.warnings.push('Tổng tỷ trọng khác 100%; cần kiểm tra.');
+ return out;
+}
+const fields=[
+ ['q','Quy mô quy đổi CN (tỷ)','AG',1e9],['netHD','Tăng net CKH CN (tỷ)','AV',1e9],['netCA','Tăng net CASA CN (tỷ)','BA',1e9],
+ ['fee','Thu ngoài lãi đủ điều kiện CN (triệu)','BG',1e6],['classic','Thẻ Classic/Gold CN','BO',1],['platinum','Thẻ Platinum… CN','BQ',1],['infinite','Thẻ Infinite CN','BS',1],
+ ['bh','Thu nhập BH CN (triệu)','BN',1e6],['pay','Thu nhập Pay CN (triệu)','BW',1e6],['wealth','Thu nhập QLTS CN (triệu)','BZ',1e6],['dn','Thu nhập DN gồm thẻ (triệu)','CA',1e6],['dnCards','Thu nhập thẻ DN (triệu)',null,1],
+ ['base','Thu nhập BQ 6T loại trừ thẻ/BH (triệu)','CG',1e6],['factor','Hệ số KPI (1 = 100%)','CD',100]
+];
+function parseSalary(w){
+ const name=w.SheetNames.find(s=>/^13\.1/.test(s))||w.SheetNames.find(s=>norm(s).includes('cv khcn')&&!norm(s).includes('lai'));if(!name)throw Error('Không tìm thấy sheet lương CVKHCN');
+ const a=rows(w,name),hi=identify(a),r=a.slice(hi+2).find(r=>idnorm(r[5])===idnorm(st.emp)&&num(cell(r,'AG'))!==null);if(hi<0||!r)throw Error('Báo cáo lương không có dữ liệu mã NV');
+ const date=dateISO(a[hi-1]?.[2]);if(!date)throw Error('Không đọc được kỳ lương');const values={};fields.forEach(([k,l,c,div])=>{const v=c?num(cell(r,c)):null;values[k]=v===null?'':v/div});
+ const dnSheet=w.SheetNames.find(s=>/^13\.3/.test(s));if(dnSheet){const d=rows(w,dnSheet),rr=d.find(r=>idnorm(r[5])===idnorm(st.emp)&&num(cell(r,'AM'))!==null);if(rr)values.dnCards=n(cell(rr,'AM'))/1e6}
+ const dep={ckh:num(cell(r,'AB')),casa:num(cell(r,'AF')),netCkh:num(cell(r,'AV')),netCasa:num(cell(r,'BA'))};
+ return {date,values,reported:num(cell(r,'CL'))===null?null:n(cell(r,'CL'))/1e6,source:name,dep};
+}
+const kinds={cvCN:'Cho vay CN',hdCN:'Huy động CKH CN',caCN:'CASA CN',cvDN:'Cho vay DN',hdDN:'Huy động CKH DN',caDN:'CASA DN',feeCN:'Thu phí CN',feeDN:'Thu phí DN',cardClassic:'Thẻ Classic/Gold CN',cardPlatinum:'Thẻ Platinum… CN',cardInfinite:'Thẻ Infinite CN',payCN:'Sacombank Pay CN'};
+const statusNames={planned:'Dự kiến',done:'Chưa ghi nhận',posted:'Đã ghi nhận',cancel:'Hủy'};
+function delta(){const d={};if(!st.kpi)return d;for(const t of st.tx){if(!['planned','done'].includes(t.state)||month(t.date)!==month(st.kpi.date))continue;let a=n(t.amount);if(['cvCN','hdCN','caCN','cvDN','hdDN','caDN'].includes(t.kind))a*=periodFactor(t.date,st.kpi.date);d[t.kind]=(d[t.kind]||0)+a;if(t.qual==='yes')d[t.kind+'Q']=(d[t.kind+'Q']||0)+a}return d}
+const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
+function changes(side,items,d){
+ const totalCN=n(d.cvCN)+n(d.hdCN)+n(d.caCN),cards=n(d.cardClassic)+n(d.cardPlatinum)+n(d.cardInfinite);
+ return items.map(g=>{
+ let diff=0,unit=1e6, k=norm(g.name), effective=null;
+ if(side==='CN'){
+ if(k==='so du binh quan quy mo'||k==='tang truong binh quan quy mo')diff=totalCN;
+ else if(k.includes('binh quan cho vay'))diff=n(d.cvCN);
+ else if(k.includes('binh quan huy dong'))diff=n(d.hdCN)+n(d.caCN);
+ else if(k.includes('binh quan casa'))diff=n(d.caCN);
+ else if(k.includes('tong thu dv ca nhan'))diff=n(d.feeCN);
+ else if(k.includes('the tin dung')){diff=cards;unit=1}
+ else if(k.includes('sacombank pay')){diff=n(d.payCN);unit=1}
+ if(k==='tang truong binh quan quy mo'||k==='tang truong binh quan casa')effective=n(cfg.growthWeight);
+ }else{
+ if(k==='so du binh quan cho vay'||k==='so du tang truong cho vay')diff=n(d.cvDN);
+ else if(k==='so du binh quan huy dong'||k==='so du tang truong huy dong')diff=n(d.hdDN)+n(d.caDN);
+ else if(k==='so du binh quan casa'||k==='so du tang truong casa')diff=n(d.caDN);
+ else if(k.includes('thu thuan dich vu va kinh doanh'))diff=n(d.feeDN);
+ }
+ if(!diff||g.actual===null)return {...g,next:g.actual,nextPct:g.pct,nextPoint:g.point};
+ let actual=g.actual+diff*unit,pct=g.plan>0?actual/g.plan*100:null,point=g.point;
+ if(pct!==null&&g.point!==null&&g.weight!==null&&g.cap!==null){
+ let oldC=clamp(n(g.pct),0,g.cap),newC=clamp(pct,0,g.cap);
+ let w=effective!==null?effective:(oldC>0?g.point*100/oldC:g.weight);
+ if(oldC===newC)point=g.point;else point=newC*w/100;
+ }
+ return {...g,next:actual,nextPct:pct,nextPoint:point};
+ })
+}
+function predict(d=delta()){
+ if(!st.kpi)return null;const cn=changes('CN',st.kpi.parts.CN.items,d),dn=changes('DN',st.kpi.parts.DN.items,d);
+ const sum=a=>a.reduce((s,g)=>s+n(g.nextPoint),0),w=cfg.dnWeight===''?st.kpi.parts.DN.weight:clamp(n(cfg.dnWeight),0,100),a=sum(cn),b=sum(dn);
+ return {cn,dn,a,b,w,k:a*(100-w)/100+b*w/100,base:st.kpi.parts.CN.score*(100-w)/100+st.kpi.parts.DN.score*w/100};
+}
+function salaryInputs(){
+ const v={...(st.inputs||{})},notes=[],k=st.kpi;let dnDetail=null;const old=st.salary&&k&&month(st.salary.date)!==month(k.date);
+ if(!k)return {v,notes};
+ const get=(side,name)=>{const g=k.parts[side]?.items.find(x=>norm(x.name)===name);return num(g?.actual)};
+ const total=get('CN','so du binh quan quy mo'),casa=get('CN','so du binh quan casa'),dcv=get('DN','so du binh quan cho vay'),dh=get('DN','so du binh quan huy dong'),dca=get('DN','so du binh quan casa'),fees=get('CN','tong thu dv ca nhan'),cards=get('CN','tang net khach hang the tin dung'),df=get('DN','thu thuan dich vu va kinh doanh ngoai hoi'),active=get('DN','tang net khach hang active');
+ const fill=(key,value,note,refresh=false)=>{if(value!==null&&Number.isFinite(value)&&(num(v[key])===null||(refresh&&old&&!st.manualSalary?.[key]))){v[key]=value;notes.push(note)}};
+ if([total,casa,dcv,dh,dca].every(x=>x!==null)){fill('q',Math.max(0,total-dcv-dh+casa-dca)/1e9,'Quy mô CN: giả định KPI quy mô bao gồm DN; trừ quy mô DN, cộng thêm CASA CN còn lại; chưa điều chỉnh nhóm nợ.',true)}
+ fill('fee',fees===null?null:Math.max(0,fees)/1e6,'Phí CN: giả định toàn bộ thu DV KPI đủ điều kiện hưởng lương; kiểm tra phí tín dụng.',true);
+ if(cards!==null&&((['classic','platinum','infinite'].some(x=>num(v[x])===null))||(old&&!['classic','platinum','infinite'].some(x=>st.manualSalary?.[x])))){
+  v.classic=0;v.platinum=Math.max(0,cards);v.infinite=0;notes.push('Thẻ KPI giả định đều thuộc Platinum và đủ điều kiện giao dịch; sửa loại thẻ trong Chi tiết lương.');
+ }
+ if([dcv,dh,dca].every(x=>x!==null)){
+ const qdn=Math.max(0,dcv+dh-dca)/1e9;
+ const scale=qdn<300?Math.floor(qdn/3)*.1:qdn<500?10+Math.floor((qdn-300)/50)*.1:10.4+Math.floor((qdn-500)/500)*.1;
+ const ca=Math.max(0,dca)/1e9,caPay=ca<31?Math.floor(ca)*.1:3+Math.floor((ca-31)/100)*.1;
+ const dv=Math.max(0,n(df))/1e6,dvPay=dv<202?Math.floor(dv/2)*.1:10+Math.floor((dv-202)/100)*.1;
+ const act=Math.max(0,n(active)),actPay=Math.min(20,act)*.2+Math.max(0,act-20)*.1;
+ const dnEstimate=scale+caPay+dvPay+actPay;
+ const usingEstimate=num(v.dn)===null||(old&&!st.manualSalary?.dn);
+ fill('dn',dnEstimate,'DN: ước theo bậc quy mô lai, CASA, DV và KH active; chưa điều chỉnh nhóm nợ, chưa tính tăng net và thẻ DN.',true);
+ if(usingEstimate)dnDetail={scale,caPay,dvPay,actPay};
+ }
+ for(const [key,note] of [['netHD','Tăng net CKH'],['netCA','Tăng net CASA'],['bh','Bảo hiểm'],['pay','Pay'],['wealth','QLTS'],['dnCards','Thẻ DN']])fill(key,0,note+': chưa có dữ liệu, tạm chưa tính.',true);
+ fill('factor',1,'Hệ số KPI giả định 1 theo TB 6117.');
+ if(num(v.base)===null)notes.push('Chưa có thu nhập BQ 6 tháng: chỉ áp sàn chức danh 11 triệu; chưa áp chặn sàn/trần cá nhân.');
+ if(old)notes.push('Báo cáo lương khác kỳ; thông số cố định dùng làm tham chiếu, cấu phần biến động lấy từ KPI nếu có.');
+ return {v,notes,dnDetail};
+}
+function sal(d=delta()){
+ const {v,notes}=salaryInputs(),missing=fields.filter(([k])=>k!=='base'&&num(v[k])===null).map(x=>x[1]);if(missing.length)return {missing,notes};
+ const q=n(v.q)+(n(d.cvCN)+n(d.hdCN)+2*n(d.caCN))/1000;
+ const round6=x=>Math.round(x*1e6)/1e6,step=(x,w,p,cap)=>Math.min(cap,Math.max(0,Math.floor(round6(x/w)))*p);
+ const scale=q<60?11:Math.min(20,11+(Math.floor(round6((q-60)/5))+1)*.15);
+ const h=step(n(v.netHD)+n(d.hdCN)/1000,.25,.25,20),c=step(n(v.netCA)+n(d.caCN)/1000,.05,.1,20);
+ const fee=(n(v.fee)+n(d.feeCNQ))*.04,card=(n(v.classic)+n(d.cardClassicQ))*.3+(n(v.platinum)+n(d.cardPlatinumQ))*.6+(n(v.infinite)+n(d.cardInfiniteQ)),pay=n(v.pay)+n(d.payCNQ)*.05;
+ const factor=n(v.factor),base=n(v.base),floor=Math.max(11,base*.85),cap=num(v.base)===null?Infinity:Math.max(20,base*1.5),core=(scale+h+c+fee+pay+n(v.wealth)+n(v.dn)-n(v.dnCards))*factor,extra=(card+n(v.bh)+n(v.dnCards))*factor;
+ const total=Math.max(floor,Math.min(core,cap))+extra;
+ return {total,core,extra,scale,h,c,fee,card,pay,floor,cap,q,missing:[],notes,estimated:notes.length>0};
+}
+function quoteClass(value,mode='number'){
+ const raw=String(value??'').trim().replace(/\u2212/g,'-').replace(/\s/g,'').replace(/%$/,'');
+ if(!/^[+-]?[\d.]+(?:,\d+)?$/.test(raw))return '';
+ const v=Number(raw.replace(/\./g,'').replace(',','.'));if(!Number.isFinite(v))return '';
+ if(v<0)return 'quote-down';
+ if(mode==='percent')return v>100?'quote-ceiling':v===100?'quote-reference':v>0?'quote-up':'';
+ if(mode==='delta'&&v>0)return 'quote-up';
+ return '';
+}
+function displayKpiAmount(g,v){if(v===null||v===undefined)return '—';const k=norm(g.name);const monetary=/quy mo|binh quan|tang truong|doanh so bao hiem|thu dv|thu thuan|^toi$/.test(k)&&!/kiem soat|khach hang|the tin dung|sacombank pay/.test(k);return monetary?f(v/1e6,1):f(v,2)}
+function table(id,headers,data){$(id).innerHTML='<thead><tr>'+headers.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr></thead><tbody>'+data.map(r=>'<tr>'+r.map((x,i)=>{const mode=(id==='ktableCN'||id==='ktableDN')&&(i===4||i===5)||id==='htable'&&i>=2&&i<=4?'percent':(id==='htable'&&i===5||id.startsWith('compare')&&i>=3)?'delta':'number';const cls=i===0||id==='htable'&&i===1?'':quoteClass(x,mode);return '<td class="'+cls+'">'+esc(x)+'</td>'}).join('')+'</tr>').join('')+'</tbody>'}
+function metric(label,value,note=''){const cls=quoteClass(String(value).replace(/\s*(?:tr|điểm)$/,''),String(value).endsWith('%')?'percent':String(value).endsWith('điểm')?'delta':'number');return '<div class="metric"><small>'+esc(label)+'</small><b class="'+cls+'">'+esc(value)+'</b><small>'+esc(note)+'</small></div>'}
+function reportStamp(k,name=''){
+ const m=String(name).match(/(20\d{6})[_-](\d{4})(?!\d)/);
+ return m?m[1]+m[2]:String(k.date||'').replace(/-/g,'')+'0000';
+}
+function reportData(k){return JSON.stringify({date:k.date,parts:k.parts})}
+function reportEntry(k,name='',loaded=''){return {k,name,loaded,stamp:reportStamp(k,name)}}
+function compareEntries(){
+ let list=[];
+ for(const h of st.history||[]){try{const k=JSON.parse(h.signature);if(k.parts?.CN&&k.parts?.DN)list.push(reportEntry(k,h.name||'',h.loaded||''))}catch(e){}}
+ list.push(...(st.compareReports||[]).filter(x=>x.k?.parts?.CN&&x.k?.parts?.DN));
+ if(st.kpi&&!list.some(x=>reportData(x.k)===reportData(st.kpi)))list.push(reportEntry(st.kpi,st.kpiName||''));
+ // Preserve identical snapshots with different explicit export timestamps; collapse legacy copies.
+ const unique=new Map();
+ for(const x of list){const key=x.name?x.stamp+'|'+reportData(x.k):reportData(x.k);unique.set(key,x)}
+ list=[...unique.values()].filter(x=>x.name||![...unique.values()].some(y=>y.name&&reportData(y.k)===reportData(x.k)));
+ return list.sort((a,b)=>a.stamp.localeCompare(b.stamp)||String(a.loaded).localeCompare(String(b.loaded)));
+}
+function recordReport(k,name,previousOnly=false){
+ const entry=reportEntry(k,name,new Date().toISOString());
+ const current=st.kpi?reportEntry(st.kpi,st.kpiName||'') :null;
+ if(previousOnly&&(!current||entry.stamp>current.stamp&&current.name))throw Error('File đối chiếu phải không mới hơn file Tổng quan.');
+ let all=compareEntries();
+ if(!all.some(x=>x.stamp===entry.stamp&&reportData(x.k)===reportData(k)))all.push(entry);
+ st.compareReports=all.sort((a,b)=>a.stamp.localeCompare(b.stamp)).slice(-12);
+ if(!previousOnly&&(!current||entry.stamp>=current.stamp||!current.name&&k.date>=current.k.date)){st.kpi=k;st.kpiName=name;return true}
+ return false;
+}
+function comparePair(){
+ const list=compareEntries(),current=st.kpi;
+ if(!current)return [null,null];
+ const matches=list.filter(x=>reportData(x.k)===reportData(current));
+ const latest=matches.find(x=>x.name&&x.name===st.kpiName)||matches[matches.length-1]||reportEntry(current,st.kpiName||'');
+ const before=list.filter(x=>x!==latest&&(x.stamp<latest.stamp||x.stamp===latest.stamp&&reportData(x.k)!==reportData(latest.k)));
+ return [before[before.length-1]||null,latest];
+}
+function compareRender(){
+ const [old,cur]=comparePair(),desc=x=>x.name||x.k.date+(x.loaded?' · nạp '+x.loaded:'');
+ $('compareSource').textContent=!cur?'Chưa nạp file KPI.':!old?'Cần thêm một báo cáo trước đó. Nạp file cũ tại đây, không thay đổi Tổng quan.':'File trước: '+desc(old)+' | File hiện tại: '+desc(cur);
+ const headers=['Chỉ tiêu','File trước','File mới','Chênh lệch','Δ điểm'];
+ const sign=(v,d=2)=>v===null?'—':(v>0?'+':'')+f(v,d);
+ const diff=(a,b)=>num(a)===null||num(b)===null?null:n(b)-n(a);
+ const kscore=k=>k.parts.CN.score*k.parts.CN.weight/100+k.parts.DN.score*k.parts.DN.weight/100;
+ $('compareMetrics').innerHTML=old&&cur?['CN','DN','Lai'].map(side=>{const a=side==='Lai'?kscore(old.k):old.k.parts[side].score,b=side==='Lai'?kscore(cur.k):cur.k.parts[side].score;return metric('KPI '+side+' · '+f(a)+'% → '+f(b)+'%',sign(b-a)+' điểm','Chênh lệch')}).join(''):'';
+ for(const side of ['CN','DN']){
+ const data=[];if(old&&cur){const a=old.k.parts[side].items,b=cur.k.parts[side].items, map=new Map(a.map(g=>[norm(g.name),g])),seen=new Set();
+ for(const g of b){const key=norm(g.name),prev=map.get(key);seen.add(key);const d=diff(prev?.actual,g.actual),pd=diff(prev?.point,g.point);data.push([g.name,displayKpiAmount(g,prev?.actual),displayKpiAmount(g,g.actual),d===null?'—':(d>0?'+':'')+displayKpiAmount(g,d),sign(pd)])}
+ for(const g of a)if(!seen.has(norm(g.name)))data.push([g.name,displayKpiAmount(g,g.actual),'—','—','—']);
+ const da=old.k.parts[side].score,db=cur.k.parts[side].score;data.push(['TỔNG KPI (%)',f(da),f(db),sign(db-da),sign(db-da)]);
+ }table('compare'+side,headers,data);
+ }
+}
+const payOpen={CN:false,DN:false};
+function payMetric(side,value){return '<button type="button" class="metric salary-toggle" data-pay-toggle="'+side+'" aria-expanded="'+payOpen[side]+'" aria-controls="ktable'+side+'"><small>Thu nhập '+side+' ước tính</small><b>'+esc(value)+'</b><small>'+(payOpen[side]?'◂ Thu gọn cột lương':'Xem cột lương ▸')+'</small></button>'}
+function salaryRows(side,items,s,v){
+ if(s.missing.length)return items.map(()=>null);
+ const factor=n(v.factor),used=new Set();
+ const dn=side==='DN'?salaryInputs().dnDetail:null;
+ const values={scale:s.scale,h:s.h,c:s.c,fee:s.fee,card:s.card,pay:s.pay,bh:n(v.bh),wealth:n(v.wealth)};
+ const pick=(key)=>{if(used.has(key))return null;used.add(key);return values[key]*factor};
+ return items.map(g=>{const k=norm(g.name);if(side==='DN'){
+ if(!dn)return null;
+ const key=k==='so du binh quan cho vay'?'scale':k==='so du binh quan casa'?'caPay':k.includes('thu thuan dich vu')?'dvPay':k.includes('khach hang active')?'actPay':null;
+ if(!key||used.has(key))return null;used.add(key);return dn[key]*factor;
+ }
+ if(k==='so du binh quan quy mo')return pick('scale');
+ if(k.includes('tang truong')&&k.includes('huy dong'))return pick('h');
+ if(k.includes('tang truong')&&k.includes('casa'))return pick('c');
+ if(k.includes('thu dv')||k.includes('thu dich vu'))return pick('fee');
+ if(k.includes('the tin dung'))return pick('card');
+ if(k.includes('bao hiem'))return pick('bh');
+ if(k.includes('sacombank pay'))return pick('pay');
+ if(k.includes('quan ly tai san'))return pick('wealth');
+ return null});
+}
+function drawPayTable(side,items,s,v){
+ const id='ktable'+side,t=$(id),headers=['Chỉ tiêu','KH','TH','Dự kiến','% TH','% DK','Điểm','Đ. DK'],amounts=salaryRows(side,items,s,v);
+ const raw=items.map(g=>[g.name,displayKpiAmount(g,g.plan),displayKpiAmount(g,g.actual),displayKpiAmount(g,g.next),f(g.pct),f(g.nextPct),f(g.point),f(g.nextPoint)]);
+ const total=s.missing.length?null:side==='CN'?(s.scale+s.h+s.c+s.fee+s.card+s.pay+n(v.bh)+n(v.wealth))*n(v.factor):n(v.dn)*n(v.factor);
+ const assigned=amounts.reduce((a,b)=>a+n(b),0),remaining=total===null?null:total-assigned;
+ t.className='kpi-pay'+(payOpen[side]?' pay-open':'');
+ t.innerHTML='<colgroup><col class="name-col">'+Array(7).fill('<col class="data-col">').join('')+'<col class="pay-col"></colgroup><thead><tr>'+headers.map(h=>'<th>'+esc(h)+'</th>').join('')+'<th class="pay-cell"><span class="pay-inner">Lương ƯT (tr)</span></th></tr></thead><tbody>'+raw.map((row,j)=>'<tr'+(side==='DN'&&norm(items[j].name)==='so du binh quan cho vay'?' title="Thu nhập quy mô DN gộp: cho vay + huy động sau khi loại trừ CASA"':'')+'>'+row.map((x,i)=>'<td class="'+(i?quoteClass(x,i===4||i===5?'percent':'number'):'')+'">'+esc(x)+'</td>').join('')+'<td class="pay-cell"><span class="pay-inner">'+esc(amounts[j]===null?'—':f(amounts[j]))+'</span></td></tr>').join('')+(total===null?'':'<tr class="pay-summary" '+(payOpen[side]?'':'hidden')+'><td colspan="8">'+(side==='DN'?'Cấu phần DN còn lại / chưa tách':'Cấu phần chưa phân bổ')+'</td><td class="pay-cell"><span class="pay-inner">'+esc(f(remaining))+'</span></td></tr><tr class="pay-summary" '+(payOpen[side]?'':'hidden')+'><td colspan="8"><strong>Tổng trước chặn chung</strong></td><td class="pay-cell"><span class="pay-inner">'+esc(f(total))+'</span></td></tr>')+'</tbody>';
+ const btn=$((side==='CN'?'cn':'dn')+'Metrics');
+ btn.onclick=e=>{const b=e.target.closest('[data-pay-toggle]');if(!b)return;payOpen[side]=!payOpen[side];t.classList.toggle('pay-open',payOpen[side]);b.setAttribute('aria-expanded',String(payOpen[side]));b.lastElementChild.textContent=payOpen[side]?'◂ Thu gọn cột lương':'Xem cột lương ▸';t.querySelectorAll('.pay-summary').forEach(x=>x.hidden=!payOpen[side])};
+}
+function updateDepositRecord(report){
+ if(!report?.dep||!report.date)return;
+ const d=report.dep, rec=st.depositRecord||{peaks:{},latest:null};
+ rec.peaks=rec.peaks||{};
+ for(const [key,netKey] of [['ckh','netCkh'],['casa','netCasa']]){
+ const current=num(d[key]),net=num(d[netKey]);
+ if(current===null||current<0)continue;
+ const implied=net===null?null:current-net;
+ const candidate=Math.max(current,implied!==null&&implied>=0?implied:0);
+ if(!rec.peaks[key]||candidate>rec.peaks[key].amount)rec.peaks[key]={amount:candidate,sourceDate:report.date,kind:candidate>current?'Suy ra từ tăng net báo cáo lương':'Số dư sau bàn giao'};
+ }
+ if(!rec.latest||report.date>=rec.latest.date)rec.latest={date:report.date,ckh:d.ckh,casa:d.casa};
+ st.depositRecord=rec;
+}
+function renderDepositNote(){
+ const rec=st.depositRecord||{},latest=rec.latest,peaks=rec.peaks||{},k=st.kpi;
+ const val=x=>num(x)===null?'—':f(x/1e9,3);
+ const rows=[['CKH CN',peaks.ckh,latest?.ckh],['CASA CN',peaks.casa,latest?.casa]];
+ const raw=(side)=>num(k?.parts?.[side]?.items.find(g=>norm(g.name)==='so du binh quan casa')?.actual);
+ $('depositNote').innerHTML='<strong>THEO DÕI ĐỈNH HUY ĐỘNG BÌNH QUÂN</strong><table><thead><tr><th>Chỉ tiêu</th><th>Đỉnh lưu (tỷ)</th><th>BQ sau bàn giao (tỷ)</th></tr></thead><tbody>'+rows.map(([label,p,c])=>'<tr><td>'+esc(label)+'</td><td title="'+esc(p?(p.kind+' · kỳ '+p.sourceDate):'Chưa có dữ liệu')+'"><strong>'+esc(val(p?.amount))+'</strong></td><td>'+esc(val(c))+'</td></tr>').join('')+'</tbody></table><p class="muted">'+(latest?'Kỳ báo cáo lương '+esc(latest.date)+'. Đỉnh chỉ cập nhật khi cao hơn; gồm đỉnh suy ra từ số tăng net sau bàn giao.':'Nạp lại báo cáo lương có số dư sau bàn giao để ghi nhận đỉnh ban đầu.')+'</p><p class="muted">KPI '+esc(k?.date||'—')+': CASA trên sheet CN '+esc(val(raw('CN')))+' tỷ · CASA trên sheet DN '+esc(val(raw('DN')))+' tỷ. Không dùng số KPI này thay thế số dư sau bàn giao khi chưa đối chiếu.</p>';
+}
+function render(){
+ renderDepositNote();
+ compareRender();
+ const p=predict(),s=sal(),old=st.salary&&st.kpi&&month(st.salary.date)!==month(st.kpi.date);
+ $('source').textContent='KPI: '+(st.kpi?.date||'chưa nạp')+' | Lương tham chiếu: '+(st.salary?.date||'chưa nạp')+' | Mã NV: '+(st.emp||'chưa nhập');
+ $('metrics').innerHTML=metric('KPI lai hiện tại',p?f(p.base)+'%':'—',p?'CN '+f(100-p.w,0)+'% · DN '+f(p.w,0)+'%':'')+metric('KPI lai mô phỏng',p?f(p.k)+'%':'—')+metric(s.estimated?'Lương khoán ước tính (giả định)':'Lương khoán ước tính',s.missing.length?'Chưa đủ dữ liệu':money(s.total),s.estimated?'Trước khấu trừ · ước tính':'Trước khấu trừ');
+ const sv=salaryInputs().v;
+ const cnSalary=s.missing.length?null:(s.scale+s.h+s.c+s.fee+s.card+s.pay+n(sv.bh)+n(sv.wealth))*n(sv.factor);
+ const dnSalary=s.missing.length?null:n(sv.dn)*n(sv.factor);
+ $('cnWeight').textContent=p?'Tỷ trọng '+f(100-p.w,0)+'%':'';
+ $('dnWeightLabel').textContent=p?'Tỷ trọng '+f(p.w,0)+'%':'';
+ $('cnMetrics').innerHTML=metric('KPI CN hiện tại',p?f(st.kpi.parts.CN.score)+'%':'—')+metric('KPI CN dự kiến',p?f(p.a)+'%':'—')+metric('Đóng góp KPI lai',p?f(p.a*(100-p.w)/100)+' điểm':'—')+payMetric('CN',cnSalary===null?'—':money(cnSalary));
+ $('dnMetrics').innerHTML=metric('KPI DN hiện tại',p?f(st.kpi.parts.DN.score)+'%':'—')+metric('KPI DN dự kiến',p?f(p.b)+'%':'—')+metric('Đóng góp KPI lai',p?f(p.b*p.w/100)+' điểm':'—')+payMetric('DN',dnSalary===null?'—':money(dnSalary));
+ $('knotes').textContent=p?[...st.kpi.warnings,'Mô phỏng dùng số bình quân giảm/tăng theo ngày, giả định nền giữ nguyên đến cuối tháng. Trọng số hiệu dụng và điểm dự báo cần kiểm chứng.'].join(' '):'Nạp file KPI để bắt đầu.';
+ drawPayTable('CN',p?.cn||[],s,sv);drawPayTable('DN',p?.dn||[],s,sv);
+ $('salarynote').textContent=s.missing.length?'Chưa đủ căn cứ: '+s.missing.join(', ')+'. '+(s.notes||[]).join(' '):'Ước tính có điều kiện, chưa phải lương chính thức. '+(s.notes||[]).join(' ')+' Phần biến động DN chưa tự quy đổi vào lương DN; có thể hiệu chỉnh thủ công.';
+ $('knotes').textContent+=' '+(s.notes||[]).join(' ');
+ table('stable',['Cấu phần','Triệu đồng'],s.missing.length?[]:[['Lương quy mô CN',f(s.scale)],['Tăng net CKH CN',f(s.h)],['Tăng net CASA CN',f(s.c)],['Thu ngoài lãi CN',f(s.fee)],['Thẻ CN',f(s.card)],['Pay CN',f(s.pay)],['Cốt lõi trước chặn',f(s.core)],['Sàn / Trần cốt lõi',f(s.floor)+' / '+(Number.isFinite(s.cap)?f(s.cap):'Chưa xác định')],['Thẻ/BH sau hệ số',f(s.extra)],['Tổng khoán',f(s.total)]]);
+ $('txnote').textContent='Chỉ tính giao dịch cùng tháng với KPI. Khi tải báo cáo mới, hãy chuyển các giao dịch đã vào số liệu sang “Đã ghi nhận”. Không tự khớp theo chênh lệch tổng vì có thể trùng hoặc thiếu giao dịch.';
+ const tbody=st.tx.map((t,i)=>'<tr><td>'+esc(t.date)+'</td><td>'+esc(kinds[t.kind]||t.kind)+'</td><td class="'+quoteClass(f(t.amount),'delta')+'">'+esc(f(t.amount))+'</td><td><select data-status="'+i+'">'+Object.entries(statusNames).map(([v,l])=>'<option value="'+v+'"'+(t.state===v?' selected':'')+'>'+l+'</option>').join('')+'</select></td><td>'+esc(t.qual==='yes'?'Có':'Không')+'</td><td><button class="secondary" data-del="'+i+'">Xóa</button></td></tr>').join('');
+ $('txtable').innerHTML='<thead><tr><th>Ngày</th><th>Giao dịch</th><th>Giá trị</th><th>Trạng thái</th><th>Hưởng lương</th><th></th></tr></thead><tbody>'+tbody+'</tbody>';
+ table('htable',['Ngày báo cáo','Lúc nạp','KPI CN','KPI DN','KPI lai','Δ KPI lai'],st.history.map((h,i)=>[h.date,h.loaded,f(h.cn),f(h.dn),f(h.k),i?f(h.k-st.history[i-1].k):'—']));
+ target(p,s);
+}
+function target(p,s){
+ const goal=n($('goalK').value),gs=n($('goalS').value),d=delta(),out=[];
+ function need(test,limit){if(test(0))return 0;if(!test(limit))return null;let l=0,h=limit;for(let i=0;i<45;i++){let m=(l+h)/2;if(test(m))h=m;else l=m}return h}
+ if(p){const fee=need(x=>predict({...d,feeCN:n(d.feeCN)+x}).k>=goal,1e6),cards=need(x=>predict({...d,cardPlatinum:n(d.cardPlatinum)+Math.ceil(x)}).k>=goal,10000);out.push('Phí CN bổ sung để đạt KPI: '+(fee===null?'Không đạt chỉ bằng phí (trần điểm)':money(Math.ceil(fee*100)/100)),'Thẻ CN bổ sung: '+(cards===null?'Không đạt chỉ bằng thẻ':Math.ceil(cards)+' KH'))}
+ if(p&&st.kpi){const date=$('txdate').value||st.kpi.date,k=periodFactor(date,st.kpi.date);if(k>0){const hd=need(x=>predict({...d,hdCN:n(d.hdCN)+x*k}).k>=goal,1e6);out.push('Huy động CKH CN bổ sung tại thời điểm '+date+': '+(hd===null?'Không đạt chỉ bằng CKH':money(Math.ceil(hd*100)/100)));if(p.k>=goal){const threshold=need(x=>predict({...d,cvCN:n(d.cvCN)-x*k}).k<goal,1e6);out.push('Dư địa giảm cho vay CN tại '+date+': '+(threshold===null?'Không tìm thấy ngưỡng trong phạm vi mô phỏng; không phải hạn mức được phép giảm.':money(Math.floor(Math.max(0,threshold-.00001)*100)/100)+' (giữ các chỉ tiêu khác không đổi).'))}else out.push('Dư địa giảm cho vay: KPI đang dưới mục tiêu.')}}
+ if(!s.missing.length){const fee=need(x=>sal({...d,feeCNQ:n(d.feeCNQ)+x}).total>=gs,1e6);out.push('Phí đủ điều kiện bổ sung để đạt lương: '+(fee===null?'Không đạt do trần cốt lõi':money(Math.ceil(fee*100)/100)))}
+ $('targetout').innerHTML=out.length?out.map(x=>'<p>'+esc(x)+'</p>').join(''):'<p>Chưa đủ dữ liệu.</p>';
+}
+function buildInputs(){ $('salaryinputs').innerHTML=fields.map(([k,l])=>'<label>'+esc(l)+'<input type="number" step="any" data-salary="'+k+'" value="'+esc(st.inputs?.[k]??'')+'"></label>').join('') }
+function showMessage(t){$('msg').textContent=t}
+async function upload(e,type){const file=e.target.files[0];if(!file)return;try{if(!/^\d{6}$/.test(st.emp))throw Error('Nhập mã NV 6 số trước khi nạp file.');if(!window.XLSX)throw Error('Không tải được thư viện Excel. Kiểm tra kết nối.');const w=XLSX.read(await file.arrayBuffer(),{type:'array'});if(type==='kpi'){const k=parseK(w),signature=JSON.stringify(k);const latest=recordReport(k,file.name);const p=predict();if(!st.history.some(h=>h.signature===signature)){st.history.push({date:k.date,loaded:new Date().toLocaleString('vi-VN'),name:file.name,cn:k.parts.CN.score,dn:k.parts.DN.score,k:k.parts.CN.score*k.parts.CN.weight/100+k.parts.DN.score*k.parts.DN.weight/100,signature});st.history=st.history.slice(-60)}if(latest&&(!$('txdate').value||month($('txdate').value)!==month(k.date)))$('txdate').value=k.date;showMessage(latest?'Đã cập nhật KPI mới nhất. Xem tab Biến động để đối chiếu.':'Đã lưu báo cáo cũ để đối chiếu; Tổng quan không thay đổi.')}else{const s=parseSalary(w);updateDepositRecord(s);st.salary=s;st.inputs={...s.values};st.manualSalary={};buildInputs();showMessage('Đã đọc báo cáo lương kỳ '+s.date+'. Đối chiếu kỳ KPI và các ô còn thiếu.')}save();render()}catch(err){showMessage('Lỗi: '+err.message)}finally{e.target.value=''}}
+$('emp').value=st.emp||'';$('emp').addEventListener('change',()=>{const v=$('emp').value.trim();if(!/^\d{6}$/.test(v)){showMessage('Mã NV phải gồm 6 chữ số.');$('emp').value=st.emp;return}if(st.emp&&st.emp!==v){showMessage('Module khóa theo mã đã chọn; xóa dữ liệu tại máy trước khi đổi mã.');$('emp').value=st.emp;return}st.emp=v;save();render()});
+$('previousFile').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{if(!st.kpi)throw Error('Nạp file hiện tại trước.');const k=parseK(XLSX.read(await file.arrayBuffer(),{type:'array'}));recordReport(k,file.name,true);save();render();showMessage('Đã thêm file đối chiếu cũ.')}catch(err){showMessage('Lỗi: '+err.message)}finally{e.target.value=''}};
+$('kfile').onchange=e=>upload(e,'kpi');$('sfile').onchange=e=>upload(e,'salary');
+$('kind').innerHTML=Object.entries(kinds).map(([k,v])=>'<option value="'+k+'">'+esc(v)+'</option>').join('');
+$('txdate').value=st.kpi?.date||'';
+$('add').onclick=()=>{if(!st.kpi||!$('txdate').value||month($('txdate').value)!==month(st.kpi.date)||num($('amount').value)===null){showMessage('Cần nạp KPI, nhập giá trị và ngày cùng kỳ.');return}const a=n($('amount').value);if(!a){showMessage('Giá trị giao dịch phải khác 0.');return}if(/^(card|pay)/.test($('kind').value)&&!Number.isInteger(a)){showMessage('Số KH phải là số nguyên.');return}st.tx.push({date:$('txdate').value,kind:$('kind').value,amount:a,state:$('txstate').value,qual:$('qual').value});save();render()};
+$('txtable').onchange=e=>{if(e.target.dataset.status!==undefined){st.tx[Number(e.target.dataset.status)].state=e.target.value;save();render()}};
+$('txtable').onclick=e=>{if(e.target.dataset.del!==undefined){st.tx.splice(Number(e.target.dataset.del),1);save();render()}};
+$('salaryinputs').oninput=e=>{if(e.target.dataset.salary){st.inputs[e.target.dataset.salary]=e.target.value;st.manualSalary=st.manualSalary||{};st.manualSalary[e.target.dataset.salary]=e.target.value!=='';save();render()}};
+for(const k of ['growthWeight','daymode','dnWeight']){$(k).value=cfg[k];$(k).onchange=()=>{cfg[k]=k==='growthWeight'?clamp(n($(k).value),0,100):k==='dnWeight'&&$(k).value!==''?clamp(n($(k).value),0,100):$(k).value;$(k).value=cfg[k];save();render()}}
+for(const k of ['goalK','goalS'])$(k).oninput=()=>target(predict(),sal());
+$('nav').onclick=e=>{const v=e.target.dataset.view;if(!v)return;document.querySelectorAll('.view').forEach(x=>x.hidden=x.id!==v);document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('active',x.dataset.view===v))};
+$('clear').onclick=()=>{if(!confirm('Xóa báo cáo, nhật ký, lịch sử và mã NV đã lưu trên thiết bị này?'))return;st={emp:'',kpi:null,salary:null,inputs:{},tx:[],history:[]};$('emp').value='';$('txdate').value='';persistLocal();cloudMeta={base:null,dirty:false};storeCloudMeta();buildInputs();render();showMessage('Đã xóa dữ liệu tại máy. Bản Firebase vẫn còn.');scheduleKpiSync(1000)};
+$('export').onclick=()=>{try{if(!st.kpi)throw Error('Chưa nạp KPI');if(!window.XLSX)throw Error('Thiếu thư viện Excel');const p=predict(),s=sal(),w=XLSX.utils.book_new(),add=(name,data)=>XLSX.utils.book_append_sheet(w,XLSX.utils.aoa_to_sheet(data),name);
+ add('Tong quan',[['Mã NV',st.emp],['Kỳ KPI',st.kpi.date],['Kỳ lương tham chiếu',st.salary?.date||'Chưa có'],['KPI CN hiện tại',st.kpi.parts.CN.score],['KPI DN hiện tại',st.kpi.parts.DN.score],['KPI lai hiện tại',p.base],['KPI lai dự kiến',p.k],['Lương ước tính triệu',s.total??'Chưa đủ'],['Ghi chú','Kịch bản có điều kiện; không phải kết quả chính thức. '+(s.notes||[]).join(' ')]]);
+ add('Chi tieu',[['Mảng','Chỉ tiêu','KH','TH','Dự kiến','% TH dự kiến','Điểm cũ','Điểm mới'],...[...p.cn,...p.dn].map(g=>[g.key.split(':')[0],g.name,g.plan,g.actual,g.next,g.nextPct,g.point,g.nextPoint])]);
+ add('Giao dich',[['Ngày','Loại','Giá trị triệu/KH','Trạng thái','Hưởng lương'],...st.tx.map(t=>[t.date,kinds[t.kind],t.amount,statusNames[t.state],t.qual])]);
+ add('Luong',[['Cấu phần đầu vào','Giá trị'],...fields.map(([k,l])=>[l,num(salaryInputs().v[k])]),['Tổng khoán triệu',s.total??null]]);
+ add('Lich su',[['Ngày','Lúc nạp','CN','DN','Lai'],...st.history.map(h=>[h.date,h.loaded,h.cn,h.dn,h.k])]);XLSX.writeFile(w,'KPI-Luong-'+st.kpi.date+'.xlsx')}catch(e){showMessage(e.message)}};
+
+const endpoint='https://qlkh-c3298-default-rtdb.asia-southeast1.firebasedatabase.app/qlkh_kpi_salary_owner_v1.json';
+const META=KEY+'.cloudmeta',BACKUP=KEY+'.cloudbackup';
+let cloudMeta=read(META,{base:null,dirty:false}),cloudBusy=false,cloudTimer,cloudConflict=null,cloudEdit=0;
+function storeCloudMeta(){try{localStorage.setItem(META,JSON.stringify(cloudMeta))}catch(e){}}
+function cloudStatus(t){$('kpiCloudStatus').textContent=t;$('syncmsg').textContent=t;try{const size=new TextEncoder().encode(JSON.stringify({st,cfg})).length;$('kpiCloudBytes').textContent='Dữ liệu KPI tại máy: '+(size/1024).toFixed(1)+' KiB (ước tính)'}catch(e){}}
+function snapshot(){return JSON.parse(JSON.stringify({st,cfg,goals:{k:$('goalK').value,s:$('goalS').value}}))}
+function same(a,b){return JSON.stringify(a)===JSON.stringify(b)}
+function hasData(x){return !!(x?.st?.kpi||x?.st?.salary||x?.st?.tx?.length||x?.st?.history?.length||x?.st?.reports?.length)}
+function normalizeRemote(x){
+ if(!x)return null;
+ if(x.schema===2&&typeof x.payloadJSON==='string')return {...x,payload:JSON.parse(x.payloadJSON)};
+ if(x.schema===1&&x.payload?.st){const p=x.payload;p.st.tx=Array.isArray(p.st.tx)?p.st.tx:[];p.st.history=Array.isArray(p.st.history)?p.st.history:[];p.st.inputs=p.st.inputs||{};p.st.kpi=p.st.kpi||null;p.st.salary=p.st.salary||null;return x}
+ throw Error('Bản Firebase không hợp lệ');
+}
+function validRemote(x){return x&&[1,2].includes(x.schema)&&x.payload&&x.payload.st&&Array.isArray(x.payload.st.tx)&&Array.isArray(x.payload.st.history)&&x.payload.cfg&&typeof x.rev==='string'}
+function markKpiDirty(){cloudEdit++;cloudMeta.dirty=true;storeCloudMeta();cloudStatus('Đã lưu tại máy · chờ đồng bộ');scheduleKpiSync(1200)}
+function scheduleKpiSync(ms=1000){clearTimeout(cloudTimer);cloudTimer=setTimeout(()=>syncKpi(),ms)}
+async function cloudFetch(options){if(window.parent===window||typeof window.parent.qlkhOwnerFetch!=='function')throw Error('Mở KPI trong QLKH2 và đăng nhập Firebase');return window.parent.qlkhOwnerFetch(endpoint,options)}
+function backupLocal(){try{localStorage.setItem(BACKUP,JSON.stringify({at:new Date().toISOString(),payload:snapshot()}));return true}catch(e){return false}}
+function applyRemote(remote){
+ if(hasData(snapshot())&&!backupLocal())throw Error('Không tạo được bản sao lưu tại máy; chưa thay dữ liệu');
+ st=remote.payload.st;cfg=remote.payload.cfg;
+ $('emp').value=st.emp||'';$('txdate').value=st.kpi?.date||'';
+ for(const k of ['growthWeight','daymode','dnWeight'])$(k).value=cfg[k]??'';
+ if(remote.payload.goals){$('goalK').value=remote.payload.goals.k??'';$('goalS').value=remote.payload.goals.s??''}
+ if(!persistLocal())throw Error('Không lưu được bản Firebase tại máy');
+ cloudMeta={base:remote.rev,dirty:false};storeCloudMeta();buildInputs();render();if(st.kpi&&matchMedia('(max-width:600px)').matches)document.querySelector('.source-upload').open=false;
+}
+function kpiIsActive(){try{return !document.hidden&&(window.parent===window||(!window.parent.document.hidden&&window.parent.qlkhTabActive?.('kpisalary')===true))}catch(e){return false}}
+async function syncKpi(choice){
+ if(!kpiIsActive()||cloudBusy)return;
+ cloudBusy=true;$('kpiCloudNow').disabled=true;
+ const local=snapshot(),edit=cloudEdit;
+ try{
+  cloudStatus('Đang đồng bộ Firebase…');
+  const res=await cloudFetch({method:'GET',headers:{'X-Firebase-ETag':'true'},cache:'no-store'});
+  if(!res.ok)throw Error('HTTP '+res.status);
+  const remote=normalizeRemote(await res.json()),etag=res.headers.get('ETag');
+  if(remote!==null&&!validRemote(remote))throw Error('Bản Firebase không hợp lệ; không ghi đè');
+  if(cloudEdit!==edit){scheduleKpiSync(300);return}
+  if(remote&&same(local,remote.payload)){cloudMeta={base:remote.rev,dirty:false};storeCloudMeta()}
+  else if(remote&&hasData(remote.payload)&&(!hasData(local)||(!cloudMeta.dirty&&cloudMeta.base!==null))&&choice!=='local'){applyRemote(remote)}
+  else if(remote&&hasData(remote.payload)&&cloudMeta.base!==remote.rev&&!choice){
+   cloudConflict=remote.rev;$('kpiCloudConflict').hidden=false;cloudStatus('Cần chọn bản dữ liệu để đồng bộ');return;
+  }else if(choice==='remote'&&remote){if(cloudConflict!==remote.rev){cloudConflict=remote.rev;cloudStatus('Firebase vừa thay đổi; kiểm tra lại lựa chọn');return}applyRemote(remote)}
+  else if(hasData(local)&&(cloudMeta.dirty||!remote||!hasData(remote.payload)||choice==='local')){
+   if(choice==='local'&&remote&&hasData(remote.payload)&&cloudConflict!==remote.rev){cloudConflict=remote.rev;cloudStatus('Firebase vừa thay đổi; chọn lại bản muốn giữ');return}
+   if(!etag)throw Error('Thiếu ETag; dừng ghi để bảo vệ dữ liệu');
+   const rev=Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
+   const body={schema:2,rev,updatedAt:new Date().toISOString(),payloadJSON:JSON.stringify(local)};
+   const put=await cloudFetch({method:'PUT',headers:{'Content-Type':'application/json','if-match':etag},body:JSON.stringify(body)});
+   if(put.status===412){scheduleKpiSync(300);cloudStatus('Thiết bị khác vừa cập nhật; đang kiểm tra lại');return}
+   if(!put.ok)throw Error('HTTP '+put.status);
+   cloudMeta={base:rev,dirty:cloudEdit!==edit};storeCloudMeta();if(cloudMeta.dirty)scheduleKpiSync(300);
+  }
+  cloudConflict=null;$('kpiCloudConflict').hidden=true;
+  cloudStatus('Đã đồng bộ · '+new Date().toLocaleTimeString('vi-VN'));
+ }catch(e){cloudStatus('Chưa đồng bộ · '+e.message+' · giữ bản tại máy')}
+ finally{cloudBusy=false;$('kpiCloudNow').disabled=false}
+}
+$('kpiCloudNow').onclick=()=>syncKpi();
+$('kpiUseRemote').onclick=()=>syncKpi('remote');
+$('kpiUseLocal').onclick=()=>{if(confirm('Dùng dữ liệu máy này thay cho bản Firebase hiện tại?'))syncKpi('local')};
+$('pull').onclick=()=>syncKpi();$('push').onclick=()=>syncKpi();
+for(const k of ['goalK','goalS'])$(k).addEventListener('change',markKpiDirty);
+window.addEventListener('focus',()=>scheduleKpiSync(150));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)scheduleKpiSync(150)});
+window.addEventListener('online',()=>scheduleKpiSync(150));
+window.qlkhKpiActivate=()=>scheduleKpiSync(150);
+setInterval(()=>{if(kpiIsActive()&&!cloudBusy)syncKpi()},120000);
+scheduleKpiSync(400);
+buildInputs();render();
+if(matchMedia('(max-width:600px)').matches)document.querySelector('.source-upload').open=!st.kpi;
+</script></body></html>
