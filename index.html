@@ -797,108 +797,7 @@
       transform: translateX(-50%) translateY(0);
     }
 
-  
-/* QLKH motion: bounded, interaction-only; no layout or data changes. */
-@keyframes qlkhEnter{from{opacity:.55;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-@keyframes qlkhStatusIn{from{opacity:.5}to{opacity:1}}
-.panel.active,.u-panel.active{animation:qlkhEnter 200ms ease-out both}
-.tab,.u-tab,.sheet-filter-btn,.btn-sheet-refresh,.btn-sheet-app,.btn-sheet-copy,.btn-sheet-link{transition:background-color 160ms ease,color 160ms ease,border-color 160ms ease,box-shadow 160ms ease,transform 120ms ease}
-.tab:active,.u-tab:active,.sheet-filter-btn:active,.btn-sheet-refresh:active,.btn-sheet-app:active,.btn-sheet-copy:active,.btn-sheet-link:active{transform:scale(.98)}
-@media(hover:hover) and (pointer:fine){.tab:not(.active):hover,.u-tab:not(.active):hover,.sheet-filter-btn:not(.active):hover{box-shadow:inset 0 -2px 0 #86b5de}.google-sheet-table tbody tr:hover td{background-color:#f0f7fd}}
-.tab:focus-visible,.u-tab:focus-visible,button:focus-visible{outline:2px solid #60a5fa;outline-offset:2px}
-@media(prefers-reduced-motion:reduce){.panel.active,.u-panel.active{animation:none}.tab,.u-tab,.sheet-filter-btn,.btn-sheet-refresh,.btn-sheet-app,.btn-sheet-copy,.btn-sheet-link{transition:none}.tab:active,.u-tab:active,.sheet-filter-btn:active{transform:none}}
-
-/* QLKH professional visual system — layout and business behavior unchanged. */
-:root{--cream:#f3f6fa;--line:#dce5ef;--shadow:0 2px 8px rgba(16,42,67,.06);--text:#142b43;--muted:#52677c}
-body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
-.app-top{background:linear-gradient(110deg,#064477,#075b9a 70%,#0969ac);border-bottom:1px solid #186a9e;box-shadow:0 2px 8px #102a4320}
-.logo{border:1px solid #ffffff32;box-shadow:none}
-.brand h1{font-weight:750;letter-spacing:.025em}
-.subline{color:#dcecf9;opacity:1}
-.tabs{gap:5px}
-.tab{font-weight:650;border-radius:8px 8px 0 0;position:relative}
-.tab.active{background:#fff;color:#075b9a;border-bottom-color:#0e78c7}
-.card,.utility-shell{border-radius:12px;border:1px solid var(--line);box-shadow:var(--shadow)}
-.card-head,.utility-head,.u-frame-head{background:#fff;border-bottom:1px solid var(--line)}
-.card-title,.u-frame-title{font-weight:750}
-.u-tab{border-radius:8px;font-weight:650}
-.u-tab:not(.active){background:#f5f8fc;color:#41586e}
-.google-sheet-table{font-variant-numeric:tabular-nums}
-.google-sheet-table th{letter-spacing:.01em}
-@media(hover:hover) and (pointer:fine){.tab:not(.active):hover{background:#ffffff14}.u-tab:not(.active):hover{background:#eaf4ff}}
-@media(max-width:850px){.tabs{gap:2px}.tab{font-weight:650}.card,.utility-shell{border-radius:10px}}
-
-/* Compact, accessible Firebase status indicator. */
-#firebaseSyncWidget{position:relative;flex:0 0 36px;align-self:flex-start;margin-left:auto;z-index:110;--sync-color:#94a3b8;--sync-track:#cbd5e1}
-#firebaseSyncWidget[data-state=syncing],#firebaseSyncWidget[data-state=writing]{--sync-color:#f59e0b;--sync-track:#fcd9a1}
-#firebaseSyncWidget[data-state=success]{--sync-color:#22c55e;--sync-track:#bbf7d0}
-#firebaseSyncWidget[data-state=warning]{--sync-color:#ea580c;--sync-track:#fed7aa}
-#firebaseSyncWidget[data-state=error]{--sync-color:#dc2626;--sync-track:#fecaca}
-#firebaseSyncStatus{width:36px;height:36px;padding:0;display:grid;place-items:center;position:relative;border:0;border-radius:50%;background:transparent;cursor:pointer;flex-shrink:0;box-shadow:none}
-#firebaseSyncStatus .firebase-ring{position:absolute;inset:3px;border-radius:50%;border:2.5px solid var(--sync-color);transition:border-color .2s ease}
-#firebaseSyncStatus .firebase-ring-center{width:20px;height:20px;border-radius:50%;background:#ffffff12;transition:background-color .2s ease}
-#firebaseSyncWidget[data-state=success] .firebase-ring-center{background:#22c55e35}
-#firebaseSyncWidget[data-state=syncing] .firebase-ring,#firebaseSyncWidget[data-state=writing] .firebase-ring{border-color:var(--sync-track);border-top-color:var(--sync-color);border-right-color:var(--sync-color);animation:firebaseRingSpin .85s linear infinite}
-@keyframes firebaseRingSpin{to{transform:rotate(360deg)}}
-#firebaseSyncDetails{position:absolute;top:44px;right:0;width:min(300px,calc(100vw - 24px));padding:13px;border:1px solid #dce5ef;border-radius:12px;background:#fff;color:#142b43;box-shadow:0 8px 24px #102a4326;text-align:left;font-size:12px;animation:qlkhEnter .18s ease-out both}
-#firebaseSyncDetails[hidden]{display:none!important}
-.firebase-detail-heading{font-weight:750;margin-bottom:9px;color:#075b9a}
-.firebase-detail-status{display:flex;align-items:center;gap:7px;line-height:1.45;overflow-wrap:anywhere}
-.firebase-sync-dot{width:8px;height:8px;flex:0 0 8px;border-radius:50%;background:var(--sync-color)}
-.firebase-detail-note{font-size:11px;color:#52677c;margin-top:5px;overflow-wrap:anywhere}
-.firebase-sync-now{display:block;width:100%;margin-top:10px;padding:8px;border:1px solid #dce5ef;border-radius:7px;background:#edf3fa;color:#075b9a;font-weight:650;cursor:pointer}
-.firebase-sync-now:disabled{opacity:.5;cursor:default}
-@media(max-width:850px){#firebaseSyncWidget{flex:0 0 32px}#firebaseSyncStatus{width:32px;height:32px}#firebaseSyncDetails{top:40px}}
-@media(prefers-reduced-motion:reduce){#firebaseSyncStatus .firebase-ring{animation:none!important;transition:none}#firebaseSyncDetails{animation:none}}
-
-/* Firebase ring integrated into the original QLKH brand icon. */
-#firebaseSyncWidget{flex:0 0 46px;margin-left:0;align-self:center}
-#firebaseSyncStatus{width:46px;height:46px}
-#firebaseSyncStatus .firebase-ring{inset:1px;border-width:4px}
-#firebaseSyncStatus .firebase-ring-center{width:34px;height:34px;display:grid;place-items:center;font-size:20px;line-height:1;background:#ffffff17}
-#firebaseSyncDetails{top:52px;left:0;right:auto}
-@media(max-width:850px){#firebaseSyncWidget{flex-basis:42px}#firebaseSyncStatus{width:42px;height:42px}#firebaseSyncStatus .firebase-ring-center{width:30px;height:30px;font-size:18px}#firebaseSyncDetails{top:48px}}
-
-/* Sync detail fill-in: expand the capsule, then reveal its text. */
-#firebaseSyncDetails{transform-origin:22px 0;animation:none;overflow:hidden}
-#firebaseSyncDetails.sync-opening{animation:syncFillIn 260ms cubic-bezier(.2,.85,.25,1) both}
-#firebaseSyncDetails.sync-closing{animation:syncFillOut 180ms ease-in both;pointer-events:none}
-#firebaseSyncDetails.sync-opening .firebase-detail-heading,
-#firebaseSyncDetails.sync-opening .firebase-detail-status,
-#firebaseSyncDetails.sync-opening .firebase-detail-note,
-#firebaseSyncDetails.sync-opening .firebase-sync-now{animation:syncTextIn 200ms ease-out 75ms both}
-#firebaseSyncStatus[aria-expanded=true] .firebase-ring-center{background:#ffffff30}
-@keyframes syncFillIn{from{opacity:0;clip-path:inset(0 88% 86% 0 round 20px);transform:translateY(-5px)}to{opacity:1;clip-path:inset(0 0 0 0 round 12px);transform:translateY(0)}}
-@keyframes syncTextIn{from{opacity:0;transform:translateX(-7px)}to{opacity:1;transform:translateX(0)}}
-@keyframes syncFillOut{from{opacity:1;clip-path:inset(0 0 0 0 round 12px)}to{opacity:0;clip-path:inset(0 88% 86% 0 round 20px)}}
-@media(prefers-reduced-motion:reduce){#firebaseSyncDetails.sync-opening,#firebaseSyncDetails.sync-closing,#firebaseSyncDetails.sync-opening>*{animation:none!important}}
-
-/* Compact two-line sync tooltip, not a dashboard card. */
-#firebaseSyncDetails{width:max-content;max-width:min(340px,calc(100vw - 24px));padding:7px 10px;border-radius:9px;box-shadow:0 3px 12px #102a4320;line-height:1.3}
-#firebaseSyncDetails .firebase-detail-status{font-size:12px;font-weight:650;gap:6px;line-height:1.4}
-#firebaseSyncDetails .firebase-detail-second{display:flex;align-items:center;gap:7px;padding-left:14px}
-#firebaseSyncDetails .firebase-detail-note{flex:1;min-width:0;margin:0;font-size:11px;line-height:1.35}
-#firebaseSyncDetails .firebase-sync-now{width:22px;height:22px;min-height:0;flex:0 0 22px;margin:0;padding:0;background:transparent;border:0;border-radius:50%;font-size:16px;line-height:1;color:#075b9a}
-#firebaseSyncDetails.sync-opening .firebase-detail-second{animation:syncTextIn 200ms ease-out 75ms both}
-@media(prefers-reduced-motion:reduce){#firebaseSyncDetails.sync-opening .firebase-detail-second{animation:none}}
-
-/* Desktop: navigation labels always stay on one line. */
-@media (min-width:851px), (hover:hover) and (pointer:fine){
-  .app-top .tabs,.u-tabs{flex-wrap:nowrap;overflow-x:auto;min-width:0;scrollbar-width:none}
-  .app-top .tabs>.tab,.u-tabs>.u-tab{white-space:nowrap!important;word-break:normal!important;overflow-wrap:normal!important;flex:0 0 auto!important;width:auto!important;min-width:max-content!important;min-height:36px;padding:9px clamp(9px,1.1vw,17px);font-size:12px;line-height:1.2}
-}
-
-@media(max-width:600px) and (pointer:coarse){
- .top-inner{padding:6px 8px 0}
- .app-top .brand h1{font-size:15px}
- .app-top .subline{font-size:10px}
- .app-top .tabs{margin-top:7px;gap:3px;flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start}
- .app-top .tabs>.tab{white-space:nowrap!important;word-break:normal!important;flex:0 0 auto!important;width:auto!important;min-width:0!important;min-height:36px;padding:8px 10px;font-size:11px;line-height:1.2}
- #panel-kpisalary .card-head{padding:7px 10px}
- #panel-kpisalary .card-title{font-size:12px}
- #panel-kpisalary .card{min-height:0}
-}
-</style>
+  </style>
 </head>
 
 <body>
@@ -918,8 +817,7 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
         <button type="button" class="tab active" data-tab="qlkh">📊 QLKH</button>
         <button type="button" class="tab" data-tab="chitieu">💸 CHI TIÊU</button>
         <button type="button" class="tab" data-tab="tienich">🧰 TIỆN ÍCH</button>
-        <button type="button" class="tab" data-tab="kpisalary">💰 KPI &amp; LƯƠNG</button>
-        <button type="button" class="tab" data-tab="radar">📊 BẢNG LEAD TƯƠI <span class="radar-badge-pill" id="radarHeaderCount">5</span></button>
+        <button type="button" class="tab" data-tab="radar">📊 BẢNG LEAD TƯƠI <span class="radar-badge-pill" id="radarHeaderCount">10</span></button>
       </nav>
     </div>
   </header>
@@ -997,9 +895,9 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
 
           <div class="sheet-filter-group">
             <input type="text" class="sheet-search-input" id="radarSearchInput" placeholder="🔍 Tìm tên, nhu cầu..." autocomplete="off">
-            <button type="button" class="sheet-filter-btn active" data-rf="all">Tất cả (<span id="rfCountAll">5</span>)</button>
-            <button type="button" class="sheet-filter-btn" data-rf="card">🟢 Thẻ (<span id="rfCountCard">5</span>)</button>
-            <button type="button" class="sheet-filter-btn" data-rf="savings">🟡 Tiền gửi (<span id="rfCountSavings">0</span>)</button>
+            <button type="button" class="sheet-filter-btn active" data-rf="all">Tất cả (<span id="rfCountAll">10</span>)</button>
+            <button type="button" class="sheet-filter-btn" data-rf="card">🟢 Thẻ (<span id="rfCountCard">7</span>)</button>
+            <button type="button" class="sheet-filter-btn" data-rf="savings">🟡 Tiền gửi (<span id="rfCountSavings">3</span>)</button>
             <button type="button" class="sheet-filter-btn" data-rf="unhandled">⏳ Chưa xử lý</button>
             <button type="button" class="btn-sheet-refresh" id="btnRefreshRadar" title="Làm mới bảng">🔄</button>
           </div>
@@ -1022,18 +920,18 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
             </thead>
             <tbody id="radarTableBody">
         <tr class="row-card">
-          <td class="center" style="font-weight: 800; color: #003B73;">479</td>
+          <td class="center" style="font-weight: 800; color: #003B73;">490</td>
           <td class="center" style="font-size: 11px; white-space: nowrap; color: #475569;">
-            02:21<br>23/11/2026
+            20:46<br>28/11/2026
           </td>
           <td style="font-weight: 700; color: #0F172A;">
-            <a href="https://www.facebook.com/groups/canhohcmgiare/posts/1810086130288481/" target="_blank" rel="noopener noreferrer" class="lead-name-link" data-link="https://www.facebook.com/groups/canhohcmgiare/posts/1810086130288481/" title="Mở bài viết">SpeedyKale7352</a>
+            <a href="https://www.facebook.com/groups/471701795562084/posts/1149782437754013/" target="_blank" rel="noopener noreferrer" class="lead-name-link" data-link="https://www.facebook.com/groups/471701795562084/posts/1149782437754013/" title="Mở bài viết">Akasukivvv</a>
           </td>
           <td class="center">
             <span style="font-weight:700; color:#1877F2;">🌐 FB</span>
           </td>
           <td style="line-height: 1.4; word-break: break-word;">
-            [BÀI ĐĂNG] Cho em hỏi là nếu đặt vé phim qua momo thẻ z vpbank thì có dc hoàn mục giải trí kh ạ Em đang tính mở thẻ này nhờ mng tư vấn giúp
+            [BÀI ĐĂNG] Mình có thẻ Vpbank Number 1 nhưng muốn đổi sang Vpbank MWG được không ạ ?
           </td>
           <td style="font-weight: 700; color: #003B73;">
             Sacombank Visa Platinum Cashback / Sang ngang thẻ
@@ -1043,32 +941,32 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
           </td>
           <td class="center">
             <div class="sheet-action-btns">
-              <a href="https://www.facebook.com/groups/canhohcmgiare/posts/1810086130288481/" target="_blank" rel="noopener noreferrer" class="btn-sheet-app" data-link="https://www.facebook.com/groups/canhohcmgiare/posts/1810086130288481/" title="Mở bài viết trong ứng dụng">📲 Mở bài</a>
-              <button type="button" class="btn-sheet-copy" data-stt="479" title="Sao chép kịch bản mở lời Sacombank">
+              <a href="https://www.facebook.com/groups/471701795562084/posts/1149782437754013/" target="_blank" rel="noopener noreferrer" class="btn-sheet-app" data-link="https://www.facebook.com/groups/471701795562084/posts/1149782437754013/" title="Mở bài viết trong ứng dụng">📲 Mở bài</a>
+              <button type="button" class="btn-sheet-copy" data-stt="490" title="Sao chép kịch bản mở lời Sacombank">
                 📋 Soạn
               </button>
-              <button type="button" class="btn-sheet-link" data-link="https://www.facebook.com/groups/canhohcmgiare/posts/1810086130288481/" title="Sao chép liên kết bài viết">🔗 Link</button>
+              <button type="button" class="btn-sheet-link" data-link="https://www.facebook.com/groups/471701795562084/posts/1149782437754013/" title="Sao chép liên kết bài viết">🔗 Link</button>
             </div>
           </td>
           <td class="center">
-            <span class="sheet-status-tag new" data-stt="479">
+            <span class="sheet-status-tag new" data-stt="490">
               Mới
             </span>
           </td>
         </tr>
         <tr class="row-card">
-          <td class="center" style="font-weight: 800; color: #003B73;">478</td>
+          <td class="center" style="font-weight: 800; color: #003B73;">489</td>
           <td class="center" style="font-size: 11px; white-space: nowrap; color: #475569;">
-            16:15<br>21/11/2026
+            20:41<br>28/11/2026
           </td>
           <td style="font-weight: 700; color: #0F172A;">
-            <a href="https://www.facebook.com/groups/471701795562084/posts/1141511105247813/" target="_blank" rel="noopener noreferrer" class="lead-name-link" data-link="https://www.facebook.com/groups/471701795562084/posts/1141511105247813/" title="Mở bài viết">SereneFalcon4220</a>
+            <a href="https://www.facebook.com/groups/reviewthecogivui/posts/1456712936180011/" target="_blank" rel="noopener noreferrer" class="lead-name-link" data-link="https://www.facebook.com/groups/reviewthecogivui/posts/1456712936180011/" title="Mở bài viết">Dương Bác Khải</a>
           </td>
           <td class="center">
             <span style="font-weight:700; color:#1877F2;">🌐 FB</span>
           </td>
           <td style="line-height: 1.4; word-break: break-word;">
-            [BÀI ĐĂNG] Em mới mở thẻ td vpbank 60tr giờ có mở thêm thẻ bên nào đc k ạ
+            [BÀI ĐĂNG] Đang dùng VPBank StepUp, VPBank Z, hỏi thẻ nào hoàn tiền thanh toán trực tuyến (Netflix).
           </td>
           <td style="font-weight: 700; color: #003B73;">
             Sacombank Visa Platinum Cashback / Sang ngang thẻ
@@ -1078,32 +976,32 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
           </td>
           <td class="center">
             <div class="sheet-action-btns">
-              <a href="https://www.facebook.com/groups/471701795562084/posts/1141511105247813/" target="_blank" rel="noopener noreferrer" class="btn-sheet-app" data-link="https://www.facebook.com/groups/471701795562084/posts/1141511105247813/" title="Mở bài viết trong ứng dụng">📲 Mở bài</a>
-              <button type="button" class="btn-sheet-copy" data-stt="478" title="Sao chép kịch bản mở lời Sacombank">
+              <a href="https://www.facebook.com/groups/reviewthecogivui/posts/1456712936180011/" target="_blank" rel="noopener noreferrer" class="btn-sheet-app" data-link="https://www.facebook.com/groups/reviewthecogivui/posts/1456712936180011/" title="Mở bài viết trong ứng dụng">📲 Mở bài</a>
+              <button type="button" class="btn-sheet-copy" data-stt="489" title="Sao chép kịch bản mở lời Sacombank">
                 📋 Soạn
               </button>
-              <button type="button" class="btn-sheet-link" data-link="https://www.facebook.com/groups/471701795562084/posts/1141511105247813/" title="Sao chép liên kết bài viết">🔗 Link</button>
+              <button type="button" class="btn-sheet-link" data-link="https://www.facebook.com/groups/reviewthecogivui/posts/1456712936180011/" title="Sao chép liên kết bài viết">🔗 Link</button>
             </div>
           </td>
           <td class="center">
-            <span class="sheet-status-tag new" data-stt="478">
+            <span class="sheet-status-tag new" data-stt="489">
               Mới
             </span>
           </td>
         </tr>
         <tr class="row-card">
-          <td class="center" style="font-weight: 800; color: #003B73;">477</td>
+          <td class="center" style="font-weight: 800; color: #003B73;">488</td>
           <td class="center" style="font-size: 11px; white-space: nowrap; color: #475569;">
-            16:15<br>21/11/2026
+            20:41<br>28/11/2026
           </td>
           <td style="font-weight: 700; color: #0F172A;">
-            <a href="https://www.facebook.com/groups/mothetindungtphcmmienphi/posts/1929976258380968/" target="_blank" rel="noopener noreferrer" class="lead-name-link" data-link="https://www.facebook.com/groups/mothetindungtphcmmienphi/posts/1929976258380968/" title="Mở bài viết">Pham Ngoc Khanh</a>
+            <a href="https://www.facebook.com/groups/reviewthecogivui/posts/1456820312835940/" target="_blank" rel="noopener noreferrer" class="lead-name-link" data-link="https://www.facebook.com/groups/reviewthecogivui/posts/1456820312835940/" title="Mở bài viết">Ninh Nguyễn</a>
           </td>
           <td class="center">
             <span style="font-weight:700; color:#1877F2;">🌐 FB</span>
           </td>
           <td style="line-height: 1.4; word-break: break-word;">
-            [BÀI ĐĂNG] THẺ TÍN DỤNG MB – DÀNH CHO KHÁCH HÀNG CÓ THU NHẬP TỪ LƯƠNG Anh/chị đang nhận lương qua tài khoản và có nhu cầu sử dụng thẻ tín dụng? MB triển khai chương trình phát hành thẻ dành c
+            [BÀI ĐĂNG] Xin tư vấn chọn thẻ tín dụng phù hợp nhu cầu chi tiêu (siêu thị, v.v.) và tối ưu hoàn tiền nhất.
           </td>
           <td style="font-weight: 700; color: #003B73;">
             Sacombank Visa Platinum Cashback / Sang ngang thẻ
@@ -1113,67 +1011,67 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
           </td>
           <td class="center">
             <div class="sheet-action-btns">
-              <a href="https://www.facebook.com/groups/mothetindungtphcmmienphi/posts/1929976258380968/" target="_blank" rel="noopener noreferrer" class="btn-sheet-app" data-link="https://www.facebook.com/groups/mothetindungtphcmmienphi/posts/1929976258380968/" title="Mở bài viết trong ứng dụng">📲 Mở bài</a>
-              <button type="button" class="btn-sheet-copy" data-stt="477" title="Sao chép kịch bản mở lời Sacombank">
+              <a href="https://www.facebook.com/groups/reviewthecogivui/posts/1456820312835940/" target="_blank" rel="noopener noreferrer" class="btn-sheet-app" data-link="https://www.facebook.com/groups/reviewthecogivui/posts/1456820312835940/" title="Mở bài viết trong ứng dụng">📲 Mở bài</a>
+              <button type="button" class="btn-sheet-copy" data-stt="488" title="Sao chép kịch bản mở lời Sacombank">
                 📋 Soạn
               </button>
-              <button type="button" class="btn-sheet-link" data-link="https://www.facebook.com/groups/mothetindungtphcmmienphi/posts/1929976258380968/" title="Sao chép liên kết bài viết">🔗 Link</button>
+              <button type="button" class="btn-sheet-link" data-link="https://www.facebook.com/groups/reviewthecogivui/posts/1456820312835940/" title="Sao chép liên kết bài viết">🔗 Link</button>
             </div>
           </td>
           <td class="center">
-            <span class="sheet-status-tag new" data-stt="477">
+            <span class="sheet-status-tag new" data-stt="488">
               Mới
             </span>
           </td>
         </tr>
         <tr class="row-card">
-          <td class="center" style="font-weight: 800; color: #003B73;">476</td>
+          <td class="center" style="font-weight: 800; color: #003B73;">487</td>
           <td class="center" style="font-size: 11px; white-space: nowrap; color: #475569;">
-            12:04<br>21/11/2026
+            20:41<br>28/11/2026
           </td>
           <td style="font-weight: 700; color: #0F172A;">
-            <a href="https://www.facebook.com/groups/canhohcmgiare/posts/1808500313780396/" target="_blank" rel="noopener noreferrer" class="lead-name-link" data-link="https://www.facebook.com/groups/canhohcmgiare/posts/1808500313780396/" title="Mở bài viết">Thanh Phong</a>
+            <a href="https://www.facebook.com/groups/178048166825627/posts/1816248076338953/" target="_blank" rel="noopener noreferrer" class="lead-name-link" data-link="https://www.facebook.com/groups/178048166825627/posts/1816248076338953/" title="Mở bài viết">StylishPeapod9908</a>
           </td>
           <td class="center">
             <span style="font-weight:700; color:#1877F2;">🌐 FB</span>
           </td>
           <td style="line-height: 1.4; word-break: break-word;">
-            [BÀI ĐĂNG] Cần tư vấn mở thẻ tín dụng ngân hàng có quyền lợi tốt
+            [BÀI ĐĂNG] Hỏi mở thẻ tín dụng ngân hàng nào có mức hoàn tiền mua sắm Shopee cao.
           </td>
           <td style="font-weight: 700; color: #003B73;">
-            Sacombank Visa Platinum Cashback / Sang ngang thẻ
+            Sacombank Visa Platinum Cashback / Tiki Platinum
           </td>
           <td style="font-weight: 700; color: #B45309; white-space: nowrap;">
             30 - 80 triệu
           </td>
           <td class="center">
             <div class="sheet-action-btns">
-              <a href="https://www.facebook.com/groups/canhohcmgiare/posts/1808500313780396/" target="_blank" rel="noopener noreferrer" class="btn-sheet-app" data-link="https://www.facebook.com/groups/canhohcmgiare/posts/1808500313780396/" title="Mở bài viết trong ứng dụng">📲 Mở bài</a>
-              <button type="button" class="btn-sheet-copy" data-stt="476" title="Sao chép kịch bản mở lời Sacombank">
+              <a href="https://www.facebook.com/groups/178048166825627/posts/1816248076338953/" target="_blank" rel="noopener noreferrer" class="btn-sheet-app" data-link="https://www.facebook.com/groups/178048166825627/posts/1816248076338953/" title="Mở bài viết trong ứng dụng">📲 Mở bài</a>
+              <button type="button" class="btn-sheet-copy" data-stt="487" title="Sao chép kịch bản mở lời Sacombank">
                 📋 Soạn
               </button>
-              <button type="button" class="btn-sheet-link" data-link="https://www.facebook.com/groups/canhohcmgiare/posts/1808500313780396/" title="Sao chép liên kết bài viết">🔗 Link</button>
+              <button type="button" class="btn-sheet-link" data-link="https://www.facebook.com/groups/178048166825627/posts/1816248076338953/" title="Sao chép liên kết bài viết">🔗 Link</button>
             </div>
           </td>
           <td class="center">
-            <span class="sheet-status-tag new" data-stt="476">
+            <span class="sheet-status-tag new" data-stt="487">
               Mới
             </span>
           </td>
         </tr>
         <tr class="row-card">
-          <td class="center" style="font-weight: 800; color: #003B73;">475</td>
+          <td class="center" style="font-weight: 800; color: #003B73;">486</td>
           <td class="center" style="font-size: 11px; white-space: nowrap; color: #475569;">
-            08:28<br>21/11/2026
+            20:41<br>28/11/2026
           </td>
           <td style="font-weight: 700; color: #0F172A;">
-            <a href="https://www.facebook.com/groups/mothetindungtphcmmienphi/posts/1929714491740478/" target="_blank" rel="noopener noreferrer" class="lead-name-link" data-link="https://www.facebook.com/groups/mothetindungtphcmmienphi/posts/1929714491740478/" title="Mở bài viết">MotivatedGiraffe9277</a>
+            <a href="https://www.facebook.com/groups/471701795562084/posts/1149673214431602/" target="_blank" rel="noopener noreferrer" class="lead-name-link" data-link="https://www.facebook.com/groups/471701795562084/posts/1149673214431602/" title="Mở bài viết">daisyaquari127</a>
           </td>
           <td class="center">
             <span style="font-weight:700; color:#1877F2;">🌐 FB</span>
           </td>
           <td style="line-height: 1.4; word-break: break-word;">
-            [BÀI ĐĂNG] Em hiện tại đang dùng thẻ tín dụng của tpbank được hơn 1 năm, em muốn mở thêm thẻ tín dụng của các bên khác có ưu đãi nhiều cho ăn uống ạ, mọi người hỗ trợ giúp em
+            [BÀI ĐĂNG] Đang dùng thẻ VPBank Shopee Platinum, cần tìm sale tư vấn mở thêm thẻ hoàn tiền ăn uống/mua sắm.
           </td>
           <td style="font-weight: 700; color: #003B73;">
             Sacombank Visa Platinum Cashback / Sang ngang thẻ
@@ -1183,15 +1081,190 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
           </td>
           <td class="center">
             <div class="sheet-action-btns">
-              <a href="https://www.facebook.com/groups/mothetindungtphcmmienphi/posts/1929714491740478/" target="_blank" rel="noopener noreferrer" class="btn-sheet-app" data-link="https://www.facebook.com/groups/mothetindungtphcmmienphi/posts/1929714491740478/" title="Mở bài viết trong ứng dụng">📲 Mở bài</a>
-              <button type="button" class="btn-sheet-copy" data-stt="475" title="Sao chép kịch bản mở lời Sacombank">
+              <a href="https://www.facebook.com/groups/471701795562084/posts/1149673214431602/" target="_blank" rel="noopener noreferrer" class="btn-sheet-app" data-link="https://www.facebook.com/groups/471701795562084/posts/1149673214431602/" title="Mở bài viết trong ứng dụng">📲 Mở bài</a>
+              <button type="button" class="btn-sheet-copy" data-stt="486" title="Sao chép kịch bản mở lời Sacombank">
                 📋 Soạn
               </button>
-              <button type="button" class="btn-sheet-link" data-link="https://www.facebook.com/groups/mothetindungtphcmmienphi/posts/1929714491740478/" title="Sao chép liên kết bài viết">🔗 Link</button>
+              <button type="button" class="btn-sheet-link" data-link="https://www.facebook.com/groups/471701795562084/posts/1149673214431602/" title="Sao chép liên kết bài viết">🔗 Link</button>
             </div>
           </td>
           <td class="center">
-            <span class="sheet-status-tag new" data-stt="475">
+            <span class="sheet-status-tag new" data-stt="486">
+              Mới
+            </span>
+          </td>
+        </tr>
+        <tr class="row-savings">
+          <td class="center" style="font-weight: 800; color: #003B73;">485</td>
+          <td class="center" style="font-size: 11px; white-space: nowrap; color: #475569;">
+            20:41<br>28/11/2026
+          </td>
+          <td style="font-weight: 700; color: #0F172A;">
+            <a href="https://www.facebook.com/groups/guitietkiemnganhang/posts/4523582117858464/" target="_blank" rel="noopener noreferrer" class="lead-name-link" data-link="https://www.facebook.com/groups/guitietkiemnganhang/posts/4523582117858464/" title="Mở bài viết">FabulousPoodle3251</a>
+          </td>
+          <td class="center">
+            <span style="font-weight:700; color:#1877F2;">🌐 FB</span>
+          </td>
+          <td style="line-height: 1.4; word-break: break-word;">
+            [BÀI ĐĂNG] Có hơn 100 triệu muốn gửi tiết kiệm, nhờ nhân viên ngân hàng tư vấn gói lãi suất phù hợp.
+          </td>
+          <td style="font-weight: 700; color: #003B73;">
+            Tiết kiệm Đa Lợi / Thấu chi 95% sổ làm thẻ tín dụng
+          </td>
+          <td style="font-weight: 700; color: #B45309; white-space: nowrap;">
+            100 triệu+
+          </td>
+          <td class="center">
+            <div class="sheet-action-btns">
+              <a href="https://www.facebook.com/groups/guitietkiemnganhang/posts/4523582117858464/" target="_blank" rel="noopener noreferrer" class="btn-sheet-app" data-link="https://www.facebook.com/groups/guitietkiemnganhang/posts/4523582117858464/" title="Mở bài viết trong ứng dụng">📲 Mở bài</a>
+              <button type="button" class="btn-sheet-copy" data-stt="485" title="Sao chép kịch bản mở lời Sacombank">
+                📋 Soạn
+              </button>
+              <button type="button" class="btn-sheet-link" data-link="https://www.facebook.com/groups/guitietkiemnganhang/posts/4523582117858464/" title="Sao chép liên kết bài viết">🔗 Link</button>
+            </div>
+          </td>
+          <td class="center">
+            <span class="sheet-status-tag new" data-stt="485">
+              Mới
+            </span>
+          </td>
+        </tr>
+        <tr class="row-savings">
+          <td class="center" style="font-weight: 800; color: #003B73;">484</td>
+          <td class="center" style="font-size: 11px; white-space: nowrap; color: #475569;">
+            20:41<br>28/11/2026
+          </td>
+          <td style="font-weight: 700; color: #0F172A;">
+            <a href="https://www.facebook.com/groups/guitietkiemnganhang/posts/4523567281193281/" target="_blank" rel="noopener noreferrer" class="lead-name-link" data-link="https://www.facebook.com/groups/guitietkiemnganhang/posts/4523567281193281/" title="Mở bài viết">Dustin Do</a>
+          </td>
+          <td class="center">
+            <span style="font-weight:700; color:#1877F2;">🌐 FB</span>
+          </td>
+          <td style="line-height: 1.4; word-break: break-word;">
+            [BÀI ĐĂNG] Muốn gửi 300 triệu kỳ hạn trên 6 tháng hình thức online, xin lãi suất các ngân hàng.
+          </td>
+          <td style="font-weight: 700; color: #003B73;">
+            Tiết kiệm Đa Lợi / Thấu chi 95% sổ làm thẻ tín dụng
+          </td>
+          <td style="font-weight: 700; color: #B45309; white-space: nowrap;">
+            300 triệu
+          </td>
+          <td class="center">
+            <div class="sheet-action-btns">
+              <a href="https://www.facebook.com/groups/guitietkiemnganhang/posts/4523567281193281/" target="_blank" rel="noopener noreferrer" class="btn-sheet-app" data-link="https://www.facebook.com/groups/guitietkiemnganhang/posts/4523567281193281/" title="Mở bài viết trong ứng dụng">📲 Mở bài</a>
+              <button type="button" class="btn-sheet-copy" data-stt="484" title="Sao chép kịch bản mở lời Sacombank">
+                📋 Soạn
+              </button>
+              <button type="button" class="btn-sheet-link" data-link="https://www.facebook.com/groups/guitietkiemnganhang/posts/4523567281193281/" title="Sao chép liên kết bài viết">🔗 Link</button>
+            </div>
+          </td>
+          <td class="center">
+            <span class="sheet-status-tag new" data-stt="484">
+              Mới
+            </span>
+          </td>
+        </tr>
+        <tr class="row-savings">
+          <td class="center" style="font-weight: 800; color: #003B73;">483</td>
+          <td class="center" style="font-size: 11px; white-space: nowrap; color: #475569;">
+            20:41<br>28/11/2026
+          </td>
+          <td style="font-weight: 700; color: #0F172A;">
+            <a href="https://www.facebook.com/groups/guitietkiemnganhang/posts/4523601914523151/" target="_blank" rel="noopener noreferrer" class="lead-name-link" data-link="https://www.facebook.com/groups/guitietkiemnganhang/posts/4523601914523151/" title="Mở bài viết">YellowKiwi502</a>
+          </td>
+          <td class="center">
+            <span style="font-weight:700; color:#1877F2;">🌐 FB</span>
+          </td>
+          <td style="line-height: 1.4; word-break: break-word;">
+            [BÀI ĐĂNG] Sắp đáo sổ 400 triệu, muốn gửi kỳ hạn 6 tháng nhận lãi hàng tháng, ưu tiên gửi tại quầy khu vực Gò Vấp – Q12.
+          </td>
+          <td style="font-weight: 700; color: #003B73;">
+            Tiết kiệm Đa Lợi / Thấu chi 95% sổ làm thẻ tín dụng
+          </td>
+          <td style="font-weight: 700; color: #B45309; white-space: nowrap;">
+            400 triệu
+          </td>
+          <td class="center">
+            <div class="sheet-action-btns">
+              <a href="https://www.facebook.com/groups/guitietkiemnganhang/posts/4523601914523151/" target="_blank" rel="noopener noreferrer" class="btn-sheet-app" data-link="https://www.facebook.com/groups/guitietkiemnganhang/posts/4523601914523151/" title="Mở bài viết trong ứng dụng">📲 Mở bài</a>
+              <button type="button" class="btn-sheet-copy" data-stt="483" title="Sao chép kịch bản mở lời Sacombank">
+                📋 Soạn
+              </button>
+              <button type="button" class="btn-sheet-link" data-link="https://www.facebook.com/groups/guitietkiemnganhang/posts/4523601914523151/" title="Sao chép liên kết bài viết">🔗 Link</button>
+            </div>
+          </td>
+          <td class="center">
+            <span class="sheet-status-tag new" data-stt="483">
+              Mới
+            </span>
+          </td>
+        </tr>
+        <tr class="row-card">
+          <td class="center" style="font-weight: 800; color: #003B73;">482</td>
+          <td class="center" style="font-size: 11px; white-space: nowrap; color: #475569;">
+            22:38<br>27/11/2026
+          </td>
+          <td style="font-weight: 700; color: #0F172A;">
+            <a href="https://www.facebook.com/groups/471701795562084/posts/1148729034526020/" target="_blank" rel="noopener noreferrer" class="lead-name-link" data-link="https://www.facebook.com/groups/471701795562084/posts/1148729034526020/" title="Mở bài viết">Ngọc Key</a>
+          </td>
+          <td class="center">
+            <span style="font-weight:700; color:#1877F2;">🌐 FB</span>
+          </td>
+          <td style="line-height: 1.4; word-break: break-word;">
+            [BÀI ĐĂNG] mình có 3 cái thẻ đen của MBbank, VPbank và VIB, muốn mở thêm thẻ nữa thì có ngân hàng nào hỗ trợ không nhỉ
+          </td>
+          <td style="font-weight: 700; color: #003B73;">
+            Sacombank Visa Platinum Cashback / Sang ngang thẻ
+          </td>
+          <td style="font-weight: 700; color: #B45309; white-space: nowrap;">
+            30 - 80 triệu
+          </td>
+          <td class="center">
+            <div class="sheet-action-btns">
+              <a href="https://www.facebook.com/groups/471701795562084/posts/1148729034526020/" target="_blank" rel="noopener noreferrer" class="btn-sheet-app" data-link="https://www.facebook.com/groups/471701795562084/posts/1148729034526020/" title="Mở bài viết trong ứng dụng">📲 Mở bài</a>
+              <button type="button" class="btn-sheet-copy" data-stt="482" title="Sao chép kịch bản mở lời Sacombank">
+                📋 Soạn
+              </button>
+              <button type="button" class="btn-sheet-link" data-link="https://www.facebook.com/groups/471701795562084/posts/1148729034526020/" title="Sao chép liên kết bài viết">🔗 Link</button>
+            </div>
+          </td>
+          <td class="center">
+            <span class="sheet-status-tag new" data-stt="482">
+              Mới
+            </span>
+          </td>
+        </tr>
+        <tr class="row-card">
+          <td class="center" style="font-weight: 800; color: #003B73;">481</td>
+          <td class="center" style="font-size: 11px; white-space: nowrap; color: #475569;">
+            06:50<br>26/11/2026
+          </td>
+          <td style="font-weight: 700; color: #0F172A;">
+            <a href="https://www.facebook.com/groups/reviewthecogivui/posts/1456198742898097/" target="_blank" rel="noopener noreferrer" class="lead-name-link" data-link="https://www.facebook.com/groups/reviewthecogivui/posts/1456198742898097/" title="Mở bài viết">Gia Đình Nhà Sophia Hạ Châu</a>
+          </td>
+          <td class="center">
+            <span style="font-weight:700; color:#1877F2;">🌐 FB</span>
+          </td>
+          <td style="line-height: 1.4; word-break: break-word;">
+            [BÀI ĐĂNG] SOS - Mấy nay lubu không để ý con claude hết hạn, từ ngày vô nhóm mới bit đến chi tiêu tối ưu các thẻ. Nhờ các ct tư vấn giúp e mua claude sài thẻ nào để đc hoàn với ạ… See more
+          </td>
+          <td style="font-weight: 700; color: #003B73;">
+            Sacombank Visa Platinum Cashback / Sang ngang thẻ
+          </td>
+          <td style="font-weight: 700; color: #B45309; white-space: nowrap;">
+            30 - 80 triệu
+          </td>
+          <td class="center">
+            <div class="sheet-action-btns">
+              <a href="https://www.facebook.com/groups/reviewthecogivui/posts/1456198742898097/" target="_blank" rel="noopener noreferrer" class="btn-sheet-app" data-link="https://www.facebook.com/groups/reviewthecogivui/posts/1456198742898097/" title="Mở bài viết trong ứng dụng">📲 Mở bài</a>
+              <button type="button" class="btn-sheet-copy" data-stt="481" title="Sao chép kịch bản mở lời Sacombank">
+                📋 Soạn
+              </button>
+              <button type="button" class="btn-sheet-link" data-link="https://www.facebook.com/groups/reviewthecogivui/posts/1456198742898097/" title="Sao chép liên kết bài viết">🔗 Link</button>
+            </div>
+          </td>
+          <td class="center">
+            <span class="sheet-status-tag new" data-stt="481">
               Mới
             </span>
           </td>
@@ -1199,12 +1272,6 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
             </tbody>
           </table>
         </div>
-      </div>
-    </section>
-    <section id="panel-kpisalary" class="panel" data-panel="kpisalary">
-      <div class="card">
-        <div class="card-head"><div class="card-title">💰 KPI &amp; Lương khoán</div></div>
-        <iframe id="kpiSalaryFrame" title="KPI và lương khoán" style="display:block;width:100%;height:100%;min-height:0;flex:1 1 0;border:0;"></iframe>
       </div>
     </section>
   </main>
@@ -1224,13 +1291,13 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
         frameId: "qlkhFrame",
         statusId: "qlkhStatus",
         chunks: null,
-        src: "./modules/qlkh.v1000.data.js?build=20261123-diagnose-missing-loan",
-        fallbackSrc: "./modules/qlkh.data.js?build=20261123-diagnose-missing-loan",
+        src: "./modules/qlkh.v1000.data.js?build=20261123-fix-index-limit",
+        fallbackSrc: "./modules/qlkh.data.js?build=20261123-fix-index-limit",
         globalName: "QLKH_CHUNKS",
         loaded: false,
         loading: null,
         label: "QLKH",
-        rawBytes: 465116
+        rawBytes: 440608
       },
       chitieu: {
         frameId: "chitieuFrame",
@@ -1420,227 +1487,6 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
         }
 
         frameDocument.documentElement.style.overscrollBehavior = "contain";
-        if (!frameDocument.getElementById("qlkh-professional-theme")) {
-          const visual = frameDocument.createElement("style");
-          visual.id="qlkh-professional-theme";
-          visual.textContent=`
-            body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
-            table{font-variant-numeric:tabular-nums}
-            input,select,textarea,button{font-family:inherit}
-            input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #60a5fa;outline-offset:1px}
-            .card,.metric,.toolbar,.table-wrap,.upload-card,.cbtd-card{border-radius:10px}
-            .metric,.cbtd-card{box-shadow:0 1px 4px rgba(16,42,67,.055)}
-            .metric-val,.kpi .val{font-variant-numeric:tabular-nums;letter-spacing:-.025em}
-            .btn,.tab,.tab-btn{letter-spacing:0}
-            @media(hover:hover) and (pointer:fine){.cbtd-card:hover{border-color:#8bbce5}.btn:not(:disabled):hover{box-shadow:0 1px 4px #102a4314}}
-          `+(frame.id==="qlkhFrame"?`
-            :root{--page:#f3f6fa;--bg2:#f1f6fc;--border:#dce5ef}
-            .header{background:linear-gradient(110deg,#064477,#075b9a)!important;box-shadow:0 2px 8px #102a4314!important;border-radius:12px!important}
-            .header h1{font-weight:750!important;letter-spacing:.015em!important}
-            #tabs .tab:not(.active){background:#fff!important;color:#41586e!important;border-color:#dce5ef!important}
-            #tabs .tab.active{background:#075b9a!important;color:#fff!important}
-            #tabs .tab{border-radius:8px!important;font-weight:650}
-            .metric,.toolbar,.table-wrap,.cbtd-card{border:1px solid #dce5ef!important;box-shadow:0 1px 4px #102a4309!important}
-            .metric-lbl{letter-spacing:.025em!important;color:#52677c!important}
-            .metric-val{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif!important;font-variant-numeric:tabular-nums}
-            .num,.mono{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;font-variant-numeric:tabular-nums}
-            .table-wrap th{background:#edf3fa;color:#41586e;letter-spacing:.025em}
-            .table-wrap td{border-bottom-color:#e8eef5}
-            .row-over td,.row-soon td,.row-today td{font-variant-numeric:tabular-nums}
-            .toolbar input,.toolbar select{border-color:#dce5ef}
-            .header-actions .btn,.header-cloud-actions .btn{backdrop-filter:none}
-          `:"");
-          visual.textContent += `
-            @media (min-width:851px), (hover:hover) and (pointer:fine){
-              .tabs,#tabs,.nav-tabs{flex-wrap:nowrap!important;overflow-x:auto!important;min-width:0;scrollbar-width:none}
-              .tabs>.tab,#tabs>.tab,.tabs>.tab-btn,.nav-tabs>.nav-tab,.tabs>.nav-tab{white-space:nowrap!important;word-break:normal!important;overflow-wrap:normal!important;flex:0 0 auto!important;width:auto!important;min-width:max-content!important;font-size:11.5px!important;padding:7px 10px!important;line-height:1.25!important}
-            }
-          `;
-          (frameDocument.head||frameDocument.documentElement).appendChild(visual);
-        }
-        // Motion is deliberately presentation-only: use the actual QLKH inner tab selectors.
-        if(frame.id === "qlkhFrame" && !frameDocument.getElementById("qlkh-inner-motion-v2")){
-          const win=frame.contentWindow, doc=frameDocument;
-          const style=doc.createElement("style");
-          style.id="qlkh-inner-motion-v2";
-          style.textContent=`
-            @keyframes qlkhInnerMetric{from{opacity:.65;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-            @keyframes qlkhInnerDetail{from{opacity:.55;transform:translateY(-3px)}to{opacity:1;transform:translateY(0)}}
-            @keyframes qlkhInnerUnderline{from{transform:scaleX(.25);opacity:.4}to{transform:scaleX(1);opacity:1}}
-            @keyframes qlkhInnerCheck{0%{transform:scale(.85)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
-            #tabs .tab{position:relative;transition:background-color .16s ease,color .16s ease,border-color .16s ease,box-shadow .16s ease}
-            #tabs .tab.active:after{content:"";position:absolute;left:10px;right:10px;bottom:2px;height:2px;border-radius:2px;background:rgba(255,255,255,.85);pointer-events:none;animation:qlkhInnerUnderline .2s ease-out both}
-            .panel.active .toolbar{animation:qlkhInnerMetric .18s ease-out both}
-            .panel.active .empty-state{animation:qlkhInnerMetric .2s ease-out both}
-            .customer-contract-box,.deposit-detail-box,#summaryDetail:not(:empty){animation:qlkhInnerDetail .18s ease-out both}
-            .cloud-auth-modal:not([hidden]){animation:qlkhInnerDetail .2s ease-out both}
-            .metric[role=button],.today-mini-filter,.btn,.paid-check,.customer-contract-toggle{transition:background-color .15s ease,border-color .15s ease,box-shadow .15s ease,color .15s ease,transform .12s ease}
-            .btn:active,.metric[role=button]:active,.today-mini-filter:active{transform:scale(.985)}
-            .paid-check:checked{animation:qlkhInnerCheck .17s ease-out both}
-            .panel.active tr.row-over>td:first-child{box-shadow:inset 3px 0 #dc2626}
-            .panel.active tr.row-soon>td:first-child{box-shadow:inset 3px 0 #d97706}
-            .panel.active tr.row-today>td:first-child{box-shadow:inset 3px 0 #0E78C7}
-            @media(hover:hover) and (pointer:fine){
-              #tabs .tab:not(.active):hover{box-shadow:inset 0 -2px #8BBCE5}
-              .metric[role=button]:hover,.today-mini-filter:hover{box-shadow:0 2px 8px rgba(7,91,154,.14)}
-              .panel.active tbody tr:not(.row-over):not(.row-soon):not(.row-today):not(.customer-contract-row):not(.deposit-detail-row):hover>td{background-color:#F0F7FD}
-            }
-            @media(prefers-reduced-motion:reduce){
-              #tabs .tab,.metric[role=button],.today-mini-filter,.btn,.paid-check,.customer-contract-toggle{transition:none!important}
-              #tabs .tab.active:after,.panel.active .toolbar,.panel.active .empty-state,.customer-contract-box,.deposit-detail-box,#summaryDetail:not(:empty),.cloud-auth-modal:not([hidden]),.paid-check:checked{animation:none!important}
-              .btn:active,.metric[role=button]:active,.today-mini-filter:active{transform:none}
-            }
-          `;
-          (doc.head||doc.documentElement).appendChild(style);
-          const reduced=()=>win.matchMedia&&win.matchMedia("(prefers-reduced-motion: reduce)").matches;
-          const animate=(el,frames,opts)=>{
-            if(!el||reduced()||typeof el.animate!=="function")return;
-            try{el.animate(frames,opts)}catch(_){}
-          };
-          const activePanel=()=>doc.querySelector(".panel.active");
-          // Animate only small metric groups, never thousands of table rows.
-          const metricMotion=()=>{
-            const panel=activePanel(); if(!panel)return;
-            const group=panel.querySelector(".metrics");
-            if(group)animate(group,[{opacity:.65},{opacity:1}],{duration:180,easing:"ease-out"});
-          };
-          let lastPanel=activePanel();
-          const tabObserver=new win.MutationObserver(()=>{
-            const now=activePanel();
-            if(now&&now!==lastPanel){
-              lastPanel=now;
-              win.requestAnimationFrame(metricMotion);
-            }
-          });
-          doc.querySelectorAll(".panel").forEach(p=>tabObserver.observe(p,{attributes:true,attributeFilter:["class"]}));
-          // Capture the visual position only. Do not delay or replace existing paid handlers.
-          let checkedRow=null;
-          doc.addEventListener("click",e=>{
-            const input=e.target.closest&&e.target.closest("input.paid-check[type=checkbox]");
-            if(!input||!input.checked||reduced())return;
-            const row=input.closest("tr"); if(!row)return;
-            checkedRow={row,rect:row.getBoundingClientRect()};
-            const snapshot=checkedRow;
-            win.requestAnimationFrame(()=>{
-              if(checkedRow===snapshot)checkedRow=null;
-              if(snapshot.row.isConnected)return;
-              const rect=snapshot.rect;
-              if(rect.width<=0||rect.height<=0)return;
-              const pulse=doc.createElement("div");
-              pulse.setAttribute("aria-hidden","true");
-              pulse.style.cssText="position:fixed;pointer-events:none;z-index:999;left:"+Math.max(0,rect.left)+"px;top:"+Math.max(0,rect.top)+"px;width:"+Math.max(0,Math.min(rect.width,win.innerWidth-Math.max(0,rect.left)))+"px;height:"+Math.min(rect.height,48)+"px;background:rgba(22,163,74,.18);border-left:3px solid #16a34a;border-radius:4px";
-              doc.body.appendChild(pulse);
-              animate(pulse,[{opacity:1,transform:"translateX(0)"},{opacity:0,transform:"translateX(12px)"}],{duration:210,easing:"ease-out"});
-              win.setTimeout(()=>pulse.remove(),240);
-            });
-          },true);
-          doc.addEventListener("change",e=>{
-            const t=e.target;
-            if(t.matches&&t.matches(".toolbar select,.quick-cbtd-select,.toolbar input[type=date]")){
-              win.requestAnimationFrame(metricMotion);
-            }
-          },true);
-        }
-        // RATE only: align its original brown palette with the QLKH blue theme.
-        if (frame.id === "rateFrame" && !frameDocument.getElementById("qlkh-rate-palette")) {
-          const theme = frameDocument.createElement("style");
-          theme.id = "qlkh-rate-palette";
-          theme.textContent = `
-            :root {
-              --bg:#EAF4FF; --card:#FFFFFF; --border:#C7DDF2;
-              --pri:#075B9A; --acc:#0E78C7; --gold:#8DD5FF; --mud:#536779;
-              --t1:#102A43; --t2:#41586E; --t3:#536779;
-              --grn:#1D6B45; --red:#8B1A1A; --blu:#075B9A; --amb:#7A5200;
-              --row:#F3F9FF;
-            }
-            .header{background:linear-gradient(135deg,#075B9A,#0E78C7);border-bottom-color:#1F75BC}
-            .sub-hdr,.tab-btn:not(.active){color:#D9F0FF}
-            .tag-badge{color:#D9F0FF}
-            .kpi.hi .lbl,.kpi.hi .unt,.kpi.hi .sub{color:#D9F0FF}
-            .tbl th{background:#E7F1FA;color:#102A43}
-            .card{box-shadow:0 3px 12px rgba(7,91,154,.06)}
-            .tab-btn.active{border-bottom-color:#1F75BC}
-            .fld select:focus,.fld input:focus{border-color:#0E78C7}
-            @keyframes ratePanelIn{from{opacity:.65;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-            .tab-panel.active{animation:ratePanelIn .2s ease-out both}
-            @media(prefers-reduced-motion:reduce){.tab-panel.active{animation:none}.mbf{transition:none}}
-          `;
-          (frameDocument.head || frameDocument.documentElement).appendChild(theme);
-          // Replace exact legacy decorative colors in inline styles, not semantic red/green/amber.
-          const palette = {"#5c3317":"#075B9A","#9b4e1a":"#0E78C7","#b8792a":"#1F75BC","#8b6545":"#536779","#f7f3ee":"#EAF4FF","#e2d5c8":"#C7DDF2","#2a160a":"#102A43","#6b4c34":"#41586E","#9e7a5a":"#536779","#faf7f4":"#F3F9FF","#c4a07a":"#D9F0FF","#d4b896":"#D9F0FF","#d4a870":"#D9F0FF"};
-          const recolor = node => {
-            if (node.nodeType !== 1) return;
-            const apply = el => {
-              const before = el.getAttribute("style");
-              if (!before) return;
-              const after = before.replace(/#[0-9a-f]{6}(?![0-9a-f])/gi, c => palette[c.toLowerCase()] || c);
-              if (after !== before) el.setAttribute("style",after);
-            };
-            apply(node);
-            node.querySelectorAll("[style]").forEach(apply);
-          };
-          if(frameDocument.body){
-            recolor(frameDocument.body);
-            const observer = new frame.contentWindow.MutationObserver(records => {
-              for (const record of records) {
-                if(record.type === "attributes") recolor(record.target);
-                else record.addedNodes.forEach(recolor);
-              }
-            });
-            observer.observe(frameDocument.body,{childList:true,subtree:true,attributes:true,attributeFilter:["style"]});
-          }
-        }
-        // Use the parent viewport, not the scaled iframe media query.
-        if ((frame.id === "rateFrame" || frame.id === "ltvFrame") && !frameDocument.getElementById("utility-mobile-scroll")) {
-          const mobile=frameDocument.createElement("style");
-          mobile.id="utility-mobile-scroll";
-          mobile.textContent=`
-            html.utility-phone .header,html.utility-phone header,html.utility-phone .sub-hdr,html.utility-phone .hero,html.utility-phone [data-utility-unpin]{position:static!important;top:auto!important;bottom:auto!important;z-index:auto!important}
-          `;
-          (frameDocument.head||frameDocument.documentElement).appendChild(mobile);
-          const win=frame.contentWindow;
-          const unpin=()=>{
-            const phone=window.innerWidth<700;
-            frameDocument.documentElement.classList.remove("utility-phone");
-            frameDocument.querySelectorAll("[data-utility-unpin]").forEach(el=>el.removeAttribute("data-utility-unpin"));
-            if(!phone)return;
-            for(const el of frameDocument.querySelectorAll("body *")){
-              if(el.closest("table"))continue;
-              const c=win.getComputedStyle(el);
-              if((c.position==="sticky"||c.position==="fixed")&&c.top!=="auto"&&parseFloat(c.top)<=100&&!el.closest('[role="dialog"],dialog,.modal'))el.setAttribute("data-utility-unpin","");
-            }
-            frameDocument.documentElement.classList.add("utility-phone");
-          };
-          unpin();
-          win.addEventListener("resize",unpin,{passive:true});
-          setTimeout(unpin,500);
-          setTimeout(unpin,1500);
-        }
-        // Isolated visual enhancement for the existing compressed modules.
-        if (!frameDocument.getElementById("qlkh-motion-style")) {
-          const motion = frameDocument.createElement("style");
-          motion.id = "qlkh-motion-style";
-          motion.textContent = `
-            button:not(:disabled), input:not([type=file]), select, textarea, summary,
-            [role=button], .tab, .nav-tab, .chip {
-              transition: background-color 150ms ease, border-color 150ms ease,
-                box-shadow 150ms ease, color 150ms ease;
-            }
-            button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible {
-              outline: 2px solid #60a5fa; outline-offset: 2px;
-            }
-            @media(hover:hover) and (pointer:fine){
-              button:not(:disabled):hover, summary:hover { filter: brightness(.97); }
-            }
-            @keyframes qlkhInnerReveal{from{opacity:.65}to{opacity:1}}
-            details[open]>summary+* { animation:qlkhInnerReveal 180ms ease-out both; }
-            @media(prefers-reduced-motion:reduce){
-              button, input, select, textarea, summary, [role=button], .tab, .nav-tab, .chip {transition:none!important}
-              details[open]>summary+*{animation:none!important}
-            }
-          `;
-          (frameDocument.head || frameDocument.documentElement).appendChild(motion);
-        }
 
         if (frameDocument.body) {
           frameDocument.body.style.overscrollBehavior = "contain";
@@ -1659,17 +1505,6 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
       }
     }
 
-    function patchCloudStateShards(html){
-      const edits=[["function cloudPayload(){","\n// QLKH state shards v1: immutable parts, atomic root update, legacy read compatibility.\nasync function cloudHydrateState(root,reader,rootRef){\n  if(!root||!root.stateParts)return root;\n  const p=root.stateParts;\n  if(p.schema!==1||!Array.isArray(p.ids)||!p.ids.length||p.ids.length>100)throw Error('Danh sách phần trạng thái cloud không hợp lệ.');\n  const mods=cloudState.mods||await loadFirebaseMods(),ref=rootRef||cloudState.docRef;\n  const ids=p.ids;\n  if(!ref||ids.some((id,i)=>typeof id!=='string'||id!==ref.id+'_state_'+p.generation+'_'+i))throw Error('Mã phần trạng thái cloud không hợp lệ.');\n  const texts=[];\n  for(let i=0;i<ids.length;i+=8){\n    const snaps=await Promise.all(ids.slice(i,i+8).map(id=>reader(mods.doc(mods.db,'qlkhShared',id))));\n    snaps.forEach((snap,j)=>{\n      if(!snap.exists())throw Error('Thiếu phần trạng thái cloud; giữ nguyên dữ liệu tại máy.');\n      const d=snap.data();\n      if(d.generation!==p.generation||d.index!==i+j||typeof d.payload!=='string'||simpleHash(d.payload)!==d.checksum)throw Error('Phần trạng thái cloud sai kiểm tra.');\n      texts.push(d.payload);\n    });\n  }\n  const json=texts.join('');\n  if(cloudUtf8Bytes(json)!==p.bytes||simpleHash(json)!==p.checksum)throw Error('Trạng thái cloud chưa đầy đủ; không ghi đè.');\n  const data=JSON.parse(json);\n  if(!data||typeof data!=='object'||Array.isArray(data))throw Error('Trạng thái cloud không hợp lệ.');\n  return data;\n}\nasync function cloudReadStateSnapshot(snap,ref){\n  const mods=cloudState.mods||await loadFirebaseMods();\n  const root=snap.data();\n  const data=await cloudHydrateState(root,r=>mods.getDoc(r),ref);\n  try{window.parent.qlkhReportStateSize?.(cloudUtf8Bytes(JSON.stringify(data)),1+(root.stateHistory||[]).length,(root.stateParts?.bytes||0)+(root.stateHistory||[]).reduce((n,p)=>n+Number(p.bytes||0),0))}catch(e){}\n  return data;\n}\nfunction cloudStateChunks(json){\n  const parts=[];\n  for(let start=0;start<json.length;){\n    let end=Math.min(start+120000,json.length);\n    if(end<json.length&&json.charCodeAt(end-1)>=0xD800&&json.charCodeAt(end-1)<=0xDBFF)end--;\n    parts.push(json.slice(start,end));start=end;\n  }\n  return parts;\n}\nasync function cloudWriteStateAtomic(local,manifest){\n  const mods=cloudState.mods||await loadFirebaseMods(),ref=cloudState.docRef;\n  if(!ref)throw Error('Chưa kết nối cloud.');\n  const generation=Date.now().toString(36)+'_'+Math.random().toString(36).slice(2)+'_'+Math.random().toString(36).slice(2);\n  let usage=null;\n  const result=await mods.runTransaction(mods.db,async tx=>{\n    const snap=await tx.get(ref),oldRoot=snap.exists()?snap.data():null;\n    const remote=oldRoot?await cloudHydrateState(oldRoot,r=>tx.get(r),ref):null;\n    const payload=mergeCloudPayloadLatest(remote||{},local);\n    if(manifest)payload.dataset=manifest;\n    if(!manifest&&remote&&cloudStatePayloadJSON(remote)===cloudStatePayloadJSON(payload)&&oldRoot.stateParts)return remote;\n    const now=Date.now();payload.updatedAtMs=now;payload.updatedAt=new Date(now).toISOString();\n    const json=JSON.stringify(payload),bytes=cloudUtf8Bytes(json);\n    if(bytes>7000000)throw Error('Trạng thái vượt 7 MB; dữ liệu vẫn lưu tại máy. Cần chia thêm lô.');\n    const chunks=cloudStateChunks(json),ids=chunks.map((_,i)=>ref.id+'_state_'+generation+'_'+i);\n    chunks.forEach((part,i)=>tx.set(mods.doc(mods.db,'qlkhShared',ids[i]),{type:'qlkhStatePart',generation,index:i,checksum:simpleHash(part),payload:part}));\n    const current={schema:1,generation,ids,bytes,checksum:simpleHash(json)};\n    const valid=p=>p&&p.schema===1&&typeof p.generation==='string'&&Array.isArray(p.ids)&&p.ids.length>0&&p.ids.length<=100&&p.ids.every((id,i)=>id===ref.id+'_state_'+p.generation+'_'+i);\n    const prev=[oldRoot?.stateParts,...(Array.isArray(oldRoot?.stateHistory)?oldRoot.stateHistory:[])].filter(valid);\n    const distinct=[...new Map(prev.map(p=>[p.generation,p])).values()];\n    const retained=distinct.slice(0,2),obsolete=distinct.slice(2);\n    const keep=new Set([current,...retained].flatMap(p=>p.ids));\n    for(const p of obsolete)for(const id of p.ids)if(!keep.has(id))tx.delete(mods.doc(mods.db,'qlkhShared',id));\n    const root={version:payload.version,updatedAt:payload.updatedAt,updatedAtMs:payload.updatedAtMs,clientId:payload.clientId,stateParts:current,stateHistory:retained,...(payload.dataset?{dataset:payload.dataset}:{})};\n    tx.set(ref,root);\n    usage=[bytes,1+retained.length,bytes+retained.reduce((n,p)=>n+Number(p.bytes||0),0)];\n    return payload;\n  });\n  try{if(usage)window.parent.qlkhReportStateSize?.(...usage)}catch(e){}\n  return result;\n}\n\nfunction cloudPayload(){"],["remote=snap.data();oldManifest=remote.dataset||oldManifest","remote=await cloudReadStateSnapshot(snap,cloudState.docRef);oldManifest=remote.dataset||oldManifest"],["await mods.setDoc(cloudState.docRef,rootPayload);","rootPayload=await cloudWriteStateAtomic(rootPayload,manifest);"],["const data=snap.data(),stateOk=applyCloudPayload(data,'manual')","const data=await cloudReadStateSnapshot(snap,cloudState.docRef),stateOk=applyCloudPayload(data,'manual')"],["    try{\n      const snap=await getDoc(cloudState.docRef);\n      if(snap.exists())payload=mergeCloudPayloadLatest(snap.data(),payload);\n    }catch(pullErr){console.warn('Không merge được cloud trước khi lưu, vẫn thử lưu local payload',pullErr)}\n    await setDoc(cloudState.docRef,payload);","    payload=await cloudWriteStateAtomic(payload);"],["    const data=snap.data();\n    if(!data||data.clientId===cloudState.clientId)return;","    let data;\n    try{const root=snap.data();if(!root||root.clientId===cloudState.clientId)return;data=await cloudReadStateSnapshot(snap,cloudState.docRef)}catch(e){console.warn('Không đọc được trạng thái cloud',e);setCloudStatus('error','☁ Không tải được trạng thái cloud: '+(e.message||e));return;}\n    if(!data||data.clientId===cloudState.clientId)return;"],["function startCloudSnapshot(){","function startCloudSnapshot(){\n  if(document.hidden)return;"],["  cloudState.unsub=onSnapshot(cloudState.docRef,async(snap)=>{","  cloudState.unsub=onSnapshot(cloudState.docRef,async(snap)=>{\n    if(document.hidden)return;"],["function maybeAutoConnectFirebase(){","document.addEventListener('visibilitychange',()=>{\n  if(document.hidden){if(cloudState.unsub){try{cloudState.unsub()}catch(e){}cloudState.unsub=null}return;}\n  if(cloudState.ready){startCloudSnapshot();if(cloudState.dirty&&!cloudState.busy)scheduleCloudAutoSave();}\n});\nfunction maybeAutoConnectFirebase(){"]];
-      let out=html.replace(/\r\n/g,"\n");
-      if(out.includes("async function cloudWriteStateAtomic("))return out;
-      for(const [from,to] of edits){
-        if(!out.includes(from))throw new Error("Không thể cập nhật bộ lưu cloud: phiên bản QLKH không khớp");
-        out=out.replace(from,to);
-      }
-      return out;
-    }
-    
     async function loadModule(key) {
       const meta = MODULES[key];
 
@@ -1706,17 +1541,7 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
             setStatus(key, "Đã tải");
           };
 
-          let preparedHtml = moduleHtml;
-          if(key === "qlkh") preparedHtml=patchCloudStateShards(preparedHtml);
-          if(key === "qlkh"){
-            // Expose a narrow token getter from the actual QLKH auth instance, inside its closure.
-            const marker = /Object\.assign\(window,\{openUpload,/;
-            if(marker.test(preparedHtml) && preparedHtml.includes("ensureCloudAuthenticated") && preparedHtml.includes("cloudAuthValid")){
-              preparedHtml = preparedHtml.replace(marker,
-                'window.qlkhSessionToken=async function(force){const user=await ensureCloudAuthenticated(false);if(!cloudAuthValid(user))return null;return await user.getIdToken(Boolean(force));};Object.assign(window,{openUpload,');
-            }
-          }
-          frame.srcdoc = preparedHtml;
+          frame.srcdoc = moduleHtml;
           meta.loaded = true;
 
           // Chỉ giải phóng dữ liệu nén sau khi đã gán srcdoc thành công.
@@ -1772,10 +1597,6 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
         if (typeof window.initRadar === "function") {
           window.initRadar();
         }
-      } else if (tab === "kpisalary") {
-        loadModule("qlkh"); // Restore the shared authenticated session even when KPI is the first tab opened.
-        const frame = document.getElementById("kpiSalaryFrame");
-        if (frame && !frame.getAttribute("src")) frame.setAttribute("src", "./kpi-salary.html?v=quota-20261127");
       } else if (tab === "qlkh") {
         loadModule("qlkh");
       } else if (tab === "chitieu") {
@@ -1787,8 +1608,6 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
       }
 
       scheduleIframeScale();
-      window.dispatchEvent(new CustomEvent('qlkh-tab-change',{detail:tab}));
-      if(tab==='kpisalary'){try{document.getElementById('kpiSalaryFrame').contentWindow.qlkhKpiActivate?.()}catch(e){}}
     }
 
     function showUtility(utility) {
@@ -1837,7 +1656,7 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
       }
       if (SHARE_MODE) targetTab = "chitieu";
 
-      if (targetTab && targetTab !== "qlkh" && ["radar", "chitieu", "tienich", "kpisalary"].includes(targetTab)) {
+      if (targetTab && targetTab !== "qlkh" && ["radar", "chitieu", "tienich"].includes(targetTab)) {
         showMain(targetTab);
       } else {
         requestAnimationFrame(() => loadModule(SHARE_MODE ? "chitieu" : "qlkh"));
@@ -1860,76 +1679,13 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
 
 
 <!-- Firebase cloud sync V1: multi-device, two-way status and undo -->
-<script id="ownerFirebaseAuthBridge">
-(function(){
-  "use strict";
-  const config={
-  apiKey:"AIzaSyAAJWgxcZ92eeZbbQC-dQdgp63KUtOn8lk",
-  authDomain:"qlkh-c3298.firebaseapp.com",
-  projectId:"qlkh-c3298",
-  storageBucket:"qlkh-c3298.firebasestorage.app",
-  messagingSenderId:"453289134115",
-  appId:"1:453289134115:web:ae4882422b1e841afec996",
-  measurementId:"G-WMPGKG8YEQ"
-};
-  const uid="uMrJ5Ko2ihTeFV5YZVhtxcq3giq2";
-  let authPromise;
-  async function getAuthInstance(){
-    if(!authPromise)authPromise=(async()=>{
-      const [appMod,authMod]=await Promise.all([import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"),import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js")]);
-      const app=appMod.getApps().find(a=>a.name==="[DEFAULT]")||appMod.initializeApp(config);
-      const auth=authMod.getAuth(app);
-      await auth.authStateReady();
-      return auth;
-    })().catch(e=>{authPromise=null;throw e});
-    return authPromise;
-  }
-  async function ownerFetch(url,options){
-    const target=new URL(url);
-    if(target.origin!=="https://qlkh-c3298-default-rtdb.asia-southeast1.firebasedatabase.app")throw new Error("Firebase origin không hợp lệ");
-    async function getToken(force){
-      const frame=document.getElementById("qlkhFrame");
-      const getter=frame?.contentWindow?.qlkhSessionToken;
-      // Prefer the live iframe session; never bypass its logout with a stale parent session.
-      if(typeof getter==="function")return await getter(force);
-      if(frame?.contentWindow && typeof frame.contentWindow.openCloudLogin==="function")return null;
-      const auth=await getAuthInstance();
-      const user=auth.currentUser;
-      return user&&user.uid===uid?await user.getIdToken(Boolean(force)):null;
-    }
-    let token=await getToken(false);
-    if(!token){const e=new Error("Đăng nhập Firebase trong tab QLKH trước");e.code="owner-login-required";throw e;}
-    target.searchParams.set("auth",token);
-    let res=await fetch(target.toString(),options);
-    if(res.status===401){
-      token=await getToken(true);
-      if(token){target.searchParams.set("auth",token);res=await fetch(target.toString(),options);}
-    }
-    return res;
-  }
-  const usage={downloads:0,requests:0,writes:0,stateBytes:0,versions:0,retainedBytes:0};
-  const fmt=n=>n>=1048576?(n/1048576).toFixed(2)+' MiB':(n/1024).toFixed(1)+' KiB';
-  function paintUsage(){
-    const el=document.getElementById('qlkhUsageStats');if(!el)return;
-    el.textContent='Phiên này: '+usage.requests+' lượt REST · tải ~'+fmt(usage.downloads)+' · ghi '+usage.writes+'; trạng thái Firestore '+(usage.stateBytes?fmt(usage.stateBytes)+' · '+usage.versions+' bản · ~'+fmt(usage.retainedBytes):'chưa đo')+'. Chỉ ước tính dữ liệu ứng dụng, không phải quota Firebase.';
-  }
-  window.qlkhTabActive=tab=>!!document.querySelector('.panel.active[data-panel="'+tab+'"]');
-  window.qlkhReportStateSize=(bytes,versions,retainedBytes)=>{Object.assign(usage,{stateBytes:bytes,versions,retainedBytes});paintUsage()};
-  window.qlkhOwnerFetch=async function(url,options){
-    usage.requests++;if(options?.method&&options.method!=='GET')usage.writes++;
-    const res=await ownerFetch(url,options);
-    try{const copy=res.clone();copy.text().then(t=>{usage.downloads+=new TextEncoder().encode(t).length;paintUsage()}).catch(()=>{})}catch(e){}
-    paintUsage();return res;
-  };
-})();
-</script>
 <script id="firebaseCloudSyncV1">
 (function () {
   "use strict";
 
   const FIREBASE_ROOT_URL = "https://qlkh-c3298-default-rtdb.asia-southeast1.firebasedatabase.app/qlkh";
   const FIREBASE_DB_URL = FIREBASE_ROOT_URL + ".json";
-  const SYNC_INTERVAL_MS = 60000; // Kiểm tra dự phòng khi đang xem QLKH
+  const SYNC_INTERVAL_MS = 5000; // Tự động kiểm tra mỗi 5 giây
   const WRITE_DELAY_MS = 300;
   const PAID_KEY = "qlkh_v42_fix_paid";
 
@@ -1983,47 +1739,23 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
   function createStatusBadge() {
     let badge = document.getElementById("firebaseSyncStatus");
     if (badge) return badge;
-    const host = document.createElement("div");
-    host.id = "firebaseSyncWidget";
-    host.dataset.state = "idle";
-    host.innerHTML = '<button id="firebaseSyncStatus" type="button" aria-label="Trạng thái đồng bộ Firebase" aria-expanded="false" aria-controls="firebaseSyncDetails"><span class="firebase-ring" aria-hidden="true"></span><span class="firebase-ring-center" aria-hidden="true"></span></button><div id="firebaseSyncDetails" hidden><div class="firebase-detail-status" role="status" aria-live="polite"><span class="firebase-sync-dot"></span><span class="firebase-sync-text">Firebase: Đang kết nối...</span></div><div class="firebase-detail-second"><span class="firebase-detail-note"></span><button type="button" class="firebase-sync-now" title="Đồng bộ ngay" aria-label="Đồng bộ ngay">↻</button></div></div>';
-    badge = host.querySelector("#firebaseSyncStatus");
-    const details = host.querySelector("#firebaseSyncDetails");
-    const stats=document.createElement("div");stats.id="qlkhUsageStats";stats.style.cssText="font-size:10px;line-height:1.4;margin-top:5px;color:#52677c;max-width:260px";stats.textContent="Thống kê phiên này: chưa có dữ liệu đo.";details.appendChild(stats);
-    let closeTimer;
-    function toggle(open) {
-      const wasOpen = badge.getAttribute("aria-expanded") === "true";
-      if(open === wasOpen) return;
-      clearTimeout(closeTimer);
-      badge.setAttribute("aria-expanded", String(open));
-      if(open){
-        details.hidden = false;
-        details.removeAttribute("inert");
-        details.classList.remove("sync-closing");
-        details.classList.add("sync-opening");
-      } else {
-        details.setAttribute("inert","");
-        details.classList.remove("sync-opening");
-        details.classList.add("sync-closing");
-        const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        closeTimer = setTimeout(() => {details.hidden=true;details.classList.remove("sync-closing");},reduced?0:180);
-        badge.title = "Xem trạng thái đồng bộ Firebase";
-      }
-    }
-    badge.addEventListener("click", () => toggle(badge.getAttribute("aria-expanded") !== "true"));
-    host.querySelector(".firebase-sync-now").addEventListener("click", syncFromFirebase);
-    document.addEventListener("pointerdown", e => { if (!host.contains(e.target)) toggle(false); });
-    document.addEventListener("keydown", e => { if(e.key === "Escape" && !details.hidden){toggle(false);badge.focus();} });
-    const logo = document.querySelector(".app-top .brand-left > .logo");
-    const brand = document.querySelector(".app-top .brand");
-    if (logo) {
-      const glyph = logo.textContent.trim() || "📊";
-      host.querySelector(".firebase-ring-center").textContent = glyph;
-      logo.replaceWith(host);
-    } else {
-      host.querySelector(".firebase-ring-center").textContent = "📊";
-      (brand || document.body).prepend(host);
-    }
+
+    badge = document.createElement("button");
+    badge.id = "firebaseSyncStatus";
+    badge.type = "button";
+    badge.setAttribute("aria-live", "polite");
+    badge.innerHTML = '<span class="firebase-sync-dot"></span><span class="firebase-sync-text">Firebase: Đang kết nối...</span>';
+    Object.assign(badge.style, {
+      position: "fixed", right: "12px", bottom: "12px", zIndex: "99999",
+      display: "flex", alignItems: "center", gap: "7px", maxWidth: "calc(100vw - 24px)",
+      padding: "8px 13px", border: "1px solid rgba(100,116,139,.35)", borderRadius: "999px",
+      background: "rgba(255,255,255,.96)", color: "#334155", font: "600 12px/1.3 Arial,sans-serif",
+      boxShadow: "0 4px 16px rgba(15,23,42,.16)", cursor: "pointer", backdropFilter: "blur(8px)"
+    });
+    const dot = badge.querySelector(".firebase-sync-dot");
+    Object.assign(dot.style, { width: "9px", height: "9px", flex: "0 0 9px", borderRadius: "50%", background: "#94A3B8" });
+    badge.addEventListener("click", syncFromFirebase);
+    document.body.appendChild(badge);
     return badge;
   }
 
@@ -2036,15 +1768,15 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
 
   function setStatus(state, text, detail) {
     const badge = createStatusBadge();
-    const host = badge.parentElement;
-    const label = host.querySelector(".firebase-sync-text");
-    const note = host.querySelector(".firebase-detail-note");
-    host.dataset.state = state || "idle";
-    label.textContent = text || "Firebase";
-    note.textContent = detail || "";
-    badge.setAttribute("aria-label", (text || "Firebase") + ". Bấm để xem chi tiết");
-    badge.title = text || "Xem trạng thái đồng bộ Firebase";
-    host.querySelector(".firebase-sync-now").disabled = state === "syncing" || state === "writing";
+    const dot = badge.querySelector(".firebase-sync-dot");
+    const label = badge.querySelector(".firebase-sync-text");
+    const colors = {
+      idle: "#94A3B8", syncing: "#F59E0B", success: "#16A34A",
+      writing: "#2563EB", warning: "#EA580C", error: "#DC2626"
+    };
+    dot.style.background = colors[state] || colors.idle;
+    label.textContent = text;
+    badge.title = detail || "Bấm để đồng bộ Firebase ngay";
   }
 
   // Khôi phục khách hàng trong bộ nhớ localStorage khi bấm [↩️ Bỏ] (Undo)
@@ -2084,7 +1816,7 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
       ngayXuLy: checked ? new Date().toISOString() : null,
       nguonCapNhat: "QLKH_GITHUB_HTML"
     };
-    const response = await window.qlkhOwnerFetch(url, {
+    const response = await fetch(url, {
       method: "PATCH", cache: "no-store",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify(payload)
@@ -2158,9 +1890,7 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
     });
   }
 
-  async function syncFromFirebase(event) {
-    const manual=event?.type==='click';
-    if(document.hidden||(!manual&&!window.qlkhTabActive('qlkh')))return;
+  async function syncFromFirebase() {
     if (syncRunning) return;
     const doc = getFrameDocument();
     const win = getFrameWindow();
@@ -2172,7 +1902,7 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
     syncRunning = true;
     setStatus("syncing", "Firebase: Đang đồng bộ...", "Đang kết nối Cloud...");
     try {
-      const response = await window.qlkhOwnerFetch(FIREBASE_DB_URL, {
+      const response = await fetch(FIREBASE_DB_URL, {
         method: "GET", cache: "no-store", headers: { Accept: "application/json" }
       });
       if (!response.ok) throw new Error("Mất kết nối HTTP " + response.status);
@@ -2260,7 +1990,7 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
       setStatus("success", "Đồng bộ cuối: " + formatTime(now), "Dữ liệu đang khớp với Telegram");
     } catch (error) {
       console.error("Lỗi đồng bộ Firebase:", error);
-      setStatus(error.code==="owner-login-required"?"warning":"error", error.code==="owner-login-required"?"Firebase: Cần đăng nhập":"Firebase: Đồng bộ lỗi", error.message);
+      setStatus("error", "Firebase: Đồng bộ lỗi", error.message);
     } finally {
       syncRunning = false;
     }
@@ -2297,7 +2027,6 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
     });
   }
 
-  window.addEventListener('qlkh-tab-change',()=>syncFromFirebase());
   window.addEventListener("focus", syncFromFirebase);
   document.addEventListener("visibilitychange", function () {
     if (!document.hidden) syncFromFirebase();
@@ -2323,7 +2052,7 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
   "use strict";
 
   const FIREBASE_RADAR_URL = "https://qlkh-c3298-default-rtdb.asia-southeast1.firebasedatabase.app/qlkh/radar_leads.json";
-  let radarLeads = [{"stt": "475", "date": "21/11/2026", "time": "08:28", "name": "MotivatedGiraffe9277", "link": "https://www.facebook.com/groups/mothetindungtphcmmienphi/posts/1929714491740478/", "content": "[BÀI ĐĂNG] Em hiện tại đang dùng thẻ tín dụng của tpbank được hơn 1 năm, em muốn mở thêm thẻ tín dụng của các bên khác có ưu đãi nhiều cho ăn uống ạ, mọi người hỗ trợ giúp em", "product": "Sacombank Visa Platinum Cashback / Sang ngang thẻ", "limit": "30 - 80 triệu", "status": "Mới", "note": "Mở Thẻ Tín Dụng TP.HCM - Miễn Phí (POST)"}, {"stt": "476", "date": "21/11/2026", "time": "12:04", "name": "Thanh Phong", "link": "https://www.facebook.com/groups/canhohcmgiare/posts/1808500313780396/", "content": "[BÀI ĐĂNG] Cần tư vấn mở thẻ tín dụng ngân hàng có quyền lợi tốt", "product": "Sacombank Visa Platinum Cashback / Sang ngang thẻ", "limit": "30 - 80 triệu", "status": "Mới", "note": "Mở Thẻ Tín Dụng Toàn Quốc (POST)"}, {"stt": "477", "date": "21/11/2026", "time": "16:15", "name": "Pham Ngoc Khanh", "link": "https://www.facebook.com/groups/mothetindungtphcmmienphi/posts/1929976258380968/", "content": "[BÀI ĐĂNG] THẺ TÍN DỤNG MB – DÀNH CHO KHÁCH HÀNG CÓ THU NHẬP TỪ LƯƠNG Anh/chị đang nhận lương qua tài khoản và có nhu cầu sử dụng thẻ tín dụng? MB triển khai chương trình phát hành thẻ dành c", "product": "Sacombank Visa Platinum Cashback / Sang ngang thẻ", "limit": "30 - 80 triệu", "status": "Mới", "note": "Mở Thẻ Tín Dụng TP.HCM - Miễn Phí (POST)"}, {"stt": "478", "date": "21/11/2026", "time": "16:15", "name": "SereneFalcon4220", "link": "https://www.facebook.com/groups/471701795562084/posts/1141511105247813/", "content": "[BÀI ĐĂNG] Em mới mở thẻ td vpbank 60tr giờ có mở thêm thẻ bên nào đc k ạ", "product": "Sacombank Visa Platinum Cashback / Sang ngang thẻ", "limit": "30 - 80 triệu", "status": "Mới", "note": "Hội Mở Thẻ Tín Dụng (POST)"}, {"stt": "479", "date": "23/11/2026", "time": "02:21", "name": "SpeedyKale7352", "link": "https://www.facebook.com/groups/canhohcmgiare/posts/1810086130288481/", "content": "[BÀI ĐĂNG] Cho em hỏi là nếu đặt vé phim qua momo thẻ z vpbank thì có dc hoàn mục giải trí kh ạ Em đang tính mở thẻ này nhờ mng tư vấn giúp", "product": "Sacombank Visa Platinum Cashback / Sang ngang thẻ", "limit": "30 - 80 triệu", "status": "Mới", "note": "Mở Thẻ Tín Dụng Toàn Quốc (POST)"}];
+  let radarLeads = [{"stt": "481", "date": "26/11/2026", "time": "06:50", "name": "Gia Đình Nhà Sophia Hạ Châu", "link": "https://www.facebook.com/groups/reviewthecogivui/posts/1456198742898097/", "content": "[BÀI ĐĂNG] SOS - Mấy nay lubu không để ý con claude hết hạn, từ ngày vô nhóm mới bit đến chi tiêu tối ưu các thẻ. Nhờ các ct tư vấn giúp e mua claude sài thẻ nào để đc hoàn với ạ… See more", "product": "Sacombank Visa Platinum Cashback / Sang ngang thẻ", "limit": "30 - 80 triệu", "status": "Mới", "note": "Review thẻ có gì vui ? (POST)"}, {"stt": "482", "date": "27/11/2026", "time": "22:38", "name": "Ngọc Key", "link": "https://www.facebook.com/groups/471701795562084/posts/1148729034526020/", "content": "[BÀI ĐĂNG] mình có 3 cái thẻ đen của MBbank, VPbank và VIB, muốn mở thêm thẻ nữa thì có ngân hàng nào hỗ trợ không nhỉ", "product": "Sacombank Visa Platinum Cashback / Sang ngang thẻ", "limit": "30 - 80 triệu", "status": "Mới", "note": "Hội Mở Thẻ Tín Dụng (POST)"}, {"stt": "483", "date": "28/11/2026", "time": "20:41", "name": "YellowKiwi502", "link": "https://www.facebook.com/groups/guitietkiemnganhang/posts/4523601914523151/", "content": "[BÀI ĐĂNG] Sắp đáo sổ 400 triệu, muốn gửi kỳ hạn 6 tháng nhận lãi hàng tháng, ưu tiên gửi tại quầy khu vực Gò Vấp – Q12.", "product": "Tiết kiệm Đa Lợi / Thấu chi 95% sổ làm thẻ tín dụng", "limit": "400 triệu", "status": "Mới", "note": "Gửi Tiết Kiệm & Lãi Suất Ngân Hàng (POST)"}, {"stt": "484", "date": "28/11/2026", "time": "20:41", "name": "Dustin Do", "link": "https://www.facebook.com/groups/guitietkiemnganhang/posts/4523567281193281/", "content": "[BÀI ĐĂNG] Muốn gửi 300 triệu kỳ hạn trên 6 tháng hình thức online, xin lãi suất các ngân hàng.", "product": "Tiết kiệm Đa Lợi / Thấu chi 95% sổ làm thẻ tín dụng", "limit": "300 triệu", "status": "Mới", "note": "Gửi Tiết Kiệm & Lãi Suất Ngân Hàng (POST)"}, {"stt": "485", "date": "28/11/2026", "time": "20:41", "name": "FabulousPoodle3251", "link": "https://www.facebook.com/groups/guitietkiemnganhang/posts/4523582117858464/", "content": "[BÀI ĐĂNG] Có hơn 100 triệu muốn gửi tiết kiệm, nhờ nhân viên ngân hàng tư vấn gói lãi suất phù hợp.", "product": "Tiết kiệm Đa Lợi / Thấu chi 95% sổ làm thẻ tín dụng", "limit": "100 triệu+", "status": "Mới", "note": "Gửi Tiết Kiệm & Lãi Suất Ngân Hàng (POST)"}, {"stt": "486", "date": "28/11/2026", "time": "20:41", "name": "daisyaquari127", "link": "https://www.facebook.com/groups/471701795562084/posts/1149673214431602/", "content": "[BÀI ĐĂNG] Đang dùng thẻ VPBank Shopee Platinum, cần tìm sale tư vấn mở thêm thẻ hoàn tiền ăn uống/mua sắm.", "product": "Sacombank Visa Platinum Cashback / Sang ngang thẻ", "limit": "30 - 80 triệu", "status": "Mới", "note": "Hội Mở Thẻ Tín Dụng (POST)"}, {"stt": "487", "date": "28/11/2026", "time": "20:41", "name": "StylishPeapod9908", "link": "https://www.facebook.com/groups/178048166825627/posts/1816248076338953/", "content": "[BÀI ĐĂNG] Hỏi mở thẻ tín dụng ngân hàng nào có mức hoàn tiền mua sắm Shopee cao.", "product": "Sacombank Visa Platinum Cashback / Tiki Platinum", "limit": "30 - 80 triệu", "status": "Mới", "note": "Mở Thẻ Tín Dụng Toàn Quốc (POST)"}, {"stt": "488", "date": "28/11/2026", "time": "20:41", "name": "Ninh Nguyễn", "link": "https://www.facebook.com/groups/reviewthecogivui/posts/1456820312835940/", "content": "[BÀI ĐĂNG] Xin tư vấn chọn thẻ tín dụng phù hợp nhu cầu chi tiêu (siêu thị, v.v.) và tối ưu hoàn tiền nhất.", "product": "Sacombank Visa Platinum Cashback / Sang ngang thẻ", "limit": "30 - 80 triệu", "status": "Mới", "note": "Review thẻ có gì vui ? (POST)"}, {"stt": "489", "date": "28/11/2026", "time": "20:41", "name": "Dương Bác Khải", "link": "https://www.facebook.com/groups/reviewthecogivui/posts/1456712936180011/", "content": "[BÀI ĐĂNG] Đang dùng VPBank StepUp, VPBank Z, hỏi thẻ nào hoàn tiền thanh toán trực tuyến (Netflix).", "product": "Sacombank Visa Platinum Cashback / Sang ngang thẻ", "limit": "30 - 80 triệu", "status": "Mới", "note": "Review thẻ có gì vui ? (POST)"}, {"stt": "490", "date": "28/11/2026", "time": "20:46", "name": "Akasukivvv", "link": "https://www.facebook.com/groups/471701795562084/posts/1149782437754013/", "content": "[BÀI ĐĂNG] Mình có thẻ Vpbank Number 1 nhưng muốn đổi sang Vpbank MWG được không ạ ?", "product": "Sacombank Visa Platinum Cashback / Sang ngang thẻ", "limit": "30 - 80 triệu", "status": "Mới", "note": "Hội Mở Thẻ Tín Dụng (POST)"}];
   let currentFilter = "all";
   let searchQuery = "";
   let isFetching = false;
@@ -2448,11 +2177,11 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
     try {
       const leadIndex = radarLeads.findIndex(l => String(l.stt) === String(stt));
       if (leadIndex >= 0) {
-        window.qlkhOwnerFetch(FIREBASE_RADAR_URL.replace(".json", "") + "/leads/" + leadIndex + ".json", {
+        fetch(FIREBASE_RADAR_URL.replace(".json", "") + "/leads/" + leadIndex + ".json", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status: newStatus })
-        }).then(res=>{if(!res.ok)throw new Error("HTTP "+res.status)}).catch(()=>{const el=document.getElementById("statSyncTime");if(el)el.textContent="· Chưa lưu cloud — kiểm tra đăng nhập";});
+        });
       }
     } catch (err) {
       console.warn("Lỗi patch Firebase:", err);
@@ -2603,15 +2332,13 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
   }
 
   async function fetchRadarFromFirebase() {
-    if(document.hidden||!window.qlkhTabActive('radar'))return;
     if (isFetching) return;
     isFetching = true;
     const syncPill = document.getElementById("statSyncTime");
     if (syncPill) syncPill.textContent = "· Đang đồng bộ...";
 
     try {
-      const res = await window.qlkhOwnerFetch(FIREBASE_RADAR_URL + "?nocache=" + Date.now(), { cache: "no-store" });
-      if (!res.ok) throw new Error("HTTP "+res.status);
+      const res = await fetch(FIREBASE_RADAR_URL + "?nocache=" + Date.now(), { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
         if (data && Array.isArray(data.leads) && data.leads.length > 0) {
@@ -2625,7 +2352,7 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
       }
     } catch (e) {
       console.warn("Không thể tải Firebase Radar:", e);
-      if (syncPill) syncPill.textContent = e.code==="owner-login-required"?"· Cần đăng nhập Firebase":"· Offline Cache";
+      if (syncPill) syncPill.textContent = "· Offline Cache";
     } finally {
       isFetching = false;
     }
@@ -2731,10 +2458,15 @@ body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,san
     startEngine();
   }
 
-  setInterval(fetchRadarFromFirebase, 300000);
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden)fetchRadarFromFirebase()});
+  setInterval(fetchRadarFromFirebase, 20000);
 })();
 </script>
+
+
+
+
+
+
 
 
 
