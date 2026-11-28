@@ -5,7 +5,8 @@ Ví dụ:
   python build_modules.py --write --module qlkh
   python build_modules.py --check --all
 
-Mặc định (không tham số) vẫn build Chi tiêu như script cũ.
+Mặc định chỉ kiểm tra Chi tiêu; phải chỉ định --write để đóng gói.
+Kiểm tra nội dung HTML sau chuẩn hóa CRLF/LF; metadata phải khớp kích thước thực tế của module nén.
 Chỉ dùng thư viện chuẩn Python, không đọc hoặc ghi dữ liệu khách hàng/Firebase.
 """
 import argparse
@@ -33,7 +34,12 @@ MODULES = {
 
 def file_bytes(module):
     cfg = MODULES[module]
-    return (ROOT / cfg["source"]).read_bytes()
+    return normalize_eol((ROOT / cfg["source"]).read_bytes())
+
+
+def normalize_eol(raw):
+    # Git checkout may use CRLF on Windows and LF on CI.
+    return raw.replace(b"\r\n", b"\n")
 
 
 def make_module(module, raw):
@@ -110,25 +116,27 @@ def verify(module):
     cfg = MODULES[module]
     raw = file_bytes(module)
     errors = []
+    packed_sizes = set()
     for item in cfg["files"]:
         path = ROOT / item
         try:
             found = unpack_module(path, cfg["global"])
-            if found != raw:
+            packed_sizes.add(len(found))
+            if normalize_eol(found) != raw:
                 errors.append(f"{item}: gzip content DOES NOT MATCH {cfg['source']}")
         except (OSError, ValueError, EOFError, json.JSONDecodeError) as exc:
             errors.append(f"{item}: {exc}")
     try:
         index_size = index_raw_bytes(module)
-        if index_size != len(raw):
-            errors.append(f"index.html rawBytes={index_size} but {cfg['source']}={len(raw)}")
+        if packed_sizes != {index_size}:
+            errors.append(f"index.html rawBytes={index_size} but unpacked module sizes={sorted(packed_sizes)}")
     except (OSError, ValueError) as exc:
         errors.append(str(exc))
     if errors:
         for error in errors:
             print("[FAIL]", error)
         return False
-    print(f"[OK] {module}: source, {len(cfg['files'])} module(s), and index rawBytes match ({len(raw)} bytes)")
+    print(f"[OK] {module}: source, {len(cfg['files'])} module(s), and index rawBytes match ({index_size} packed bytes)")
     return True
 
 
@@ -155,8 +163,8 @@ def main():
     choice.add_argument("--all", action="store_true", help="Check or build all source-backed modules")
     args = parser.parse_args()
     targets = list(MODULES) if args.all else [args.module]
-    run = verify if args.check else build  # backward-compatible default
-    success = all(run(name) for name in targets)
+    run = build if args.write else verify
+    success = all([run(name) for name in targets])
     raise SystemExit(0 if success else 1)
 
 
